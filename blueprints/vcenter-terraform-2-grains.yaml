@@ -25,7 +25,6 @@ grains:
 
 
       source:
-        store: autogen_repo_sandbox_5e946ce0 # need to change this - this repo name is from review1 account name: trial-514323f7
         path: github.com/QualiNext/terraform/vm-from-template
       host:
         cloud-account: private-cloud
@@ -40,7 +39,6 @@ grains:
         - virtual_machine_name: "vm2"
 
       source:
-        store: autogen_repo_sandbox_5e946ce0 # need to change this - this repo name is from review1 account name: trial-514323f7
         path: github.com/QualiNext/terraform/vm-from-template
       host:
         cloud-account: private-cloud
