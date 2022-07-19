@@ -29,7 +29,7 @@ grains:
         path: github.com/QualiNext/terraform/vm-from-template
       host:
         cloud-account: private-cloud
-        compute-service: vcenter
+        compute-service: yakir-vcenter
 
   vm2:
     depends-on: vm1
@@ -44,4 +44,4 @@ grains:
         path: github.com/QualiNext/terraform/vm-from-template
       host:
         cloud-account: private-cloud
-        compute-service: vcenter
+        compute-service: yakir-vcenter
