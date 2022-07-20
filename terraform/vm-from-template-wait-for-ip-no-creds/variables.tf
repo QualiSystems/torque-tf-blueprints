@@ -1,3 +1,15 @@
+variable "vcenter_host" {
+  type = string
+}
+
+variable "vcenter_user" {
+  type = string
+}
+
+variable "vcenter_pass" {
+  type = string
+}
+
 variable "datacenter_name" {
   type = string
   default = "Sandbox vCenter"
