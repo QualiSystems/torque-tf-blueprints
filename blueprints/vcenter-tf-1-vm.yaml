@@ -21,7 +21,7 @@ grains:
         - virtual_machine_name: "vm1"
         - datacenter_name: "Shells DataCenter"
         - datastore_name: "Storage 2 (SSD, Raid 5)"
-        - compute_cluster_name: "Shells Cluster"
+        - compute_cluster_name: "Shells Cluster 2"
         - network_name: "Local"
         - virtual_machine_folder: "QualiSystems"
 
