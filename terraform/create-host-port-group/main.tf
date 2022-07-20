@@ -17,7 +17,7 @@ data "vsphere_host" "host" {
 }
 
 resource "vsphere_host_port_group" "pg" {
-  name                = var.port_group_name
+  name                = "${var.port_group_name}-${var.vlan_id}"
   host_system_id      = data.vsphere_host.host.id
   virtual_switch_name = var.virtual_switch_name
   vlan_id = var.vlan_id
