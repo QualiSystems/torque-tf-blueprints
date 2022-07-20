@@ -1,7 +1,7 @@
 provider "vsphere" {
-  user           = "blah"
-  password       = "blah"
-  vsphere_server = "blah"
+  user           = var.vcenter_user
+  password       = var.vcenter_pass
+  vsphere_server = var.vcenter_host
   version        = "=1.15.0"
   # If you have a self-signed cert
   allow_unverified_ssl = true
