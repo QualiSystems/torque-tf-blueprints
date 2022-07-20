@@ -14,8 +14,7 @@ inputs:
     description: there is no sanctuary
   host_name:
     display-style: normal
-    type: number
-    default: 1
+    type: string
     description: there is no sanctuary
 
 outputs:
