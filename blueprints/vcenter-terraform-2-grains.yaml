@@ -12,6 +12,11 @@ inputs:
     type: number
     default: 1
     description: there is no sanctuary
+  host_name:
+    display-style: normal
+    type: number
+    default: 1
+    description: there is no sanctuary
 
 outputs:
   vm1_name:
@@ -24,13 +29,12 @@ grains:
       inputs:
         - datacenter_name: "Shells DataCenter"
         - vlan_id: '{{ .inputs.vlan_id }}'
-        - host_name: "192.168.42.116"
+        - host_name: '{{ .inputs.host_name }}'
         - port_group_name: "TorqueTestPG"
         - virtual_switch_name: "vSwitch1"
 
       outputs:
         - host_port_group_name
-
 
       source:
         path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/create-host-port-group
@@ -39,16 +43,16 @@ grains:
         compute-service: yakir-vcenter
 
   vm1:
-    depends-on: vlan
+    depends-on: vlan1
     kind: terraform
     spec:
       inputs:
         - virtual_machine_template_name: '{{ .inputs.virtual_machine_template_name }}'
         - virtual_machine_name: "TorqueTestVM"
         - datacenter_name: "Shells DataCenter"
-        - datastore_name: "Storage (HDD, Raid 0)"
+        - datastore_name: "Storage (HDD, Raid 5)"
         - compute_cluster_name: "Shells Cluster 2"
-        - network_name: "TorqueTestPG"
+        - network_name: "{{.grains.vlan1.outputs.host_port_group_name}}"
         - virtual_machine_folder: "Yaroslav.N"
 
       outputs:
