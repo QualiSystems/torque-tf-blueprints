@@ -14,8 +14,8 @@ inputs:
     description: there is no sanctuary
 
 outputs:
-  vm1_name:
-    value: '{{.grains.vm1.outputs.vsphere_virtual_machine_name}}'
+  vm_name:
+    value: '{{.grains.vm.outputs.vsphere_virtual_machine_name}}'
 
 grains:
   vlan:
@@ -39,7 +39,7 @@ grains:
         compute-service: yakir-vcenter
 
   vm:
-    depends-on: vm1
+    depends-on: vlan
     kind: terraform
     spec:
       inputs:
