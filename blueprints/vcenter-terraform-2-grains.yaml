@@ -51,6 +51,9 @@ grains:
         - network_name: "TorqueTestPG"
         - virtual_machine_folder: "Yaroslav.N"
 
+      outputs:
+        - vsphere_virtual_machine_name
+
       source:
         path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template
       host:
