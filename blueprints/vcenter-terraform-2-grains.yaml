@@ -47,7 +47,7 @@ grains:
     spec:
       inputs:
         - virtual_machine_template_name: '{{ .inputs.virtual_machine_template_name }}'
-        - virtual_machine_name: "TorqueTestVM"
+        - virtual_machine_name: "TorqueTestVM-{{ sandboxid }}"
         - datacenter_name: "Shells DataCenter"
         - datastore_name: "Storage 2 (SSD, Raid 5)"
         - compute_cluster_name: "Shells Cluster 2"
