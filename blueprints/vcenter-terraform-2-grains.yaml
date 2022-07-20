@@ -58,7 +58,7 @@ grains:
         - vsphere_virtual_machine_name
 
       source:
-        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip-no-creds
       host:
         cloud-account: private-cloud
         compute-service: yakir-vcenter

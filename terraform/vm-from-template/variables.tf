@@ -1,16 +1,13 @@
-variable "private_cloud_login" {
+variable "hostname" {
   type = string
-  sensitive = true
 }
 
-variable "private_cloud_password" {
+variable "username" {
   type = string
-  sensitive = true
 }
 
-variable "private_cloud_host" {
+variable "password" {
   type = string
-  sensitive = true
 }
 
 variable "datacenter_name" {
