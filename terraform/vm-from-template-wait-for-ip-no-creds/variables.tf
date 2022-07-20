@@ -1,12 +1,12 @@
-variable "vcenter_host" {
+variable "hostname" {
   type = string
 }
 
-variable "vcenter_user" {
+variable "username" {
   type = string
 }
 
-variable "vcenter_pass" {
+variable "password" {
   type = string
 }
 
