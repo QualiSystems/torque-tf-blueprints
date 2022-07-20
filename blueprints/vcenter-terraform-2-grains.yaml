@@ -25,7 +25,7 @@ grains:
 
 
       source:
-        path: github.com/QualiNext/terraform/vm-from-template
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template
       host:
         cloud-account: private-cloud
         compute-service: yakir-vcenter
@@ -39,7 +39,7 @@ grains:
         - virtual_machine_name: "vm2"
 
       source:
-        path: github.com/QualiNext/terraform/vm-from-template
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template
       host:
         cloud-account: private-cloud
         compute-service: yakir-vcenter
