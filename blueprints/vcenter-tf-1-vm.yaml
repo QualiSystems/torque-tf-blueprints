@@ -1,0 +1,51 @@
+spec_version: 2-preview
+
+description: test blueprint for deploying VMs on vcenter
+
+inputs:
+  virtual_machine_template_name:
+    display-style: normal
+    type: string
+    description: there is no sanctuary
+  private_cloud_login:
+    display-style: normal
+    type: string
+    description: there is no sanctuary
+  private_cloud_password:
+    display-style: normal
+    type: string
+    description: there is no sanctuary
+  private_cloud_host:
+    display-style: normal
+    type: string
+    description: there is no sanctuary
+
+outputs:
+  vm1_name:
+    value: '{{.grains.vm1.outputs.vsphere_virtual_machine_name}}'
+
+grains:
+  vm1:
+    kind: terraform
+    spec:
+      inputs:
+        - virtual_machine_template_name: '{{ .inputs.virtual_machine_template_name }}'
+        - virtual_machine_name: "vm1"
+        - private_cloud_login: '{{ .inputs.private_cloud_login }}'
+        - private_cloud_password: '{{ .inputs.private_cloud_password }}'
+        - private_cloud_host: '{{ .inputs.private_cloud_host }}'
+        - datacenter_name: "Shells DataCenter"
+        - datastore_name: "Storage 2 (SSD, Raid 5)"
+        - compute_cluster_name: "Shells Cluster"
+        - network_name: "Local"
+        - virtual_machine_folder: "QualiSystems"
+
+      outputs:
+        - vsphere_virtual_machine_name
+
+
+      source:
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip
+      host:
+        cloud-account: private-cloud
+        compute-service: yakir-vcenter
