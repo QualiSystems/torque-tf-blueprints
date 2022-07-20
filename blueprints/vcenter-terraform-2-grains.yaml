@@ -7,36 +7,49 @@ inputs:
     display-style: normal
     type: string
     description: there is no sanctuary
+  vlan_id:
+    display-style: normal
+    type: number
+    default: 1
+    description: there is no sanctuary
 
 outputs:
   vm1_name:
     value: '{{.grains.vm1.outputs.vsphere_virtual_machine_name}}'
 
 grains:
-  vm1:
+  vlan:
     kind: terraform
     spec:
       inputs:
-        - virtual_machine_template_name: '{{ .inputs.virtual_machine_template_name }}'
-        - virtual_machine_name: "vm1"
+        - datacenter_name: "Shells DataCenter"
+        - vlan_id: '{{ .inputs.vlan_id }}'
+        - host_name: "192.168.42.116"
+        - port_group_name: "TorqueTestPG"
+        - virtual_switch_name: "vSwitch1"
 
       outputs:
-        - vsphere_virtual_machine_name
+        - host_port_group_name
 
 
       source:
-        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/create-host-port-group
       host:
         cloud-account: private-cloud
         compute-service: yakir-vcenter
 
-  vm2:
+  vm:
     depends-on: vm1
     kind: terraform
     spec:
       inputs:
         - virtual_machine_template_name: '{{ .inputs.virtual_machine_template_name }}'
-        - virtual_machine_name: "vm2"
+        - virtual_machine_name: "TorqueTestVM"
+        - datacenter_name: "Shells DataCenter"
+        - datastore_name: "Storage (HDD, Raid 0)"
+        - compute_cluster_name: "Shells Cluster 2"
+        - network_name: "TorqueTestPG"
+        - virtual_machine_folder: "Yaroslav.N"
 
       source:
         path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template
