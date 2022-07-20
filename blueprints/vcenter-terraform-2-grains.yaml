@@ -49,7 +49,7 @@ grains:
         - virtual_machine_template_name: '{{ .inputs.virtual_machine_template_name }}'
         - virtual_machine_name: "TorqueTestVM"
         - datacenter_name: "Shells DataCenter"
-        - datastore_name: "Storage (HDD, Raid 5)"
+        - datastore_name: "Storage 2 (SSD, Raid 5)"
         - compute_cluster_name: "Shells Cluster 2"
         - network_name: "{{.grains.vlan1.outputs.host_port_group_name}}"
         - virtual_machine_folder: "Yaroslav.N"
