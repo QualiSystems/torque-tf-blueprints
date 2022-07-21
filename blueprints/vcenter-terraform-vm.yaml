@@ -28,7 +28,12 @@ inputs:
     type: string
     default: Local
     description: there is no sanctuary
-
+  wait_for_ip:
+    type: number
+    default: 120
+  wait_for_net:
+    type: number
+    default: 120
 grains:
   vm1:
     kind: terraform

@@ -60,7 +60,8 @@ grains:
         - compute_cluster_name: "Shells Cluster 2"
         - network_name0: "Vlan 105"
         - network_name1: "{{.grains.vlan1.outputs.host_port_group_name}}"
-        - virtual_machine_folder: "Yaroslav.N"
+        - wait_for_ip: -1
+        - wait_for_net: -1
 
       source:
         path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip-no-creds
@@ -82,7 +83,8 @@ grains:
         - network_name1: "{{.grains.vlan1.outputs.host_port_group_name}}"
         - network_name2: "{{.inputs.network_name0}}"
         - network_name3: "{{.inputs.network_name1}}"
-        - virtual_machine_folder: "Yaroslav.N"
+        - wait_for_ip: -1
+        - wait_for_net: -1
 
       source:
         path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip-no-creds
