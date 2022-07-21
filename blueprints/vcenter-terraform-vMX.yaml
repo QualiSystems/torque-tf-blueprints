@@ -1,0 +1,98 @@
+spec_version: 2-preview
+
+description: test blueprint for deploying VMs on vcenter
+
+inputs:
+  host_name:
+    display-style: normal
+    type: string
+    description: there is no sanctuary
+  network_name0:
+    display-style: normal
+    type: string
+    default: Local
+    description: there is no sanctuary
+  network_name1:
+    display-style: normal
+    default: Local
+    type: string
+    description: there is no sanctuary
+  network_name2:
+    display-style: normal
+    default: Local
+    type: string
+    description: there is no sanctuary
+  network_name3:
+    display-style: normal
+    type: string
+    default: Local
+    description: there is no sanctuary
+
+outputs:
+  vm1_name:
+    value: '{{.grains.vm1.outputs.vsphere_virtual_machine_name}}'
+
+grains:
+  vlan1:
+    kind: terraform
+    spec:
+      inputs:
+        - datacenter_name: "Shells DataCenter"
+        - vlan_id: 281
+        - host_name: '{{ .inputs.host_name }}'
+        - port_group_name: "TorqueTestPG"
+        - virtual_switch_name: "vSwitch3"
+
+      outputs:
+        - host_port_group_name
+
+      source:
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/create-host-port-group
+      host:
+        cloud-account: private-cloud
+        compute-service: yakir-vcenter
+
+  vMXcp:
+    depends-on: vlan1
+    kind: terraform
+    spec:
+      inputs:
+        - virtual_machine_template_name: "vMXcp_18.1R1.9"
+        - virtual_machine_name: "TorqueTestVM-{{ sandboxid }}"
+        - datacenter_name: "Shells DataCenter"
+        - datastore_name: "Storage 2 (SSD, Raid 5)"
+        - compute_cluster_name: "Shells Cluster 2"
+        - network_name0: "Vlan 105"
+        - network_name1: "{{.grains.vlan1.outputs.host_port_group_name}}"
+        - virtual_machine_folder: "Yaroslav.N"
+
+      outputs:
+        - vsphere_virtual_machine_name
+
+      source:
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip-no-creds
+      host:
+        cloud-account: private-cloud
+        compute-service: yakir-vcenter
+
+  vMXfpc:
+    depends-on: vlan1
+    kind: terraform
+    spec:
+      inputs:
+        - virtual_machine_template_name: "vMXfpc_18.1R1.9"
+        - virtual_machine_name: "TorqueTestvMXfpc-{{ sandboxid }}"
+        - datacenter_name: "Shells DataCenter"
+        - datastore_name: "Storage 2 (SSD, Raid 5)"
+        - compute_cluster_name: "Shells Cluster 2"
+        - network_name0: "Vlan 105"
+        - network_name1: "{{.grains.vlan1.outputs.host_port_group_name}}"
+        - network_name2: "{{.inputs.network_name0}}"
+        - network_name3: "{{.inputs.network_name1}}"
+        - virtual_machine_folder: "Yaroslav.N"
+
+      source:
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip-no-creds
+      host:
+        cloud-account: private-cloud
+        compute-service: yakir-vcenter

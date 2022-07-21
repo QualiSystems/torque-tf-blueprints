@@ -31,13 +31,13 @@ variable "network_name0" {
 }
 
 variable "wait_for_ip" {
-  type number
-  default 120
+  type = number
+  default = 120
 } 
 
 variable "wait_for_net" {
-  type number
-  default 120
+  type = number
+  default = 120
 } 
 
 variable "network_name1" {

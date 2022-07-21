@@ -1,0 +1,81 @@
+spec_version: 2-preview
+
+description: test blueprint for deploying VMs on vcenter
+
+inputs:
+  vlan_id:
+    display-style: normal
+    type: number
+    default: 280
+    description: there is no sanctuary
+  host_name:
+    display-style: normal
+    type: string
+    description: there is no sanctuary
+  mgmt_network:
+    display-style: normal
+    type: string
+    description: there is no sanctuary
+
+grains:
+  vlan1:
+    kind: terraform
+    spec:
+      inputs:
+        - datacenter_name: "Shells DataCenter"
+        - vlan_id: '{{ .inputs.vlan_id }}'
+        - host_name: '{{ .inputs.host_name }}'
+        - port_group_name: "TorqueTestPG"
+        - virtual_switch_name: "vSwitch1"
+
+      outputs:
+        - host_port_group_name
+
+      source:
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/create-host-port-group
+      host:
+        cloud-account: private-cloud
+        compute-service: yakir-vcenter
+
+  vcenter-terraform-Centos:
+    depends-on: vlan1
+    kind: blueprint
+    spec:
+      inputs:
+        - mgmt_network_name: "{{.inputs.mgmt_network}}"
+        - network_name: "{{.grains.vlan1.outputs.host_port_group_name}}"
+
+      source:
+        store: torque-tf-blueprints
+        path: blueprints
+      host:
+        cloud-account: private-cloud
+        compute-service: yakir-vcenter
+
+  vcenter-terraform-vMX:
+    depends-on: vlan1
+    kind: blueprint
+    spec:
+      inputs:
+        - network_name: "{{.grains.vlan1.outputs.host_port_group_name}}"
+
+      source:
+        store: torque-tf-blueprints
+        path: blueprints
+      host:
+        cloud-account: private-cloud
+        compute-service: yakir-vcenter
+  
+  vcenter-terraform-vBreakingPoint:
+    depends-on: vlan1
+    kind: blueprint
+    spec:
+      inputs:
+        - network_name: "{{.grains.vlan1.outputs.host_port_group_name}}"
+
+      source:
+        store: torque-tf-blueprints
+        path: blueprints
+      host:
+        cloud-account: private-cloud
+        compute-service: yakir-vcenter
