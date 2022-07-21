@@ -6,8 +6,12 @@ inputs:
   virtual_machine_template_name:
     display-style: normal
     type: string
+    default: centos
     description: there is no sanctuary
-
+  network_name:
+    display-style: normal
+    type: string
+    description: there is no sanctuary
 outputs:
   vm1_name:
     value: '{{.grains.vm1.outputs.vsphere_virtual_machine_name}}'
@@ -18,12 +22,11 @@ grains:
     spec:
       inputs:
         - virtual_machine_template_name: '{{ .inputs.virtual_machine_template_name }}'
-        - virtual_machine_name: "vm1"
+        - virtual_machine_name: "TorqueTestVM-{{ sandboxid }}"
         - datacenter_name: "Shells DataCenter"
         - datastore_name: "Storage 2 (SSD, Raid 5)"
         - compute_cluster_name: "Shells Cluster 2"
-        - network_name: "Local"
-        - virtual_machine_folder: "QualiSystems"
+        - network_name0: '{{ .inputs.network_name }}'
 
       outputs:
         - vsphere_virtual_machine_name

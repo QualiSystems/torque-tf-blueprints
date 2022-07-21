@@ -6,34 +6,46 @@ inputs:
   virtual_machine_template_name:
     display-style: normal
     type: string
-    description: there is no sanctuary
-  private_cloud_login:
+  vlan_id:
     display-style: normal
     type: string
-    description: there is no sanctuary
-  private_cloud_password:
-    display-style: normal
-    type: string
-    description: there is no sanctuary
-  private_cloud_host:
-    display-style: normal
-    type: string
-    description: there is no sanctuary
 
 outputs:
   vm1_name:
     value: '{{.grains.vm1.outputs.vsphere_virtual_machine_name}}'
 
 grains:
+  VLAN:
+    kind: terraform
+    spec:
+      inputs:
+        - virtual_machine_template_name: '{{ .inputs.virtual_machine_template_name }}'
+        - vlan_name: '{{ .inputs.vlan_id }}'
+        - private_cloud_login: "blah"
+        - private_cloud_password: "blah"
+        - private_cloud_host: "blah"
+        - datacenter_name: "Shells DataCenter"
+        - datastore_name: "Storage 2 (SSD, Raid 5)"
+        - compute_cluster_name: "Shells Cluster"
+        - network_name: "Local"
+        - virtual_machine_folder: "QualiSystems"
+
+      outputs:
+        - vsphere_vlan_name
+
+      source:
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip
+      host:
+        cloud-account: private-cloud
+        compute-service: yakir-vcenter
   vm1:
+    depends-on: VLAN
     kind: terraform
     spec:
       inputs:
         - virtual_machine_template_name: '{{ .inputs.virtual_machine_template_name }}'
         - virtual_machine_name: "vm1"
-        - private_cloud_login: '{{ .inputs.private_cloud_login }}'
-        - private_cloud_password: '{{ .inputs.private_cloud_password }}'
-        - private_cloud_host: '{{ .inputs.private_cloud_host }}'
+        - vlan_name: '{{ .inputs.vlan_id }}'
         - datacenter_name: "Shells DataCenter"
         - datastore_name: "Storage 2 (SSD, Raid 5)"
         - compute_cluster_name: "Shells Cluster"
@@ -45,21 +57,18 @@ grains:
 
 
       source:
-        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip-no-creds
       host:
         cloud-account: private-cloud
         compute-service: yakir-vcenter
 
   vm2:
-    depends-on: vm1
+    depends-on: VLAN
     kind: terraform
     spec:
       inputs:
         - virtual_machine_template_name: '{{ .inputs.virtual_machine_template_name }}'
         - virtual_machine_name: "vm2"
-        - private_cloud_login: '{{ .inputs.private_cloud_login }}'
-        - private_cloud_password: '{{ .inputs.private_cloud_password }}'
-        - private_cloud_host: '{{ .inputs.private_cloud_host }}'
         - datacenter_name: "Shells DataCenter"
         - datastore_name: "Storage 2 (SSD, Raid 5)"
         - compute_cluster_name: "Shells Cluster"
@@ -68,7 +77,7 @@ grains:
         
 
       source:
-        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip-no-creds
       host:
         cloud-account: private-cloud
         compute-service: yakir-vcenter
