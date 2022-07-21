@@ -66,6 +66,6 @@ variable "virtual_machine_name" {
 
 variable "virtual_machine_folder" {
   type = string
-  default = "alexander.g"
+  default = "QualiSystems"
 }
 
