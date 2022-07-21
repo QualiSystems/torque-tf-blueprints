@@ -28,10 +28,6 @@ inputs:
     default: Local
     description: there is no sanctuary
 
-outputs:
-  vm1_name:
-    value: '{{.grains.vm1.outputs.vsphere_virtual_machine_name}}'
-
 grains:
   vlan1:
     kind: terraform
@@ -65,9 +61,6 @@ grains:
         - network_name0: "Vlan 105"
         - network_name1: "{{.grains.vlan1.outputs.host_port_group_name}}"
         - virtual_machine_folder: "Yaroslav.N"
-
-      outputs:
-        - vsphere_virtual_machine_name
 
       source:
         path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip-no-creds
