@@ -8,22 +8,7 @@ inputs:
     type: string
     default: centos
     description: there is no sanctuary
-  network_name0:
-    display-style: normal
-    type: string
-    default: Local
-    description: there is no sanctuary
-  network_name1:
-    display-style: normal
-    default: Local
-    type: string
-    description: there is no sanctuary
-  network_name2:
-    display-style: normal
-    default: Local
-    type: string
-    description: there is no sanctuary
-  network_name3:
+  networks:
     display-style: normal
     type: string
     default: Local
@@ -44,10 +29,7 @@ grains:
         - datacenter_name: "Shells DataCenter"
         - datastore_name: "Storage 2 (SSD, Raid 5)"
         - compute_cluster_name: "Shells Cluster 2"
-        - network_name0: '{{ .inputs.network_name0 }}'
-        - network_name1: '{{ .inputs.network_name1 }}'
-        - network_name2: '{{ .inputs.network_name2 }}'
-        - network_name3: '{{ .inputs.network_name3 }}'
+        - networks: '{{ .inputs.networks }}'
 
       outputs:
         - vsphere_virtual_machine_name
