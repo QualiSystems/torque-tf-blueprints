@@ -25,11 +25,6 @@ variable "compute_cluster_name" {
   default = "Sandbox Cluster"
 }
 
-variable "network_name0" {
-  type = string
-  default = "Local"
-}
-
 variable "wait_for_ip" {
   type = number
   default = 120
@@ -40,18 +35,9 @@ variable "wait_for_net" {
   default = 120
 } 
 
-variable "network_name1" {
-  type = string
-  default = "Local"
-}
-
-variable "network_name2" {
-  type = string
-  default = "Local"
-}
-
-variable "network_name3" {
-  type = string
+variable "networks" {
+  type        = string
+  description = "Provided interfaces"
   default = "Local"
 }
 

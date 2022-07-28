@@ -3,7 +3,7 @@ spec_version: 2-preview
 description: test blueprint for deploying VMs on vcenter
 
 inputs:
-  network_name:
+  networks:
     display-style: normal
     type: string
     default: Local
@@ -15,10 +15,7 @@ grains:
     spec:
       inputs:
         - virtual_machine_template_name: centos
-        - network_name0: '{{ .inputs.network_name }}'
-        - network_name1: Local
-        - network_name2: Local
-        - network_name3: Local
+        - networks: '{{ .inputs.networks }}'
 
       source:
         store: torque-tf-blueprints

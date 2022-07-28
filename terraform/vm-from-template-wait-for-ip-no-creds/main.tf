@@ -2,9 +2,21 @@ provider "vsphere" {
   user           = var.username
   password       = var.password
   vsphere_server = var.hostname
-  version        = "=1.15.0"
   # If you have a self-signed cert
   allow_unverified_ssl = true
+}
+
+locals {
+# String to list 
+  interfaces = [
+    for iface in split(",", var.networks):
+    trimspace(iface)
+  ]
+# List to map
+interface_map = {
+   for i, val in local.interfaces:
+	i => val
+  }
 }
 
 data "vsphere_datacenter" "dc" {
@@ -21,23 +33,9 @@ data "vsphere_compute_cluster" "cluster" {
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
-data "vsphere_network" "network0" {
-  name          = var.network_name0
-  datacenter_id = data.vsphere_datacenter.dc.id
-}
-
-data "vsphere_network" "network1" {
-  name          = var.network_name1
-  datacenter_id = data.vsphere_datacenter.dc.id
-}
-
-data "vsphere_network" "network2" {
-  name          = var.network_name2
-  datacenter_id = data.vsphere_datacenter.dc.id
-}
-
-data "vsphere_network" "network3" {
-  name          = var.network_name3
+data "vsphere_network" "network" {
+  for_each = toset( local.interfaces )
+  name          = each.key
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
@@ -52,38 +50,26 @@ resource "vsphere_virtual_machine" "vm" {
   resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
   guest_id = data.vsphere_virtual_machine.template.guest_id
   folder = var.virtual_machine_folder
-  
   wait_for_guest_ip_timeout = var.wait_for_ip
   wait_for_guest_net_timeout = var.wait_for_net
   
-  network_interface {
-    network_id   = data.vsphere_network.network0.id
-    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
+  dynamic "network_interface" {
+      for_each = local.interface_map
+        content {
+    network_id = data.vsphere_network.network[network_interface.value].id
+          adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
+        }
   }
-
-  network_interface {
-    network_id   = data.vsphere_network.network1.id
-    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
+  clone {
+    template_uuid = data.vsphere_virtual_machine.template.id
   }
-
-  network_interface {
-    network_id   = data.vsphere_network.network2.id
-    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
-  }
-
-  network_interface {
-    network_id   = data.vsphere_network.network3.id
-    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
-  }
-
-  disk {
-    label            = "disk0"
-    size             = data.vsphere_virtual_machine.template.disks.0.size
-    thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
-  }
-
- clone {
-   template_uuid = data.vsphere_virtual_machine.template.id
+  dynamic "disk" {
+    for_each = data.vsphere_virtual_machine.template.disks
+    content {
+      label            = disk.value.label
+      size             = disk.value.size
+      thin_provisioned = disk.value.thin_provisioned
+    }
   }
 }
 
