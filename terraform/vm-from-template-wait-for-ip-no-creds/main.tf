@@ -66,6 +66,7 @@ resource "vsphere_virtual_machine" "vm" {
   dynamic "disk" {
     for_each = data.vsphere_virtual_machine.template.disks
     content {
+      unit_number      = disk.key
       label            = disk.value.label
       size             = disk.value.size
       thin_provisioned = disk.value.thin_provisioned
