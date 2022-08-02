@@ -55,3 +55,7 @@ variable "virtual_machine_folder" {
   default = "QualiSystems"
 }
 
+variable "linked_clone" {
+  type = bool
+  default = false
+}

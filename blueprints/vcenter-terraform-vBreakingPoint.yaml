@@ -1,25 +1,22 @@
 spec_version: 2-preview
 
-description: test blueprint for deploying VMs on vcenter
+description: test blueprint for deploying vBreakinPoint on vCenter
 
 inputs:
-  virtual_machine_template_name:
-    display-style: normal
-    type: string
-    description: there is no sanctuary
-  vlan_id:
-    display-style: normal
-    type: number
-    default: 1
-    description: there is no sanctuary
   host_name:
     display-style: normal
     type: string
     description: there is no sanctuary
-
-outputs:
-  vm1_name:
-    value: '{{.grains.vm1.outputs.vsphere_virtual_machine_name}}'
+  mgmt_network:
+    display-style: normal
+    type: string
+    default: Local
+    description: there is no sanctuary
+  interface_networks:
+    display-style: normal
+    default: Local
+    type: string
+    description: there is no sanctuary
 
 grains:
   vlan1:
@@ -27,9 +24,9 @@ grains:
     spec:
       inputs:
         - datacenter_name: "Shells DataCenter"
-        - vlan_id: 280
+        - vlan_id: 282
         - host_name: '{{ .inputs.host_name }}'
-        - port_group_name: "TorqueTestPG"
+        - port_group_name: "TorqueTestPG-{{ sandboxid }}-282"
         - virtual_switch_name: "vSwitch3"
 
       outputs:
@@ -41,21 +38,42 @@ grains:
         cloud-account: private-cloud
         compute-service: yakir-vcenter
 
-  vm1:
+  BPSChassis:
     depends-on: vlan1
     kind: terraform
     spec:
       inputs:
-        - virtual_machine_template_name: '{{ .inputs.virtual_machine_template_name }}'
-        - virtual_machine_name: "TorqueTestVM-{{ sandboxid }}"
+        - virtual_machine_template_name: "BPS Chassis 8.20.1 - Linked Clone Source"
+        - virtual_machine_name: "TorqueTestBPSChassis-{{ sandboxid }}"
         - datacenter_name: "Shells DataCenter"
         - datastore_name: "Storage 2 (SSD, Raid 5)"
         - compute_cluster_name: "Shells Cluster 2"
-        - network_name: "{{.grains.vlan1.outputs.host_port_group_name}}"
-        - virtual_machine_folder: "Yaroslav.N"
+        - networks: "{{.inputs.mgmt_network}},{{.grains.vlan1.outputs.host_port_group_name}}"
+        - wait_for_ip: -1
+        - wait_for_net: -1
+        - linked_clone: true
 
-      outputs:
-        - vsphere_virtual_machine_name
+      source:
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip-no-creds
+      host:
+        cloud-account: private-cloud
+        compute-service: yakir-vcenter
+
+
+  BPSBlade:
+    depends-on: vlan1
+    kind: terraform
+    spec:
+      inputs:
+        - virtual_machine_template_name: "BPS Blade 8.20.1 - Linked Clone Source"
+        - virtual_machine_name: "TorqueTestBPSBlade-{{ sandboxid }}"
+        - datacenter_name: "Shells DataCenter"
+        - datastore_name: "Storage 2 (SSD, Raid 5)"
+        - compute_cluster_name: "Shells Cluster 2"
+        - networks: "{{.inputs.mgmt_network}},{{.grains.vlan1.outputs.host_port_group_name}},{{.inputs.interface_networks}}"
+        - wait_for_ip: -1
+        - wait_for_net: -1
+        - linked_clone: true
 
       source:
         path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip-no-creds

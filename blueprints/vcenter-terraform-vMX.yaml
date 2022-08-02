@@ -1,6 +1,6 @@
 spec_version: 2-preview
 
-description: test blueprint for deploying VMs on vcenter
+description: test blueprint for deploying vMX on vCenter
 
 inputs:
   host_name:
@@ -26,7 +26,7 @@ grains:
         - datacenter_name: "Shells DataCenter"
         - vlan_id: 281
         - host_name: '{{ .inputs.host_name }}'
-        - port_group_name: "TorqueTestPG"
+        - port_group_name: "TorqueTestPG-{{ sandboxid }}-281"
         - virtual_switch_name: "vSwitch3"
 
       outputs:
@@ -44,7 +44,7 @@ grains:
     spec:
       inputs:
         - virtual_machine_template_name: "vMXcp_18.1R1.9"
-        - virtual_machine_name: "TorqueTestVM-{{ sandboxid }}"
+        - virtual_machine_name: "TorqueTestvMXcp-{{ sandboxid }}"
         - datacenter_name: "Shells DataCenter"
         - datastore_name: "Storage 2 (SSD, Raid 5)"
         - compute_cluster_name: "Shells Cluster 2"
