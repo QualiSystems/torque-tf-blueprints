@@ -43,7 +43,7 @@ grains:
     kind: terraform
     spec:
       inputs:
-        - virtual_machine_template_name: "BPS Chassis 8.20.1 - Linked Clone Source"
+        - virtual_machine_template_name: "BPS Chassis Torque 8.20.1"
         - virtual_machine_name: "TorqueTestBPSChassis-{{ sandboxid }}"
         - datacenter_name: "Shells DataCenter"
         - datastore_name: "Storage 2 (SSD, Raid 5)"
@@ -65,7 +65,7 @@ grains:
     kind: terraform
     spec:
       inputs:
-        - virtual_machine_template_name: "BPS Blade 8.20.1 - Linked Clone Source"
+        - virtual_machine_template_name: "BPS Blade Torque 8.20.1"
         - virtual_machine_name: "TorqueTestBPSBlade-{{ sandboxid }}"
         - datacenter_name: "Shells DataCenter"
         - datastore_name: "Storage 2 (SSD, Raid 5)"
