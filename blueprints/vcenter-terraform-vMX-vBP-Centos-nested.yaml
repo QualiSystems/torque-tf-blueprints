@@ -26,7 +26,7 @@ grains:
         - vlan_id: '{{ .inputs.vlan_id }}'
         - host_name: '{{ .inputs.host_name }}'
         - port_group_name: "TorqueTestPG"
-        - virtual_switch_name: "vSwitch1"
+        - virtual_switch_name: "vSwitch3"
 
       outputs:
         - host_port_group_name
@@ -42,7 +42,7 @@ grains:
     kind: blueprint
     spec:
       inputs:
-        - networks: "{{.inputs.mgmt_network}}"
+        - networks: "{{.inputs.mgmt_network}},{{.grains.vlan1.outputs.host_port_group_name}}"
 
       source:
         store: torque-tf-blueprints
@@ -56,7 +56,9 @@ grains:
     kind: blueprint
     spec:
       inputs:
-        - network_name: "{{.grains.vlan1.outputs.host_port_group_name}}"
+        - interface_networks: "{{.grains.vlan1.outputs.host_port_group_name}}, {{.grains.vlan1.outputs.host_port_group_name}}"
+        - host_name: '{{ .inputs.host_name }}'
+        - mgmt_network: "{{.inputs.mgmt_network}}"
 
       source:
         store: torque-tf-blueprints
@@ -70,7 +72,9 @@ grains:
     kind: blueprint
     spec:
       inputs:
-        - network_name: "{{.grains.vlan1.outputs.host_port_group_name}}"
+        - interface_networks: "{{.grains.vlan1.outputs.host_port_group_name}}, {{.grains.vlan1.outputs.host_port_group_name}}"
+        - host_name: '{{ .inputs.host_name }}'
+        - mgmt_network: "{{.inputs.mgmt_network}}"
 
       source:
         store: torque-tf-blueprints
