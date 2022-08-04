@@ -3,11 +3,6 @@ spec_version: 2-preview
 description: test blueprint for deploying VMs on vcenter
 
 inputs:
-  vlan_id:
-    display-style: normal
-    type: number
-    default: 280
-    description: there is no sanctuary
   host_name:
     display-style: normal
     type: string
@@ -23,9 +18,9 @@ grains:
     spec:
       inputs:
         - datacenter_name: "Shells DataCenter"
-        - vlan_id: '{{ .inputs.vlan_id }}'
+        - vlan_id: 280
         - host_name: '{{ .inputs.host_name }}'
-        - port_group_name: "TorqueTestPG"
+        - port_group_name: "TorqueMasterBPPG"
         - virtual_switch_name: "vSwitch3"
 
       outputs:
