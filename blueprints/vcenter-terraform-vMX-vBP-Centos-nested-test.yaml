@@ -13,27 +13,7 @@ inputs:
     description: there is no sanctuary
 
 grains:
-  vlan1:
-    kind: terraform
-    spec:
-      inputs:
-        - datacenter_name: "Shells DataCenter"
-        - vlan_id: 280
-        - host_name: "{{ .inputs.host_name }}"
-        - port_group_name: "TorqueMasterBPPG"
-        - virtual_switch_name: "vSwitch3"
-
-      outputs:
-        - host_port_group_name
-
-      source:
-        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/create-host-port-group
-      host:
-        cloud-account: private-cloud
-        compute-service: yakir-vcenter
-
   vcenter-terraform-Centos:
-    depends-on: vlan1
     kind: blueprint
     spec:
       inputs:
