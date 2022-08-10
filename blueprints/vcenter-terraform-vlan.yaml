@@ -1,0 +1,37 @@
+spec_version: 2-preview
+
+description: test blueprint for deploying VMs on vcenter
+
+inputs:
+  host_name:
+    display-style: normal
+    type: string
+    description: there is no sanctuary
+  vlan_id:
+    display-style: normal
+    type: string
+    description: there is no sanctuary
+
+outputs:
+  port_group:
+    value: {{.grains.vlan1.outputs.host_port_group_name}}
+
+grains:
+  vlan1:
+    kind: terraform
+    spec:
+      inputs:
+        - datacenter_name: "Shells DataCenter"
+        - vlan_id: '{{ .inputs.vlan_id }}'
+        - host_name: '{{ .inputs.host_name }}'
+        - port_group_name: "TorqueTestPG-{{ sandboxid }}-{{ .inputs.vlan_id }}"
+        - virtual_switch_name: "vSwitch3"
+
+      outputs:
+        - host_port_group_name
+
+      source:
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/create-host-port-group
+      host:
+        cloud-account: private-cloud
+        compute-service: yakir-vcenter
