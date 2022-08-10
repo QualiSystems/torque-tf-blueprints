@@ -36,7 +36,7 @@ grains:
     kind: blueprint
     spec:
       inputs:
-        - networks: {{.inputs.mgmt_network}},{{.grains.vlan1.outputs.host_port_group_name}}
+        - networks: "{{.inputs.mgmt_network}},{{.grains.vlan1.outputs.host_port_group_name}}"
 
       source:
         store: torque-tf-blueprints
