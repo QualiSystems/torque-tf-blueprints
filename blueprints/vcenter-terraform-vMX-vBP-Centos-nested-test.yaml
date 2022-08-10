@@ -32,11 +32,13 @@ grains:
         cloud-account: private-cloud
         compute-service: yakir-vcenter
 
-  vcenter-terraform-Centos:
+  vcenter-terraform-vm:
+    depends-on: vlan1
     kind: blueprint
     spec:
       inputs:
-        - networks: "{{.inputs.mgmt_network}},{{.grains.vlan1.outputs.host_port_group_name}}"
+        - virtual_machine_template_name: centos
+        - networks: '{{.inputs.mgmt_network}},{{.grains.vlan1.outputs.host_port_group_name}}'
 
       source:
         store: torque-tf-blueprints
