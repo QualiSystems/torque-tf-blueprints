@@ -51,9 +51,9 @@ grains:
     kind: blueprint
     spec:
       inputs:
-        - interface_networks: "{{.grains.vlan1.outputs.host_port_group_name}}, {{.grains.vlan1.outputs.host_port_group_name}}"
         - host_name: "{{ .inputs.host_name }}"
         - mgmt_network: "{{.inputs.mgmt_network}}"
+        - interface_networks: "{{.grains.vlan1.outputs.host_port_group_name}}, {{.grains.vlan1.outputs.host_port_group_name}}"
 
       source:
         store: torque-tf-blueprints
@@ -67,9 +67,9 @@ grains:
     kind: blueprint
     spec:
       inputs:
-        - interface_networks: "{{.grains.vlan1.outputs.host_port_group_name}}, {{.grains.vlan1.outputs.host_port_group_name}}"
         - host_name: "{{ .inputs.host_name }}"
         - mgmt_network: "{{.inputs.mgmt_network}}"
+        - interface_networks: "{{.grains.vlan1.outputs.host_port_group_name}}, {{.grains.vlan1.outputs.host_port_group_name}}"
 
       source:
         store: torque-tf-blueprints
