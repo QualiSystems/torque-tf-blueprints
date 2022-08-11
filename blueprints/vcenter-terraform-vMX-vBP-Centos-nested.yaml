@@ -33,7 +33,7 @@ grains:
         path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/create-host-port-group
       host:
         cloud-account: private-cloud
-        compute-service: yakir-vcenter
+        compute-service: {{.inputs.compute_service}}
 
   vcenter-terraform-Centos:
     depends-on: vlan1
@@ -47,7 +47,7 @@ grains:
         path: blueprints
       host:
         cloud-account: private-cloud
-        compute-service: yakir-vcenter
+        compute-service: {{.inputs.compute_service}}
 
   vcenter-terraform-vMX:
     depends-on: vlan1
@@ -63,7 +63,7 @@ grains:
         path: blueprints
       host:
         cloud-account: private-cloud
-        compute-service: yakir-vcenter
+        compute-service: {{.inputs.compute_service}}
   
   vcenter-terraform-vBreakingPoint:
     depends-on: vlan1
