@@ -76,4 +76,4 @@ grains:
         path: blueprints
       host:
         cloud-account: private-cloud
-        compute-service: yakir-vcenter
+        compute-service: docker-agent
