@@ -11,72 +11,55 @@ inputs:
     display-style: normal
     type: string
     description: there is no sanctuary
+  sandbox_network:
+    display-style: normal
+    type: string
+    default: MAAS-DHCP-VLAN-280
+    description: there is no sanctuary
   compute_service:
     type: string
     default: yakir-vcenter
 
 grains:
-  vlan1:
-    kind: terraform
-    spec:
-      inputs:
-        - datacenter_name: "Shells DataCenter"
-        - vlan_id: 280
-        - host_name: "{{ .inputs.host_name }}"
-        - port_group_name: "TorqueMasterBPPG"
-        - virtual_switch_name: "vSwitch3"
-
-      outputs:
-        - host_port_group_name
-
-      source:
-        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/create-host-port-group
-      host:
-        cloud-account: private-cloud
-        compute-service: {{.inputs.compute_service}}
-
   vcenter-terraform-Centos:
-    depends-on: vlan1
     kind: blueprint
     spec:
       inputs:
-        - networks: "{{.inputs.mgmt_network}},{{.grains.vlan1.outputs.host_port_group_name}}"
+        - networks: "{{.inputs.mgmt_network}},{{.inputs.sandbox_network}}"
 
       source:
         store: torque-tf-blueprints
         path: blueprints
       host:
         cloud-account: private-cloud
-        compute-service: {{.inputs.compute_service}}
+        compute-service: "{{.inputs.compute_service}}"
 
   vcenter-terraform-vMX:
-    depends-on: vlan1
     kind: blueprint
     spec:
       inputs:
         - host_name: "{{ .inputs.host_name }}"
         - mgmt_network: "{{.inputs.mgmt_network}}"
-        - interface_networks: "{{.grains.vlan1.outputs.host_port_group_name}}, {{.grains.vlan1.outputs.host_port_group_name}}"
+        - interface_networks: "{{.inputs.sandbox_network}}, {{.inputs.sandbox_network}}"
 
       source:
         store: torque-tf-blueprints
         path: blueprints
       host:
         cloud-account: private-cloud
-        compute-service: {{.inputs.compute_service}}
+        compute-service: "{{.inputs.compute_service}}"
   
   vcenter-terraform-vBreakingPoint:
-    depends-on: vlan1
     kind: blueprint
     spec:
       inputs:
         - host_name: "{{ .inputs.host_name }}"
         - mgmt_network: "{{.inputs.mgmt_network}}"
-        - interface_networks: "{{.grains.vlan1.outputs.host_port_group_name}}, {{.grains.vlan1.outputs.host_port_group_name}}"
+        - interface_networks: "{{.inputs.sandbox_network}}, {{.inputs.sandbox_network}}"
 
       source:
         store: torque-tf-blueprints
         path: blueprints
       host:
         cloud-account: private-cloud
-        compute-service: {{.inputs.compute_service}}
+        compute-service: "{{.inputs.compute_service}}"
