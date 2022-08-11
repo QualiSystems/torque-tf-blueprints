@@ -11,6 +11,9 @@ inputs:
     display-style: normal
     type: string
     description: there is no sanctuary
+  compute_service:
+    type: string
+    default: yakir-vcenter
 
 grains:
   vlan1:
@@ -76,4 +79,4 @@ grains:
         path: blueprints
       host:
         cloud-account: private-cloud
-        compute-service: yakir-vcenter
+        compute-service: {{.inputs.compute_service}}
