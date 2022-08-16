@@ -1,0 +1,44 @@
+spec_version: 2-preview
+
+description: test blueprint for deploying VMs on vcenter
+
+inputs:
+  virtual_machine_template_name:
+    display-style: normal
+    type: string
+    default: centos
+    description: there is no sanctuary
+  networks:
+    display-style: normal
+    type: string
+    default: Local
+    description: there is no sanctuary
+  wait_for_ip:
+    type: number
+    default: 120
+  wait_for_net:
+    type: number
+    default: 120
+  host:
+    display-style: normal
+    type: execution-host
+
+grains:
+  vm1:
+    kind: terraform
+    spec:
+      inputs:
+        - virtual_machine_template_name: '{{ .inputs.virtual_machine_template_name }}'
+        - virtual_machine_name: "TorqueTestVM-{{ sandboxid }}"
+        - datacenter_name: "Shells DataCenter"
+        - datastore_name: "Storage 2 (SSD, Raid 5)"
+        - compute_cluster_name: "Shells Cluster 2"
+        - networks: '{{ .inputs.networks }}'
+
+      outputs:
+        - vsphere_virtual_machine_name
+
+      source:
+        path: github.com/QualiSystems/torque-tf-blueprints.git//terraform/vm-from-template-wait-for-ip-no-creds
+      host:
+        name: '{{ .inputs.host }}'
