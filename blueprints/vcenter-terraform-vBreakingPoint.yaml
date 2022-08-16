@@ -19,7 +19,7 @@ inputs:
     description: there is no sanctuary
 
 grains:
-  vlan1:
+  vlan_282:
     kind: terraform
     spec:
       inputs:
@@ -39,7 +39,7 @@ grains:
         compute-service: yakir-vcenter
 
   BPSChassis:
-    depends-on: vlan1
+    depends-on: vlan_282
     kind: terraform
     spec:
       inputs:
@@ -48,7 +48,7 @@ grains:
         - datacenter_name: "Shells DataCenter"
         - datastore_name: "Storage 2 (SSD, Raid 5)"
         - compute_cluster_name: "Shells Cluster 2"
-        - networks: "{{.inputs.mgmt_network}},{{.grains.vlan1.outputs.host_port_group_name}}"
+        - networks: "{{.inputs.mgmt_network}},{{.grains.vlan_282.outputs.host_port_group_name}}"
         - wait_for_ip: -1
         - wait_for_net: -1
         - linked_clone: true
@@ -61,7 +61,7 @@ grains:
 
 
   BPSBlade:
-    depends-on: vlan1
+    depends-on: vlan_282
     kind: terraform
     spec:
       inputs:
@@ -70,7 +70,7 @@ grains:
         - datacenter_name: "Shells DataCenter"
         - datastore_name: "Storage 2 (SSD, Raid 5)"
         - compute_cluster_name: "Shells Cluster 2"
-        - networks: "{{.inputs.mgmt_network}},{{.grains.vlan1.outputs.host_port_group_name}},{{.inputs.interface_networks}}"
+        - networks: "{{.inputs.mgmt_network}},{{.grains.vlan_282.outputs.host_port_group_name}},{{.inputs.interface_networks}}"
         - wait_for_ip: -1
         - wait_for_net: -1
         - linked_clone: true
