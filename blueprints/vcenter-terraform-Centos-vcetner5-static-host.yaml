@@ -15,8 +15,12 @@ inputs:
     default: tomer-vm
     description: name of the vm to be deployed
 
+  host:
+    display-style: normal
+    type: execution-host
+
 grains:
-  vcenter-terraform-vm:
+  vcenter-terraform-vm-tomer:
     kind: blueprint
     spec:
       inputs:
@@ -26,8 +30,9 @@ grains:
         - datacenter_name: Qualisystems
         - datastore_name: datastore1 (2)
         - compute_cluster_name: 192.168.42.237
+        - host: '{{ .inputs.host }}'
       source:
         store: torque-tf-blueprints
         path: blueprints    
       host:
-        name: tomer-vcetner-test
+        name: '{{ .inputs.host }}'
