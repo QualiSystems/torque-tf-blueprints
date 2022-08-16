@@ -1,0 +1,33 @@
+spec_version: 2-preview
+
+description: test blueprint for deploying VMs on vcenter
+
+inputs:
+  networks:
+    display-style: normal
+    type: string
+    default: Local
+    description: there is no sanctuary
+
+  vm_name:
+    display-style: normal
+    type: string
+    default: tomer-vm
+    description: name of the vm to be deployed
+
+grains:
+  vcenter-terraform-vm:
+    kind: blueprint
+    spec:
+      inputs:
+        - virtual_machine_template_name: centos
+        - virtual_machine_name:  '{{ .inputs.vm_name }}'
+        - networks: '{{ .inputs.networks }}'
+        - datacenter_name: Qualisystems
+        - datastore_name: datastore1 (2)
+        - compute_cluster_name: 192.168.42.237
+      source:
+        store: torque-tf-blueprints
+        path: blueprints    
+      host:
+        name: tomer-vcetner-test
