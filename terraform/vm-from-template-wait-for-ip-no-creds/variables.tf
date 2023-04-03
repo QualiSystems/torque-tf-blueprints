@@ -12,12 +12,12 @@ variable "password" {
 
 variable "datacenter_name" {
   type = string
-  default = "Sandbox vCenter"
+  default = "Sandbox"
 }
 
 variable "datastore_name" {
   type = string
-  default = "SB-DS2"
+  default = "Lab-datastore"
 }
 
 variable "compute_cluster_name" {
@@ -52,7 +52,7 @@ variable "virtual_machine_name" {
 
 variable "virtual_machine_folder" {
   type = string
-  default = "QualiSystems"
+  default = "Costya.Y"
 }
 
 variable "linked_clone" {
