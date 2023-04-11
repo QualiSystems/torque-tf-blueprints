@@ -28,6 +28,11 @@ data "vsphere_datastore" "ds" {
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
+data "vsphere_host" "host" {
+  name          = var.compute_cluster_host
+  datacenter_id = data.vsphere_datacenter.dc.id
+}
+
 data "vsphere_compute_cluster" "cluster" {
   name          = var.compute_cluster_name
   datacenter_id = data.vsphere_datacenter.dc.id
@@ -44,14 +49,26 @@ data "vsphere_virtual_machine" "template" {
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
+
+resource "random_uuid" "env-guid" {
+}
+
 resource "vsphere_virtual_machine" "vm" {
-  name             = var.virtual_machine_name
+  name             = "${var.virtual_machine_name}-${random_uuid.env-guid.result}"
   datastore_id     = data.vsphere_datastore.ds.id
+  host_system_id   = data.vsphere_host.host.id
   resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
   guest_id = data.vsphere_virtual_machine.template.guest_id
+  num_cpus = data.vsphere_virtual_machine.template.num_cpus
+  memory = data.vsphere_virtual_machine.template.memory
   folder = var.virtual_machine_folder
   wait_for_guest_ip_timeout = var.wait_for_ip
   wait_for_guest_net_timeout = var.wait_for_net
+  scsi_type = data.vsphere_virtual_machine.template.scsi_type
+  efi_secure_boot_enabled = data.vsphere_virtual_machine.template.efi_secure_boot_enabled
+  firmware = data.vsphere_virtual_machine.template.firmware
+
+
   
   dynamic "network_interface" {
       for_each = local.interface_map
@@ -63,6 +80,12 @@ resource "vsphere_virtual_machine" "vm" {
   clone {
     template_uuid = data.vsphere_virtual_machine.template.id
     linked_clone = var.linked_clone
+    /* customize {
+      linux_options {
+        host_name = "test"
+        domain = "test.lab"
+      }
+    } */
   }
   dynamic "disk" {
     for_each = data.vsphere_virtual_machine.template.disks
@@ -75,4 +98,3 @@ resource "vsphere_virtual_machine" "vm" {
     }
   }
 }
-
