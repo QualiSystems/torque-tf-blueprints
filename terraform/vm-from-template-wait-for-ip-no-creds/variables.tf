@@ -25,6 +25,10 @@ variable "compute_cluster_name" {
   default = "Sandbox Cluster"
 }
 
+variable "compute_cluster_host" {
+  type = string
+}
+
 variable "wait_for_ip" {
   type = number
   default = 120
