@@ -54,7 +54,7 @@ resource "random_uuid" "env-guid" {
 }
 
 resource "vsphere_virtual_machine" "vm" {
-  name             = "${var.virtual_machine_name}-${random_uuid.env-guid.result}"
+  name             = "${var.virtual_machine_name}"
   datastore_id     = data.vsphere_datastore.ds.id
   host_system_id   = data.vsphere_host.host.id
   resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
