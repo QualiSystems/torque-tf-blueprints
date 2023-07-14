@@ -3,9 +3,6 @@ description: Performance testing deployment based on RDS, EKS and Lambda
 inputs:
   cs_host:
     type: string
-    allowed-values: [0.9.7, 0.9.8, 0.9.9]
-    default: "0.9.9"
-    description: "The version of the application to be deployed on the EKS cluster"
   cs_user:
     type: string
   cs_password:
