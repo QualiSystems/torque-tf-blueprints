@@ -79,7 +79,7 @@ resource "null_resource" "destroy_vlan_reservation" {
   depends_on = [data.http.auth, data.http.get_vlan]
 
   triggers = {
-    link = "curl -s -X POST ${local.release_vlan} ${join(" ", [for k,v in merge(local.general_heades, {"Authorization": "MachineName=${var.hostname}:${var.port};Token=${regexall(local.token_regex, data.http.auth.response_body)[0][0]}"}) : format ("-H '%s: %s'", k, v)])} -d '<ReleaseFromPool><values><string>${regexall(local.existing_vlan_regex, data.http.get_vlan.response_body)[0][0]}</string></values><poolId>${local.pool_id}</poolId><reservationId>${var.sandbox_id}</reservationId><ownerId>${var.username}</ownerId></ReleaseFromPool>'"
+    link = "curl -s -X POST ${local.release_vlan} ${join(" ", [for k,v in merge(local.general_heades, {"Authorization": "MachineName=${var.hostname}:${var.port};Token=${regexall(local.token_regex, data.http.auth.response_body)[0][0]}"}) : format ("-H '%s: %s'", k, v)])} -d '<ReleaseFromPool><values><string>${can(regex(local.verify_vlan_exists, data.http.get_vlan.response_body)) ? regexall(local.existing_vlan_regex, data.http.get_vlan.response_body)[0][0] : regexall(local.vlan_id_regex, data.http.reserve_vlan[0].response_body)[0][0]}</string></values><poolId>${local.pool_id}</poolId><reservationId>${var.sandbox_id}</reservationId><ownerId>${var.username}</ownerId></ReleaseFromPool>'"
     erase_link = "curl -s -X POST ${local.save_vlan_to_snadbox_data} ${join(" ", [for k,v in merge(local.general_heades, {"Authorization": "MachineName=${var.hostname}:${var.port};Token=${regexall(local.token_regex, data.http.auth.response_body)[0][0]}"}) : format ("-H '%s: %s'", k, v)])} -d '<SetSandboxData><reservationId>${var.sandbox_id}</reservationId><sandboxDataKeyValues><SandboxDataKeyValue><Key>${var.torque_sandbox_id}</Key><Value></Value></SandboxDataKeyValue></sandboxDataKeyValues></SetSandboxData>'"
   }
 
@@ -94,7 +94,6 @@ resource "null_resource" "destroy_vlan_reservation" {
     command = self.triggers.erase_link
   }
 }
-
 
 output "vlan_id" {
   value = can(regex(local.verify_vlan_exists, data.http.get_vlan.response_body)) ? regexall(local.existing_vlan_regex, data.http.get_vlan.response_body)[0][0] : regexall(local.vlan_id_regex, data.http.reserve_vlan[0].response_body)[0][0]
