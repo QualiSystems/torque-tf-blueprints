@@ -28,6 +28,6 @@ grains:
         - torque_sandbox_id: "{{ sandboxid }}"
       outputs:
         - vlan_id
-      host:
+      agent:
         name: das-local	
       
