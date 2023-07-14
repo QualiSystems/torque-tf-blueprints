@@ -21,14 +21,13 @@ grains:
         path: terraform/cloudshell_vlan_pool
         store: torque-tf-blueprints
       inputs:
-        - hostname: {{ .inputs.cs_host }}
-        - username: {{ .inputs.cs_user }}
-        - password:  {{ .inputs.cs_password }}
-        - sandbox_id: {{ .inputs.cs_sandbox_id }}
-        - torque_sandbox_id: {{ sandboxid }}
+        - hostname: "{{ .inputs.cs_host }}"
+        - username: "{{ .inputs.cs_user }}"
+        - password:  "{{ .inputs.cs_password }}"
+        - sandbox_id: "{{ .inputs.cs_sandbox_id }}"
+        - torque_sandbox_id: "{{ sandboxid }}"
       outputs:
         - vlan_id
       host:
-        cloud-account: private-cloud
-        compute-service: das-local	
+        name: das-local	
       
