@@ -29,5 +29,5 @@ grains:
       outputs:
         - vlan_id
       agent:
-        name: das-local	
+        name: das-local
       
