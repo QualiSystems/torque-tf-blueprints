@@ -10,6 +10,10 @@ inputs:
   cs_sandbox_id:
     type: string
 
+outputs:
+  the_output:
+    value: '{{ .grains.cs_vlan_id.outputs.vlan_id }}'
+
 grains:
   cs_vlan_id:
     kind: terraform
