@@ -5,8 +5,6 @@ inputs:
     type: string
   cs_password:
     type: string
-  cs_sandbox_id:
-    type: string
 
 outputs:
   the_output:
@@ -23,7 +21,7 @@ grains:
         - hostname: "{{ .params.cs_host }}"
         - username: "{{ .inputs.cs_user }}"
         - password:  "{{ .inputs.cs_password }}"
-        - sandbox_id: "{{ .inputs.cs_sandbox_id }}"
+        - sandbox_id: ""
         - torque_sandbox_id: "{{ sandboxid }}"
       outputs:
         - vlan_id
