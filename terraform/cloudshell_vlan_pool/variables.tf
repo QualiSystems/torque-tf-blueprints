@@ -23,6 +23,11 @@ variable "domain" {
 
 variable "sandbox_id" {
   type = string
+
+  validation {
+    condition = can(regex("^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$", var.sandbox_id))
+    error_message = "The sandbox_id must be a valid Cloudshell sandbox id GUID"
+  }
 }
 
 variable "isolation" {
