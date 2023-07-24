@@ -1,5 +1,5 @@
 spec_version: 2
-description: Performance testing deployment based on RDS, EKS and Lambda
+description: No description provided
 inputs:
   cs_user:
     type: string
@@ -15,13 +15,13 @@ grains:
     kind: terraform
     spec:
       source:
-        path: terraform/cloudshell_vlan_pool_py
+        path: terraform/cloudshell_vlan_pool
         store: torque-tf-blueprints
       inputs:
         - hostname: "{{ .params.cs_host }}"
         - username: "{{ .inputs.cs_user }}"
         - password:  "{{ .inputs.cs_password }}"
-        - sandbox_id: ""
+        - sandbox_id: "{{ .params.sandbox_id }}"
         - torque_sandbox_id: "{{ sandboxid }}"
       outputs:
         - vlan_id
