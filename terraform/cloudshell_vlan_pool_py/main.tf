@@ -87,7 +87,11 @@ resource "null_resource" "vlan_destroy" {
     destroy_python_script = local_file.destroy_python_script_file.filename
     vlan_id_file = local.response_file
   }
-
+  provisioner "local-exec" {
+    when    = destroy
+    command = "python3 -m pip install cloudshell-automation-api"
+    on_failure = fail
+  }
   provisioner "local-exec" {
     when    = destroy
     command = "python3 ${self.triggers.destroy_python_script}"
