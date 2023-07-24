@@ -20,7 +20,8 @@ def get_vlan_id(api):
               "requestedRange": None
               }
     vlan = None
-    for vlan_range in "${var.vlan_ranges}".split(","):
+    for vlan_range in "${var.vlan_ranges}".replace(" ","").split(","):
+        if "-" not in vlan_range: vlan_range = f"{vlan_range}-{vlan_range}"
         vlan_range = vlan_range.split("-")
         request["requestedRange"] = {"start": int(vlan_range[0]), "end": int(vlan_range[1])}
         try:
