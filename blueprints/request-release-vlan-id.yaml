@@ -15,7 +15,7 @@ grains:
     kind: terraform
     spec:
       source:
-        path: terraform/cloudshell_vlan_pool
+        path: terraform/cloudshell_vlan_pool_py
         store: torque-tf-blueprints
       inputs:
         - hostname: "{{ .params.cs_host }}"
