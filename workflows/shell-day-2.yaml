@@ -1,1 +1,26 @@
-#test
+spec_version: 2
+description: workflow with "env" scope example
+
+workflow:
+  scope: env
+  triggers:
+    - type: manual
+ 
+inputs:
+  agent:
+    type: agent
+    default: prod
+
+grains:
+  shell_grain:
+    kind: shell
+    spec:
+      agent:
+        name: '{{.inputs.agent}}'
+      activities:
+        deploy:
+          commands:
+            - 'echo "another thing - {{.bindings.resource_type.random_string.attributes.result}}"'
+            - 'echo "another thing - {{.bindings.resource_type.random_id.attributes.hex}}"'
+            - 'echo "another thing - {{.bindings.resource_type.null_resource.attributes.id}}"'
+            
