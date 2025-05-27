@@ -63,7 +63,7 @@ grains:
         - remote_access_link
 
       source:
-        store: assets
-        path: assets/terraform/vcenter/generic
+        store: torque-tf-blueprints
+        path: terraform/vcenter/generic
       agent:
         name: vcenter-agent
