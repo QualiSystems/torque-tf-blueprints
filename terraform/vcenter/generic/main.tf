@@ -78,7 +78,7 @@ resource "vsphere_virtual_machine" "vm" {
 
   clone {
       template_uuid = data.vsphere_virtual_machine.template.id
-      linked_clone  = var.is_linked_clone
+      linked_clone  = tobool(var.is_linked_clone)
     customize {
       network_interface {
         ipv4_address    = var.requested_vm_address

@@ -21,14 +21,17 @@ inputs:
   requested_vm_address:
     display-style: normal
     type: string
+    default: ""
     description: there is no sanctuary
   is_linked_clone:
     display-style: normal
     type: string
+    default: false
     description: there is no sanctuary
   qualix_ip:
     display-style: normal
     type: string
+    default: ""
     description: there is no sanctuary
   wait_for_ip:
     type: string

@@ -53,8 +53,8 @@ variable "resource_pool_id" {
 }
 
 variable "is_linked_clone" {
-  type        = bool
-  default     = false
+  type        = string
+  default     = "false"
   description = "Whether to use linked clone or full clone"
 }
 
