@@ -65,6 +65,9 @@ grains:
         - vsphere_virtual_machine_ip
         - remote_access_link
 
+      tags:
+        auto-tag: false
+
       source:
         store: torque-tf-blueprints
         path: terraform/vcenter/generic
