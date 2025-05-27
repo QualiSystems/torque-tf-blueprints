@@ -41,6 +41,9 @@ grains:
     kind: terraform
     spec:
       inputs:
+        - vc_address: "{{ .params.vcenter_host }}"
+        - vc_username: "{{ .params.vcenter_username }}"
+        - vc_password: "{{ .params.vcenter_password }}"
         - vm_template_name: '{{ .inputs.virtual_machine_template_name }}'
         - vm_name: "TorqueTestVM-{{ sandboxid }}"
         - vc_dc_name: "{{ .params.vc_datacenter }}"
@@ -49,7 +52,6 @@ grains:
         - network_name: '{{ .inputs.network_name }}'
         - wait_for_ip: '{{ .inputs.wait_for_ip }}'
         - wait_for_net: '{{ .inputs.wait_for_net }}'
-
         - vm_folder_path: '{{ .inputs.vm_folder_path }}'
         - requested_vm_address: '{{ .inputs.requested_vm_address }}'
         - is_linked_clone: '{{ .inputs.is_linked_clone }}'
