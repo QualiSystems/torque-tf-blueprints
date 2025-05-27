@@ -47,12 +47,25 @@ variable "vm_folder_path" {
 
 variable "requested_vm_address" {}
 
-variable "resource_pool_id" {}
+variable "resource_pool_id" {
+  type = string
+  default = ""
+}
 
 variable "is_linked_clone" {
   type        = bool
   default     = false
   description = "Whether to use linked clone or full clone"
+}
+
+variable "wait_for_ip" {
+  type        = number
+  default     = 120
+}
+
+variable "wait_for_net" {
+  type        = number
+  default     = 120
 }
 
 variable "qualix_ip" {

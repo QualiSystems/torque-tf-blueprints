@@ -55,15 +55,15 @@ resource "vsphere_virtual_machine" "vm" {
   name                        = var.vm_name == "" ? "${var.vm_template_name}-${local.env_id}" : "${var.vm_name}-${local.env_id}"
   folder                      = var.vm_folder_path
   datastore_id                = data.vsphere_datastore.datastore.id
-  resource_pool_id            = data.vsphere_compute_cluster.cluster.resource_pool_id
+  resource_pool_id            = var.resource_pool_id != "" ? var.resource_pool_id : data.vsphere_compute_cluster.cluster.resource_pool_id
   num_cpus                    = data.vsphere_virtual_machine.template.num_cpus
   memory                      = data.vsphere_virtual_machine.template.memory
   guest_id                    = data.vsphere_virtual_machine.template.guest_id
   scsi_type                   = data.vsphere_virtual_machine.template.scsi_type
   efi_secure_boot_enabled     = data.vsphere_virtual_machine.template.efi_secure_boot_enabled
   firmware                    = data.vsphere_virtual_machine.template.firmware
-  wait_for_guest_ip_timeout   = 0
-  wait_for_guest_net_timeout  = 5
+  wait_for_guest_ip_timeout   = var.wait_for_ip
+  wait_for_guest_net_timeout  = var.wait_for_net
 
   network_interface {
     network_id = local.selected_network_id
@@ -83,8 +83,8 @@ resource "vsphere_virtual_machine" "vm" {
       network_interface {
         ipv4_address    = var.requested_vm_address
         ipv4_netmask    = 24
-        ipv4_gateway    = "192.168.51.1"
-        dns_server_list = ["8.8.8.8"]
+        # ipv4_gateway    = "192.168.51.1"
+        # dns_server_list = ["8.8.8.8"]
 
       }
       dynamic "linux_options" {
