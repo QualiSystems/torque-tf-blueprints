@@ -42,9 +42,9 @@ grains:
     spec:
       inputs:
         - vc_address: "{{ .params.vcenter_host }}"
-        - vc_username: "{{ .params.vcenter_username }}"
+        - vc_username: "{{ .params.vcenter_user }}"
         - vc_password: "{{ .params.vcenter_password }}"
-        - vm_template_name: '{{ .inputs.virtual_machine_template_name }}'
+        - vm_template_name: '{{ .inputs.vm_template_name }}'
         - vm_name: "TorqueTestVM-{{ sandboxid }}"
         - vc_dc_name: "{{ .params.vc_datacenter }}"
         - vc_ds_name: "{{ .params.vc_datastore }}"
@@ -56,9 +56,14 @@ grains:
         - requested_vm_address: '{{ .inputs.requested_vm_address }}'
         - is_linked_clone: '{{ .inputs.is_linked_clone }}'
         - qualix_ip: '{{ .inputs.qualix_ip }}'
-        - network_name: '{{ .inputs.network_name }}'
 
       outputs:
         - vsphere_virtual_machine_name
         - vsphere_virtual_machine_ip
         - remote_access_link
+
+      source:
+        store: assets
+        path: assets/terraform/vcenter/generic
+      agent:
+        name: vcenter-agent
