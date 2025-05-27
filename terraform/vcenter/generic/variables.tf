@@ -25,7 +25,7 @@ variable "compute_cluster_name" {
   default = "Sandbox Cluster"
 }
 
-variable "network_name" {
+variable "network_names" {
   type        = string
   default     = ""
   description = "Optional. Name of the network to attach to the VM."

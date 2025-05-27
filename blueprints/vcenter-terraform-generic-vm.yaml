@@ -9,7 +9,7 @@ inputs:
     type: string
     default: Centos
     description: there is no sanctuary
-  network_name:
+  network_names:
     display-style: normal
     type: string
     description: there is no sanctuary
@@ -52,7 +52,7 @@ grains:
         - vc_dc_name: "{{ .params.vc_datacenter }}"
         - vc_ds_name: "{{ .params.vc_datastore }}"
         - compute_cluster_name: "{{ .params.vc_cluster }}"
-        - network_name: '{{ .inputs.network_name }}'
+        - network_names: '{{ .inputs.network_names }}'
         - wait_for_ip: '{{ .inputs.wait_for_ip }}'
         - wait_for_net: '{{ .inputs.wait_for_net }}'
         - vm_folder_path: '{{ .inputs.vm_folder_path }}'

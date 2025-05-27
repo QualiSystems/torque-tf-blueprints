@@ -30,12 +30,6 @@ data "vsphere_compute_cluster" "cluster" {
   datacenter_id = data.vsphere_datacenter.datacenter.id
 }
 
-data "vsphere_network" "network" {
-  count         = var.network_name != "" ? 1 : 0
-  name          = var.network_name
-  datacenter_id = data.vsphere_datacenter.datacenter.id
-}
-
 data "vsphere_virtual_machine" "template" {
   name          = var.vm_template_name
   datacenter_id = data.vsphere_datacenter.datacenter.id
@@ -43,11 +37,28 @@ data "vsphere_virtual_machine" "template" {
 
 locals {
   env_id              = reverse(split("/", var.vm_folder_path))[0]
-  selected_network_id = var.network_name != "" ? data.vsphere_network.network[0].id : data.vsphere_virtual_machine.template.network_interfaces[0].network_id
+  # selected_network_id = var.network_name != "" ? data.vsphere_network.network[0].id : data.vsphere_virtual_machine.template.network_interfaces[0].network_id
   is_windows          = can(regex("windows", lower(data.vsphere_virtual_machine.template.guest_id)))
   protocol            = local.is_windows ? "rdp" : "ssh"
   connection_port     = local.is_windows ? 3389 : 22
   enable_qualix_link  = var.qualix_ip != "" ? 1 : 0
+
+  interfaces = [
+  for iface in split(",", var.network_names):
+  trimspace(iface)
+  ]
+  # List to map
+  interface_map = {
+     for i, val in local.interfaces:
+      i => val
+    }
+
+}
+
+data "vsphere_network" "network" {
+  for_each = toset( local.interfaces )
+  name          = each.key
+  datacenter_id = data.vsphere_datacenter.datacenter.id
 }
 
 # resources
@@ -65,15 +76,26 @@ resource "vsphere_virtual_machine" "vm" {
   wait_for_guest_ip_timeout   = tonumber(var.wait_for_ip)
   wait_for_guest_net_timeout  = tonumber(var.wait_for_net)
 
-  network_interface {
-    network_id = local.selected_network_id
-    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
+  # network_interface {
+  #   network_id = local.selected_network_id
+  #   adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
+  # }
+  dynamic "network_interface" {
+    for_each = local.interface_map
+      content {
+        network_id = data.vsphere_network.network[network_interface.value].id
+        adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
+      }
   }
-
-  disk {
-    label             = "disk0"
-    size              = data.vsphere_virtual_machine.template.disks.0.size
-    thin_provisioned  = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
+  dynamic "disk" {
+    for_each = data.vsphere_virtual_machine.template.disks
+    content {
+      unit_number      = disk.key
+      label            = disk.value.label
+      size             = disk.value.size
+      thin_provisioned = disk.value.thin_provisioned
+      eagerly_scrub    = false
+    }
   }
 
   clone {
