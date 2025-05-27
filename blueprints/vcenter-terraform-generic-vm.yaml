@@ -31,10 +31,10 @@ inputs:
     type: string
     description: there is no sanctuary
   wait_for_ip:
-    type: number
+    type: string
     default: 120
   wait_for_net:
-    type: number
+    type: string
     default: 120
 grains:
   vm1:

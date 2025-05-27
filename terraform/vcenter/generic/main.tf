@@ -62,8 +62,8 @@ resource "vsphere_virtual_machine" "vm" {
   scsi_type                   = data.vsphere_virtual_machine.template.scsi_type
   efi_secure_boot_enabled     = data.vsphere_virtual_machine.template.efi_secure_boot_enabled
   firmware                    = data.vsphere_virtual_machine.template.firmware
-  wait_for_guest_ip_timeout   = var.wait_for_ip
-  wait_for_guest_net_timeout  = var.wait_for_net
+  wait_for_guest_ip_timeout   = tonumber(var.wait_for_ip)
+  wait_for_guest_net_timeout  = tonumber(var.wait_for_net)
 
   network_interface {
     network_id = local.selected_network_id

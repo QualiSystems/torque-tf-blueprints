@@ -59,13 +59,13 @@ variable "is_linked_clone" {
 }
 
 variable "wait_for_ip" {
-  type        = number
-  default     = 120
+  type        = string
+  default     = "120"
 }
 
 variable "wait_for_net" {
-  type        = number
-  default     = 120
+  type        = string
+  default     = "120"
 }
 
 variable "qualix_ip" {
