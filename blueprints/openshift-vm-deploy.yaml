@@ -1,0 +1,21 @@
+kind: blueprint
+spec: 2
+spec_version: 2-preview
+description: Blueprint with nginx kubernetes grain.
+
+inputs:
+  namespace:
+    type: string
+    display-style: normal
+    description: "Kubernetes namespace for sandbox to be ran in."
+
+grains:
+  vm:
+    kind: kubernetes
+    spec:
+      namespace: '{{ .inputs.namespace }}'
+      source:
+        store: torque-tf-blueprints
+        path: k8s/openshift-template-deploy.yaml
+      agent:
+        name: openshift
