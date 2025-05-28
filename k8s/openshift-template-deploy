@@ -1,0 +1,59 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: fedora-test-app
+  namespace: vms
+spec:
+  dataVolumeTemplates:
+    - metadata:
+        name: fedora-test-app-volume
+      spec:
+        sourceRef:
+          kind: DataSource
+          name: fedora-8gig
+          namespace: vms
+        storage:
+          resources:
+            requests:
+              storage: '8589934592'
+          storageClassName: nfs-client
+  instancetype:
+    name: u1.medium
+  preference:
+    name: fedora
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        network.kubevirt.io/headlessService: headless
+    spec:
+      domain:
+        devices:
+          autoattachPodInterface: false
+          disks: []
+          interfaces:
+            - masquerade: {}
+              name: default
+        firmware:
+          uuid: 5d307ca9-b3ef-428c-8861-06e72d69f223
+          bootloader:
+            bios: {}
+        features:
+          smm:
+            enabled: true
+      networks:
+        - name: default
+          pod: {}
+      subdomain: headless
+      volumes:
+        - dataVolume:
+            name: fedora-purple-stingray-64-volume
+          name: rootdisk
+        - cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              chpasswd:
+                expire: false
+              password: z5kn-inkj-l1cr
+              user: fedora
+          name: cloudinitdisk
