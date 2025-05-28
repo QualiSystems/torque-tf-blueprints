@@ -1,12 +1,12 @@
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
-  name: fedora-purple-stingray-64
+  name: fedora-purple-stingray-34
   namespace: vms
 spec:
   dataVolumeTemplates:
     - metadata:
-        name: fedora-purple-stingray-64-volume
+        name: fedora-purple-stingray-34-volume
       spec:
         sourceRef:
           kind: DataSource
@@ -54,7 +54,7 @@ spec:
       volumes:
         - name: rootdisk
           dataVolume:
-            name: fedora-purple-stingray-64-volume
+            name: fedora-purple-stingray-34-volume
         - name: cloudinitdisk
           cloudInitNoCloud:
             userData: |
