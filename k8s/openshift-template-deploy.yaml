@@ -1,12 +1,12 @@
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
-  name: fedora-test-app
+  name: fedora-purple-stingray-64
   namespace: vms
 spec:
   dataVolumeTemplates:
     - metadata:
-        name: fedora-test-app-volume
+        name: fedora-purple-stingray-64-volume
       spec:
         sourceRef:
           kind: DataSource
@@ -16,7 +16,7 @@ spec:
           resources:
             requests:
               storage: '8589934592'
-          storageClassName: lvms-vg1
+          storageClassName: nfs-client
   instancetype:
     name: u1.medium
   preference:
@@ -30,7 +30,13 @@ spec:
       domain:
         devices:
           autoattachPodInterface: false
-          disks: []
+          disks:
+            - name: rootdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
           interfaces:
             - masquerade: {}
               name: default
@@ -46,14 +52,14 @@ spec:
           pod: {}
       subdomain: headless
       volumes:
-        - dataVolume:
+        - name: rootdisk
+          dataVolume:
             name: fedora-purple-stingray-64-volume
-          name: rootdisk
-        - cloudInitNoCloud:
+        - name: cloudinitdisk
+          cloudInitNoCloud:
             userData: |
               #cloud-config
               chpasswd:
                 expire: false
               password: z5kn-inkj-l1cr
               user: fedora
-          name: cloudinitdisk
