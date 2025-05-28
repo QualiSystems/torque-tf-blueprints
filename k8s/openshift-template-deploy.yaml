@@ -16,7 +16,7 @@ spec:
           resources:
             requests:
               storage: '8589934592'
-          storageClassName: nfs-client
+          storageClassName: lvms-vg1
   instancetype:
     name: u1.medium
   preference:
