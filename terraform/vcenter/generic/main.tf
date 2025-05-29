@@ -8,9 +8,9 @@ terraform {
 }
 
 provider "vsphere" {
-  user           = var.vc_username
-  password       = var.vc_password
-  vsphere_server = var.vc_address
+  user                 = var.vc_username
+  password             = var.vc_password
+  vsphere_server       = var.vc_address
   # If you have a self-signed cert
   allow_unverified_ssl = true
 }
@@ -37,7 +37,7 @@ data "vsphere_virtual_machine" "template" {
 
 locals {
   env_id              = regexreplace(lower(reverse(split("/", var.vm_folder_path))[0]), "[^a-z0-9-]", "")
-  # selected_network_id = var.network_name != "" ? data.vsphere_network.network[0].id : data.vsphere_virtual_machine.template.network_interfaces[0].network_id
+  vm_name             = var.vm_name == "" ? "${var.vm_template_name}-${local.env_id}" : "${var.vm_name}-${local.env_id}"
   is_windows          = can(regex("windows", lower(data.vsphere_virtual_machine.template.guest_id)))
   protocol            = local.is_windows ? "rdp" : "ssh"
   connection_port     = local.is_windows ? 3389 : 22
@@ -56,14 +56,15 @@ locals {
 }
 
 data "vsphere_network" "network" {
-  for_each = toset( local.interfaces )
+  for_each      = toset( local.interfaces )
   name          = each.key
   datacenter_id = data.vsphere_datacenter.datacenter.id
 }
 
 # resources
 resource "vsphere_virtual_machine" "vm" {
-  name                        = var.vm_name == "" ? "${var.vm_template_name}-${local.env_id}" : "${var.vm_name}-${local.env_id}"
+  # name                        = var.vm_name == "" ? "${var.vm_template_name}-${local.env_id}" : "${var.vm_name}-${local.env_id}"
+  name                        = local.vm_name
   folder                      = var.vm_folder_path
   datastore_id                = data.vsphere_datastore.datastore.id
   resource_pool_id            = var.resource_pool_id != "" ? var.resource_pool_id : data.vsphere_compute_cluster.cluster.resource_pool_id
@@ -83,7 +84,7 @@ resource "vsphere_virtual_machine" "vm" {
   dynamic "network_interface" {
     for_each = local.interface_map
       content {
-        network_id = data.vsphere_network.network[network_interface.value].id
+        network_id   = data.vsphere_network.network[network_interface.value].id
         adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
       }
   }
@@ -118,7 +119,7 @@ resource "vsphere_virtual_machine" "vm" {
       dynamic "linux_options" {
         for_each = local.is_windows ? [] : [1]
         content {
-          host_name = "my-vm-${local.env_id}"
+          host_name = local.vm_name
           domain    = "local"
         }
       }
@@ -126,7 +127,7 @@ resource "vsphere_virtual_machine" "vm" {
       dynamic "windows_options" {
         for_each = local.is_windows ? [1] : []
         content {
-          computer_name  = "my-vm-${local.env_id}"
+          computer_name  = local.vm_name
           admin_password = "Password1"
         }
       }

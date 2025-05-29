@@ -37,7 +37,7 @@ variable "vm_template_name" {
 
 variable "vm_name" {
   type    = string
-  default = "vm started by a script"
+  default = ""
 }
 
 variable "vm_folder_path" {

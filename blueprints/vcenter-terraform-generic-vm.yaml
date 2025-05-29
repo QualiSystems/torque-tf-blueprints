@@ -1,64 +1,86 @@
 spec_version: 2-preview
 
-description: test blueprint for deploying VMs on vcenter
+description: Generic blueprint for deploying VM on vCenter
 
 
 inputs:
-  vm_template_name:
+  VM or Template Name:
     display-style: normal
     type: string
     default: Centos
-    description: there is no sanctuary
-  network_names:
+    description: VM or Template Name that will be used as a source to clone VM
+  VM Name:
+    display-style: normal
+    type: string
+    default: ""
+    description: New VM Name
+  Network Names:
     display-style: normal
     type: string
     description: there is no sanctuary
-  vm_folder_path:
+  VM Location:
     display-style: normal
     type: string
     default: Alexey.B
-    description: there is no sanctuary
-  requested_vm_address:
+    description: The full path to the folder within vCenter in which the VM will be created.
+  Requested VM Address:
     display-style: normal
     type: string
     default: ""
     description: there is no sanctuary
-  is_linked_clone:
+  Linked Clone:
     display-style: normal
     type: string
-    default: false
-    description: there is no sanctuary
-  qualix_ip:
+#    default: false
+    allowed-values:
+      - false
+      - true
+    description: Whether to use Linked Clone or Full Clone
+  QualiX IP:
     display-style: normal
     type: string
     default: ""
-    description: there is no sanctuary
-  wait_for_ip:
+    description: IP of the QualiX Server (empty to disable remote access)
+  Wait For IP:
     type: string
     default: 120
-  wait_for_net:
+    description: Timeout for waiting when obtaining IP address
+  Wait For Network:
     type: string
     default: 120
+
+outputs:
+  VM Name:
+    value: "{{ .grains.vcenter-generic-vm.outputs.vsphere_virtual_machine_name }}"
+    quick: false
+  VM IP:
+    value: "{{ .grains.vcenter-generic-vm.outputs.vsphere_virtual_machine_ip }}"
+    quick: false
+  Remote Access Link:
+    value: "{{ .grains.vcenter-generic-vm.outputs.remote_access_link }}"
+    quick: true
+
 grains:
-  vm1:
+  vcenter-generic-vm:
     kind: terraform
     spec:
       inputs:
-        - vc_address: "{{ .params.vcenter_host }}"
-        - vc_username: "{{ .params.vcenter_user }}"
-        - vc_password: "{{ .params.vcenter_password }}"
-        - vm_template_name: '{{ .inputs.vm_template_name }}'
-        - vm_name: "TorqueTestVM-{{ sandboxid }}"
-        - vc_dc_name: "{{ .params.vc_datacenter }}"
-        - vc_ds_name: "{{ .params.vc_datastore }}"
-        - compute_cluster_name: "{{ .params.vc_cluster }}"
-        - network_names: '{{ .inputs.network_names }}'
-        - wait_for_ip: '{{ .inputs.wait_for_ip }}'
-        - wait_for_net: '{{ .inputs.wait_for_net }}'
-        - vm_folder_path: '{{ .inputs.vm_folder_path }}'
-        - requested_vm_address: '{{ .inputs.requested_vm_address }}'
-        - is_linked_clone: '{{ .inputs.is_linked_clone }}'
-        - qualix_ip: '{{ .inputs.qualix_ip }}'
+        - vc_address: '{{ .params.vcenter_host }}'
+        - vc_username: '{{ .params.vcenter_user }}'
+        - vc_password: '{{ .params.vcenter_password }}'
+        - vm_template_name: '{{ .inputs.["VM or Template Name"] }}'
+        - vm_name: '{{ .inputs.["VM Name"] }}'
+#        - vm_name: 'TorqueTestVM-{{ sandboxid }}'
+        - vc_dc_name: '{{ .params.vc_datacenter }}'
+        - vc_ds_name: '{{ .params.vc_datastore }}'
+        - compute_cluster_name: '{{ .params.vc_cluster }}'
+        - network_names: '{{ .inputs.["Network Names"] }}'
+        - wait_for_ip: '{{ .inputs.["Wait For IP"] }}'
+        - wait_for_net: '{{ .inputs.["Wait For Network"] }}'
+        - vm_folder_path: '{{ .inputs.["VM Location"] }}'
+        - requested_vm_address: '{{ .inputs.["Requested VM Address"] }}'
+        - is_linked_clone: '{{ .inputs.["Linked Clone"] }}'
+        - qualix_ip: '{{ .inputs.["QualiX IP"] }}'
 
       outputs:
         - vsphere_virtual_machine_name
