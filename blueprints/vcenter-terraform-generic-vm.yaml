@@ -96,4 +96,4 @@ grains:
       agent:
         name: vcenter-agent
     # The terraform version that will be used to deploy the module
-    tf-version: 1.3.2
+#    tf-version: 1.3.2
