@@ -107,30 +107,30 @@ resource "vsphere_virtual_machine" "vm" {
   clone {
       template_uuid = data.vsphere_virtual_machine.template.id
       linked_clone  = tobool(var.is_linked_clone)
-    customize {
-      network_interface {
-        ipv4_address    = var.requested_vm_address
-        ipv4_netmask    = 24
-        # ipv4_gateway    = "192.168.51.1"
-        # dns_server_list = ["8.8.8.8"]
-
-      }
-      # dynamic "linux_options" {
-      #   for_each = local.is_windows ? [] : [1]
-      #   content {
-      #     host_name = "QualiLinux-${local.env_id}"
-      #     domain    = "local"
-      #   }
-      # }
-      #
-      # dynamic "windows_options" {
-      #   for_each = local.is_windows ? [1] : []
-      #   content {
-      #     computer_name  = "QualiWin-${local.env_id}"
-      #     admin_password = "Password1"
-      #   }
-      # }
-    }
+    # customize {
+    #   network_interface {
+    #     ipv4_address    = var.requested_vm_address
+    #     ipv4_netmask    = 24
+    #     # ipv4_gateway    = "192.168.51.1"
+    #     # dns_server_list = ["8.8.8.8"]
+    #
+    #   }
+    #   dynamic "linux_options" {
+    #     for_each = local.is_windows ? [] : [1]
+    #     content {
+    #       host_name = "QualiLinux-${local.env_id}"
+    #       domain    = "local"
+    #     }
+    #   }
+    #
+    #   dynamic "windows_options" {
+    #     for_each = local.is_windows ? [1] : []
+    #     content {
+    #       computer_name  = "QualiWin-${local.env_id}"
+    #       admin_password = "Password1"
+    #     }
+    #   }
+    # }
   } 
 }
 
