@@ -36,7 +36,7 @@ data "vsphere_virtual_machine" "template" {
 }
 
 locals {
-  env_id              = regex_replace(lower(reverse(split("/", var.vm_folder_path))[0]), "[^a-z0-9-]", "")
+  env_id              = replace(lower(reverse(split("/", var.vm_folder_path))[0]), "/[^a-z0-9-]/", "")
   vm_name             = var.vm_name == "" ? "${var.vm_template_name}-${local.env_id}" : "${var.vm_name}-${local.env_id}"
   is_windows          = can(regex("windows", lower(data.vsphere_virtual_machine.template.guest_id)))
   protocol            = local.is_windows ? "rdp" : "ssh"
