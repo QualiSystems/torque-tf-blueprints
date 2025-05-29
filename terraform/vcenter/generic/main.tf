@@ -115,21 +115,21 @@ resource "vsphere_virtual_machine" "vm" {
         # dns_server_list = ["8.8.8.8"]
 
       }
-      dynamic "linux_options" {
-        for_each = local.is_windows ? [] : [1]
-        content {
-          host_name = "QualiLinux-${local.env_id}"
-          domain    = "local"
-        }
-      }
-
-      dynamic "windows_options" {
-        for_each = local.is_windows ? [1] : []
-        content {
-          computer_name  = "QualiWin-${local.env_id}"
-          admin_password = "Password1"
-        }
-      }
+      # dynamic "linux_options" {
+      #   for_each = local.is_windows ? [] : [1]
+      #   content {
+      #     host_name = "QualiLinux-${local.env_id}"
+      #     domain    = "local"
+      #   }
+      # }
+      #
+      # dynamic "windows_options" {
+      #   for_each = local.is_windows ? [1] : []
+      #   content {
+      #     computer_name  = "QualiWin-${local.env_id}"
+      #     admin_password = "Password1"
+      #   }
+      # }
     }
   } 
 }
