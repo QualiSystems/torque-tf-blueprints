@@ -42,7 +42,7 @@ variable "vm_name" {
 
 variable "vm_folder_path" {
   type = string
-  default = "AlexeyB"
+  default = "Alexey.B"
 }
 
 variable "requested_vm_address" {}
