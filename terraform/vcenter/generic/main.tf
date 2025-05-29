@@ -7,6 +7,13 @@ terraform {
   }
 }
 
+# helpers
+resource "random_string" "vm_suffix" {
+  length  = 4
+  upper   = false
+  special = false
+}
+
 provider "vsphere" {
   user                 = var.vc_username
   password             = var.vc_password
@@ -35,17 +42,19 @@ data "vsphere_virtual_machine" "template" {
   datacenter_id = data.vsphere_datacenter.datacenter.id
 }
 
+
+
 locals {
-  env_id              = replace(lower(reverse(split("/", var.vm_folder_path))[0]), "/[^a-z0-9-]/", "")
-  vm_name             = var.vm_name == "" ? "${var.vm_template_name}-${local.env_id}" : "${var.vm_name}-${local.env_id}"
+  # env_id              = replace(lower(reverse(split("/", var.vm_folder_path))[0]), "/[^a-z0-9-]/", "")
+  vm_name             = var.vm_name == "" ? "${var.vm_template_name }-${random_string.vm_suffix.result}": "${var.vm_name}-${random_string.vm_suffix.result}"
   is_windows          = can(regex("windows", lower(data.vsphere_virtual_machine.template.guest_id)))
   protocol            = local.is_windows ? "rdp" : "ssh"
   connection_port     = local.is_windows ? 3389 : 22
   enable_qualix_link  = var.qualix_ip != "" ? 1 : 0
 
   interfaces = [
-  for iface in split(",", var.network_names):
-  trimspace(iface)
+    for iface in split(",", var.network_names):
+    trimspace(iface)
   ]
   # List to map
   interface_map = {
@@ -77,10 +86,6 @@ resource "vsphere_virtual_machine" "vm" {
   wait_for_guest_ip_timeout   = tonumber(var.wait_for_ip)
   wait_for_guest_net_timeout  = tonumber(var.wait_for_net)
 
-  # network_interface {
-  #   network_id = local.selected_network_id
-  #   adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
-  # }
   dynamic "network_interface" {
     for_each = local.interface_map
       content {
@@ -98,12 +103,6 @@ resource "vsphere_virtual_machine" "vm" {
       eagerly_scrub    = false
     }
   }
-  # disk {
-  #   label            = data.vsphere_virtual_machine.template.disks.0.label
-  #   size             = data.vsphere_virtual_machine.template.disks.0.size
-  #   thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
-  # }
-
 
   clone {
       template_uuid = data.vsphere_virtual_machine.template.id
