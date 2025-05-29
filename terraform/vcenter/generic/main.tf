@@ -36,7 +36,7 @@ data "vsphere_virtual_machine" "template" {
 }
 
 locals {
-  env_id              = reverse(split("/", var.vm_folder_path))[0]
+  env_id              = regexreplace(reverse(split("/", var.vm_folder_path))[0], "[^a-z0-9-]", "")
   # selected_network_id = var.network_name != "" ? data.vsphere_network.network[0].id : data.vsphere_virtual_machine.template.network_interfaces[0].network_id
   is_windows          = can(regex("windows", lower(data.vsphere_virtual_machine.template.guest_id)))
   protocol            = local.is_windows ? "rdp" : "ssh"
