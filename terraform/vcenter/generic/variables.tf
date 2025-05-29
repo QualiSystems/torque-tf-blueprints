@@ -60,12 +60,12 @@ variable "is_linked_clone" {
 
 variable "wait_for_ip" {
   type        = string
-  default     = "120"
+  default     = "2"
 }
 
 variable "wait_for_net" {
   type        = string
-  default     = "120"
+  default     = "2"
 }
 
 variable "qualix_ip" {

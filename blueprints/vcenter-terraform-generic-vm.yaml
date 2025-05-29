@@ -43,11 +43,11 @@ inputs:
     description: IP of the QualiX Server (empty to disable remote access)
   Wait For IP:
     type: string
-    default: 120
-    description: Timeout for waiting when obtaining IP address
+    default: 2
+    description: Timeout for waiting when obtaining IP address (in minutes)
   Wait For Network:
     type: string
-    default: 120
+    default: 2
 
 outputs:
   VM Name:
