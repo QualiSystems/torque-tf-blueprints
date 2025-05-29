@@ -36,7 +36,7 @@ data "vsphere_virtual_machine" "template" {
 }
 
 locals {
-  env_id              = regexreplace(reverse(split("/", var.vm_folder_path))[0], "[^a-z0-9-]", "")
+  env_id              = reverse(split("/", var.vm_folder_path))[0]
   # selected_network_id = var.network_name != "" ? data.vsphere_network.network[0].id : data.vsphere_virtual_machine.template.network_interfaces[0].network_id
   is_windows          = can(regex("windows", lower(data.vsphere_virtual_machine.template.guest_id)))
   protocol            = local.is_windows ? "rdp" : "ssh"
@@ -87,21 +87,21 @@ resource "vsphere_virtual_machine" "vm" {
         adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
       }
   }
-  # dynamic "disk" {
-  #   for_each = data.vsphere_virtual_machine.template.disks
-  #   content {
-  #     unit_number      = disk.key
-  #     label            = disk.value.label
-  #     size             = disk.value.size
-  #     thin_provisioned = disk.value.thin_provisioned
-  #     eagerly_scrub    = false
-  #   }
-  # }
-  disk {
-    label            = data.vsphere_virtual_machine.template.disks.0.label
-    size             = data.vsphere_virtual_machine.template.disks.0.size
-    thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
+  dynamic "disk" {
+    for_each = data.vsphere_virtual_machine.template.disks
+    content {
+      unit_number      = disk.key
+      label            = disk.value.label
+      size             = disk.value.size
+      thin_provisioned = disk.value.thin_provisioned
+      eagerly_scrub    = false
+    }
   }
+  # disk {
+  #   label            = data.vsphere_virtual_machine.template.disks.0.label
+  #   size             = data.vsphere_virtual_machine.template.disks.0.size
+  #   thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
+  # }
 
 
   clone {
