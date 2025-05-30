@@ -58,7 +58,7 @@ outputs:
     quick: false
   Remote Access Link:
     value: "{{ .grains.vcenter-generic-vm.outputs.remote_access_link }}"
-    quick: true
+    quick: false
 
 grains:
   vcenter-generic-vm:
