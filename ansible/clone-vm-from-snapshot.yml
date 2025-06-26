@@ -1,5 +1,6 @@
 - name: Clone a KubeVirt VM in OpenShift from a PVC snapshot
-  hosts: all
+  hosts: localhost
+  connection: local
   gather_facts: false
 
   tasks:
