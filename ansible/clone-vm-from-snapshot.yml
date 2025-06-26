@@ -1,0 +1,61 @@
+- name: Clone a KubeVirt VM in OpenShift from a PVC snapshot
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: "Create a DataVolume from VolumeSnapshot '{{ snapshot_name }}'"
+      k8s:
+        state: present
+        definition:
+          apiVersion: cdi.kubevirt.io/v1beta1
+          kind: DataVolume
+          metadata:
+            name: "{{ clone_dv_name }}"
+            namespace: "{{ namespace }}"
+          spec:
+            pvc:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: "{{ storage_size }}"
+            source:
+              snapshot:
+                name: "{{ snapshot_name }}"
+
+    - name: "Wait for DataVolume '{{ clone_dv_name }}' to finish cloning"
+      k8s_info:
+        api_version: cdi.kubevirt.io/v1beta1
+        kind: DataVolume
+        namespace: "{{ namespace }}"
+        name: "{{ clone_dv_name }}"
+      register: dv_status
+      until: dv_status.resources[0].status.phase == "Succeeded"
+      retries: 30
+      delay: 10
+
+    - name: "Create a cloned VirtualMachine '{{ clone_vm_name }}'"
+      k8s:
+        state: present
+        definition:
+          apiVersion: kubevirt.io/v1
+          kind: VirtualMachine
+          metadata:
+            name: "{{ clone_vm_name }}"
+            namespace: "{{ namespace }}"
+          spec:
+            running: false
+            template:
+              spec:
+                domain:
+                  cpu:
+                    cores: 2                  # adjust as needed
+                  devices:
+                    disks:
+                      - name: rootdisk
+                        disk:
+                          bus: virtio
+                volumes:
+                  - name: rootdisk
+                    dataVolume:
+                      name: "{{ clone_dv_name }}"
