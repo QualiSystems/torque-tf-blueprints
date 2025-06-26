@@ -5,22 +5,26 @@ inputs:
   namespace:
     type: string
   snapshot:
-    type: list
+    type: string
   vm:
-    type: dict
+    type: string
   storage:
     type: string
     default: 10
 
+outputs:
+  Result:
+    value: "{{ .grains.clone_vm.outputs.result }}"
+
 grains:
-  ansible_playbook:
+  clone_vm:
     kind: ansible
     spec:
       source:
-        store: ansible-repo
-        path: ansible/playbook.yml
+        store: torque-tf-blueprints
+        path: ansible/clone-vm-from-snapshot.yml
       agent:
-        name: '{{ .inputs.agent }}'
+        name: openshift
       inputs:
         - namespace: '{{ .inputs.namespace }}'
         - snapshot_name: '{{ .inputs.snapshot }}'
