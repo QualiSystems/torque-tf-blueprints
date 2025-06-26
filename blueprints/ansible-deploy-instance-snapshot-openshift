@@ -1,0 +1,32 @@
+spec_version: 2
+description: Auto-generated Ansible Blueprint
+
+inputs:
+  namespace:
+    type: string
+  snapshot:
+    type: list
+  vm:
+    type: dict
+  storage:
+    type: string
+    default: 10
+
+grains:
+  ansible_playbook:
+    kind: ansible
+    spec:
+      source:
+        store: ansible-repo
+        path: ansible/playbook.yml
+      agent:
+        name: '{{ .inputs.agent }}'
+      inputs:
+        - namespace: '{{ .inputs.namespace }}'
+        - snapshot_name: '{{ .inputs.snapshot }}'
+        - clone_dv_name: '{{ .inputs.vm }}-dv-{{ sandboxid }}'
+        - clone_vm_name: '{{ .inputs.vm }}'
+        - storage_size: '{{ .inputs.storage }}'
+      # The outputs section below is a placeholder. Review and update based on your playbook's actual outputs.
+      outputs:
+        - result
