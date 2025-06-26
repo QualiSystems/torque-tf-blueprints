@@ -2,6 +2,8 @@
   hosts: localhost
   connection: local
   gather_facts: false
+  collections:
+    - community.kubernetes
 
   tasks:
     - name: "Create a DataVolume from VolumeSnapshot '{{ snapshot_name }}'"
