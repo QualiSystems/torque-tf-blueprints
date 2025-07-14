@@ -1,11 +1,26 @@
-- name: Deploy CentOS Stream 9 VM on OpenShift
-  hosts: localhost
-  connection: local
+- name: Bootstrap remote for k8s modules & Deploy CentOS Stream 9 VM
+  hosts: torque-black-eagle-ebf8d92
+  connection: ssh
+  become: true
   gather_facts: no
-  collections:
-    - kubernetes.core
+
+  # Ensure Ansible uses the right Python on the remote
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
   tasks:
+    - name: Install python3-pip package
+      package:
+        name: python3-pip
+        state: present
+
+    - name: Install Kubernetes & OpenShift Python libraries
+      pip:
+        name:
+          - kubernetes
+          - openshift
+        executable: pip3
+
     - name: Create the DataVolume for the root disk
       k8s:
         state: present
