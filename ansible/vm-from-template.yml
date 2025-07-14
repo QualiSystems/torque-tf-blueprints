@@ -1,20 +1,19 @@
-- name: Bootstrap remote for k8s modules & Deploy CentOS Stream 9 VM
-  hosts: torque-black-eagle-ebf8d92
-  connection: ssh
-  become: true
+---
+- name: Bootstrap local controller & deploy CentOS Stream 9 VM
+  hosts: localhost
+  connection: local
   gather_facts: no
 
-  # Ensure Ansible uses the right Python on the remote
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
   tasks:
-    - name: Install python3-pip package
+    - name: Ensure python3-pip is installed on controller
       package:
         name: python3-pip
         state: present
 
-    - name: Install Kubernetes & OpenShift Python libraries
+    - name: Install Kubernetes & OpenShift Python libraries on controller
       pip:
         name:
           - kubernetes
@@ -23,6 +22,7 @@
 
     - name: Create the DataVolume for the root disk
       k8s:
+        kubeconfig: "{{ lookup('env','KUBECONFIG') | default('~/.kube/config', true) }}"
         state: present
         definition: |
           apiVersion: cdi.kubevirt.io/v1beta1
@@ -42,6 +42,7 @@
 
     - name: Create the VirtualMachine
       k8s:
+        kubeconfig: "{{ lookup('env','KUBECONFIG') | default('~/.kube/config', true) }}"
         state: present
         definition: |
           apiVersion: kubevirt.io/v1
