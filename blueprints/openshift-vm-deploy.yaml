@@ -19,4 +19,4 @@ grains:
         store: torque-tf-blueprints
         path: k8s/openshift-template-deploy.yaml
       agent:
-        name: openshift
+        name: test
