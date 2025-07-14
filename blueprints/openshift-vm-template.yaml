@@ -9,21 +9,27 @@ inputs:
     display-style: normal
     description: "Kubernetes namespace for sandbox to be ran in."
     default: vms
-  image namespace:
+    alias: Namespace
+  image_namespace:
     type: string
     default: openshift-virtualization-os-images
-  image os:
+    alias: Image Namespace
+  image_os:
     type: string
     default: centos-stream9
+    alias: Image OS
   user:
     type: string
     default: centos
+    alias: User
   password:
     type: string
     default: 3t0u-qyyt-g82m
+    alias: Password
   uuid:
     type: string
     default: 5d307ca9-b3ef-428c-8861-06e72d69f223
+    alias: Custom BIOS UUID
   
 
 grains:
@@ -36,10 +42,10 @@ grains:
       agent:
         name: test
       inputs:
-        - vm_name: '{{ .inputs.vm }}-dv-{{ sandboxid }}'
+        - vm_name: '{{ .inputs.image_os }}-dv-{{ sandboxid }}'
         - namespace: '{{ .inputs.namespace }}'
-        - image_ns: '{{ .inputs.image namespace }}'
-        - image_ds: '{{ .inputs.image os }}'
+        - image_ns: '{{ .inputs.image_namespace }}'
+        - image_ds: '{{ .inputs.image_os }}'
         - storage_size: 30Gi
         - user_name: '{{ .inputs.user }}'
         - user_password: '{{ .inputs.password }}'
