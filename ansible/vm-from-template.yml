@@ -1,4 +1,3 @@
----
 - name: Deploy CentOS Stream 9 VM on OpenShift
   hosts: localhost
   connection: local
