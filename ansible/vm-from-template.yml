@@ -1,0 +1,123 @@
+---
+- name: Deploy CentOS Stream 9 VM on OpenShift
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  collections:
+    - kubernetes.core
+
+  tasks:
+    - name: Create the DataVolume for the root disk
+      k8s:
+        state: present
+        definition: |
+          apiVersion: cdi.kubevirt.io/v1beta1
+          kind: DataVolume
+          metadata:
+            name: {{ vm_name }}
+            namespace: {{ namespace }}
+          spec:
+            sourceRef:
+              kind: DataSource
+              name: {{ image_ds }}
+              namespace: {{ image_ns }}
+            storage:
+              resources:
+                requests:
+                  storage: {{ storage_size }}
+
+    - name: Create the VirtualMachine
+      k8s:
+        state: present
+        definition: |
+          apiVersion: kubevirt.io/v1
+          kind: VirtualMachine
+          metadata:
+            name: {{ vm_name }}
+            namespace: {{ namespace }}
+            labels:
+              app: {{ vm_name }}
+              kubevirt.io/dynamic-credentials-support: "true"
+              vm.kubevirt.io/template: centos-stream9-server-small
+              vm.kubevirt.io/template.namespace: openshift
+              vm.kubevirt.io/template.revision: "1"
+              vm.kubevirt.io/template.version: v0.34.0
+            annotations:
+              kubemacpool.io/transaction-timestamp: "2025-07-14T17:12:24.262978538Z"
+              vm.kubevirt.io/validations: |
+                [
+                  {
+                    "name": "minimal-required-memory",
+                    "path": "jsonpath::.spec.domain.memory.guest",
+                    "rule": "integer",
+                    "message": "This VM requires more memory.",
+                    "min": 1610612736
+                  }
+                ]
+          spec:
+            runStrategy: RerunOnFailure
+            dataVolumeTemplates:
+              - apiVersion: cdi.kubevirt.io/v1beta1
+                kind: DataVolume
+                metadata:
+                  name: {{ vm_name }}
+                spec:
+                  sourceRef:
+                    kind: DataSource
+                    name: {{ image_ds }}
+                    namespace: {{ image_ns }}
+                  storage:
+                    resources:
+                      requests:
+                        storage: {{ storage_size }}
+            template:
+              metadata:
+                labels:
+                  kubevirt.io/domain: {{ vm_name }}
+                  kubevirt.io/size: small
+                annotations:
+                  vm.kubevirt.io/flavor: small
+                  vm.kubevirt.io/os: centos-stream9
+                  vm.kubevirt.io/workload: server
+              spec:
+                architecture: amd64
+                domain:
+                  firmware:
+                    uuid: {{ uuid }}
+                  cpu:
+                    cores: 1
+                    sockets: 1
+                    threads: 1
+                  devices:
+                    disks:
+                      - name: rootdisk
+                        disk:
+                          bus: virtio
+                      - name: cloudinitdisk
+                        disk:
+                          bus: virtio
+                    interfaces:
+                      - name: default
+                        model: virtio
+                        macAddress: {{ mac_address }}
+                        masquerade: {}
+                    rng: {}
+                  machine:
+                    type: pc-q35-rhel9.6.0
+                  memory:
+                    guest: 2Gi
+                networks:
+                  - name: default
+                    pod: {}
+                terminationGracePeriodSeconds: 180
+                volumes:
+                  - name: rootdisk
+                    dataVolume:
+                      name: {{ vm_name }}
+                  - name: cloudinitdisk
+                    cloudInitNoCloud:
+                      userData: |
+                        #cloud-config
+                        user: {{ user_name }}
+                        password: {{ user_password }}
+                        chpasswd: { expire: False }

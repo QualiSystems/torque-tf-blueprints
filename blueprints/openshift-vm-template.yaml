@@ -1,0 +1,51 @@
+kind: blueprint
+spec: 2
+spec_version: 2-preview
+description: Blueprint with nginx kubernetes grain.
+
+inputs:
+  namespace:
+    type: string
+    display-style: normal
+    description: "Kubernetes namespace for sandbox to be ran in."
+    default: vms
+  image namespace:
+    type: string
+    default: openshift-virtualization-os-images
+  image os:
+    type: string
+    default: centos-stream9
+  user:
+    type: string
+    default: centos
+  password:
+    type: string
+    default: 3t0u-qyyt-g82m
+  uuid:
+    type: string
+    default: 5d307ca9-b3ef-428c-8861-06e72d69f223
+  
+
+grains:
+  clone_vm:
+    kind: ansible
+    spec:
+      source:
+        store: torque-tf-blueprints
+        path: ansible/vm-from-template.yml
+      agent:
+        name: test
+      inputs:
+        - vm_name: '{{ .inputs.vm }}-dv-{{ sandboxid }}'
+        - namespace: '{{ .inputs.namespace }}'
+        - image_ns: '{{ .inputs.image namespace }}'
+        - image_ds: '{{ .inputs.image os }}'
+        - storage_size: 30Gi
+        - user_name: '{{ .inputs.user }}'
+        - user_password: '{{ .inputs.password }}'
+        - uuid: '{{ .inputs.uuid }}'
+        - mac_address: "02:9d:65:00:00:01"
+
+      # The outputs section below is a placeholder. Review and update based on your playbook's actual outputs.
+      outputs:
+        - result
