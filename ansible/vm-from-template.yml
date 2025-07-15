@@ -1,6 +1,6 @@
 ---
 - name: Bootstrap local controller & deploy CentOS Stream 9 VM
-  hosts: all
+  hosts: localhost
   connection: local
   gather_facts: no
 

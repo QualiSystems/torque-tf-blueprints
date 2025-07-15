@@ -55,3 +55,8 @@ grains:
       # The outputs section below is a placeholder. Review and update based on your playbook's actual outputs.
       outputs:
         - result
+      inventory-file:
+        localhost:
+          hosts:
+            127.0.0.1:
+              ansible_connection: local

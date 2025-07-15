@@ -20,3 +20,8 @@ grains:
         path: k8s/openshift-template-deploy.yaml
       agent:
         name: test
+      inventory-file:
+        localhost:
+          hosts:
+            127.0.0.1:
+              ansible_connection: local
