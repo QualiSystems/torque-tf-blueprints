@@ -8,17 +8,22 @@
     ansible_python_interpreter: /usr/bin/python3
 
   tasks:
-    - name: Ensure python3-pip is installed on controller
+    - name: Ensure Python dependencies for k8s modules
       package:
-        name: python3-pip
+        name:
+          - python3-pip
         state: present
 
-    - name: Install Kubernetes & OpenShift Python libraries on controller
+    - name: Install Kubernetes & OpenShift Python libraries
       pip:
         name:
           - kubernetes
           - openshift
         executable: pip3
+
+    - name: Load in-cluster ServiceAccount credentials
+      kubernetes.core.k8s_auth:
+        in_cluster: true
 
     - name: Create the DataVolume for the root disk
       k8s:
