@@ -1,0 +1,14 @@
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: {{ .Values.vmName }}
+  namespace: {{ .Values.namespace }}
+spec:
+  sourceRef:
+    kind: DataSource
+    name: {{ .Values.imageDs }}
+    namespace: {{ .Values.imageNs }}
+  storage:
+    resources:
+      requests:
+        storage: {{ .Values.storageSize }}

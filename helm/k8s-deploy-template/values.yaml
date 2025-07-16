@@ -1,0 +1,8 @@
+vmName: centos-stream9-apricot-haddock-84
+namespace: vms
+imageNs: openshift-virtualization-os-images
+imageDs: centos-stream9
+storageSize: 30Gi
+userName: centos
+userPassword: 3t0u-qyyt-g82m
+uuid: 5d307ca9-b3ef-428c-8861-06e72d69f223
