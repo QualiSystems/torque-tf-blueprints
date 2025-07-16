@@ -1,11 +1,23 @@
 ---
-- name: Bootstrap local controller & deploy CentOS Stream 9 VM
+- name: Deploy CentOS Stream 9 VM using in-cluster ServiceAccount auth
   hosts: localhost
   connection: local
   gather_facts: no
 
   vars:
+    # Ensure Ansible uses Python3
     ansible_python_interpreter: /usr/bin/python3
+
+    # VM parameters
+    vm_name: centos-stream9-apricot-haddock-84
+    namespace: vms
+    image_ns: openshift-virtualization-os-images
+    image_ds: centos-stream9
+    storage_size: 30Gi
+    user_name: centos
+    user_password: 3t0u-qyyt-g82m
+    mac_address: "02:9d:65:00:00:01"
+    uuid: 5d307ca9-b3ef-428c-8861-06e72d69f223
 
   tasks:
     - name: Ensure Python dependencies for k8s modules
@@ -14,20 +26,16 @@
           - python3-pip
         state: present
 
-    - name: Install Kubernetes & OpenShift Python libraries
+    - name: Install Kubernetes & OpenShift Python client libs
       pip:
         name:
           - kubernetes
           - openshift
         executable: pip3
 
-    - name: Load in-cluster ServiceAccount credentials
-      kubernetes.core.k8s_auth:
-        in_cluster: true
-
     - name: Create the DataVolume for the root disk
-      k8s:
-        kubeconfig: "{{ lookup('env','KUBECONFIG') | default('~/.kube/config', true) }}"
+      kubernetes.core.k8s:
+        # No auth parameters: in-cluster ServiceAccount used by python client
         state: present
         definition: |
           apiVersion: cdi.kubevirt.io/v1beta1
@@ -46,8 +54,8 @@
                   storage: {{ storage_size }}
 
     - name: Create the VirtualMachine
-      k8s:
-        kubeconfig: "{{ lookup('env','KUBECONFIG') | default('~/.kube/config', true) }}"
+      kubernetes.core.k8s:
+        # No auth parameters: in-cluster ServiceAccount used by python client
         state: present
         definition: |
           apiVersion: kubevirt.io/v1
