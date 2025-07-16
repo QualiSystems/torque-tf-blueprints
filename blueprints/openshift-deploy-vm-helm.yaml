@@ -1,8 +1,13 @@
 spec_version: 2
 description: Auto generated blueprint for helm chart nginx
-# blueprint inputs can be provided by the user, API or CI plugin when creating an environment from this blueprint.
 inputs:
-  namespace:
+  image_os:
+    type: string
+    default: fedora-5gb
+  image_namespace:
+    type: string
+    default: default
+  target_namespace:
     type: string
     default: quali
 grains:
@@ -14,17 +19,8 @@ grains:
       source:
         store: torque-tf-blueprints
         path: helm/k8s-deploy-template
-      namespace: '{{ .inputs.namespace }}'
-      host:
-      # Execution Host - the platform where the asset executable will run.
-      # For example, a Kubernetes cluster can be used as an execution host.
-        # name: '{{ .inputs.host_name }}'
-        # A service account annotated with a role ARN with permissions to run the asset
-        # service-account: <service-account-name>
-      # The environment variables declared in this section will be available during the grain deployment as well as the grain destroy phase
-      # env-vars:
-      # - VAR_NAME: var value
-      env-vars: []
-      # Helm commands to run before installing the chart
-      commands:
-      - dep up dependencies/nginx
+      inputs:
+        vmName: '{{ .inputs.image_os }}-dv-{{ sandboxid }}'
+        namespace: '{{ .inputs.target_namespace }}'
+        imageNs: '{{ .inputs.image_namespace }}'
+        imageDs: '{{ .inputs.image_os }}'
