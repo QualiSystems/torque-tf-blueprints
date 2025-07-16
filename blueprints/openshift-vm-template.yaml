@@ -40,7 +40,7 @@ grains:
         store: torque-tf-blueprints
         path: ansible/vm-from-template.yml
       agent:
-        name: test
+        name: openshift-agent
       inputs:
         - vm_name: '{{ .inputs.image_os }}-dv-{{ sandboxid }}'
         - namespace: '{{ .inputs.namespace }}'
