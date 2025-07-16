@@ -20,7 +20,7 @@ grains:
         store: torque-tf-blueprints
         path: helm/k8s-deploy-template
       inputs:
-        - vmName: '{{ .inputs.image_os }}-dv-{{ sandboxid }}'
+        - vmName: '{{ .inputs.image_os }}-dv-{{ sandboxid | downcase }}'
         - namespace: '{{ .inputs.target_namespace }}'
         - imageNs: '{{ .inputs.image_namespace }}'
         - imageDs: '{{ .inputs.image_os }}'
