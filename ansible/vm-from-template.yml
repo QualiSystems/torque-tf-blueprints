@@ -41,7 +41,7 @@
           apiVersion: cdi.kubevirt.io/v1beta1
           kind: DataVolume
           metadata:
-            name: {{ vm_name }}
+            name: {{ vm_name|lower }}
             namespace: {{ namespace }}
           spec:
             sourceRef:
@@ -61,10 +61,10 @@
           apiVersion: kubevirt.io/v1
           kind: VirtualMachine
           metadata:
-            name: {{ vm_name }}
+            name: {{ vm_name|lower }}
             namespace: {{ namespace }}
             labels:
-              app: {{ vm_name }}
+              app: {{ vm_name|lower }}
               kubevirt.io/dynamic-credentials-support: "true"
               vm.kubevirt.io/template: centos-stream9-server-small
               vm.kubevirt.io/template.namespace: openshift
@@ -88,7 +88,7 @@
               - apiVersion: cdi.kubevirt.io/v1beta1
                 kind: DataVolume
                 metadata:
-                  name: {{ vm_name }}
+                  name: {{ vm_name|lower }}
                 spec:
                   sourceRef:
                     kind: DataSource
@@ -101,7 +101,7 @@
             template:
               metadata:
                 labels:
-                  kubevirt.io/domain: {{ vm_name }}
+                  kubevirt.io/domain: {{ vm_name|lower }}
                   kubevirt.io/size: small
                 annotations:
                   vm.kubevirt.io/flavor: small
@@ -141,7 +141,7 @@
                 volumes:
                   - name: rootdisk
                     dataVolume:
-                      name: {{ vm_name }}
+                      name: {{ vm_name|lower }}
                   - name: cloudinitdisk
                     cloudInitNoCloud:
                       userData: |
