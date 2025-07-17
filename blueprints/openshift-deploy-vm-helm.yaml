@@ -27,8 +27,8 @@ grains:
       scripts:
         post-helm-install:
           source:
-            store: ProductionBPs
-            path:  assets/scripts/get-robot-web-address.sh
+            store: torque-tf-blueprints
+            path:  scripts/get-robot-web-address.sh
           outputs:
             - vm_name
             - storage
