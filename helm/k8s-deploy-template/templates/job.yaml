@@ -19,7 +19,7 @@ spec:
                     if ! kubectl wait vmi/{{ .Values.vmName }} \
                       --for=condition=Ready \
                       -n {{ .Values.namespace }} \
-                      --timeout=300s \
+                      --timeout=600s \
                       >/dev/null 2>&1; then
                       exit 2
                     fi
