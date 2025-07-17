@@ -4,7 +4,13 @@ set -euo pipefail
 
 VM_NAME="$1"
 NAMESPACE="$2"
-kubectl wait vm/"${VM_NAME}" --for condition=Ready --timeout=600s
+if ! kubectl wait vmi/"${VM_NAME}" \
+     --for=condition=Ready \
+     -n "${NAMESPACE}" \
+     --timeout=300s \
+  >/dev/null 2>&1; then
+  exit 2
+fi
 # 1. Fetch VM JSON
 vm_json=$(kubectl get vm "${VM_NAME}" -n "${NAMESPACE}" -o json)
 
