@@ -1,11 +1,45 @@
 echo "Getting External IP from service"
-sleep 40s
-kubectl wait vm/{{ .Values.vm.name }} --for=condition=Ready --timeout=600s
-export qualix_ip=$(kubectl get service guacamole -n torque-sandboxes -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-export qualix_hostname=$(kubectl get service guacamole -n torque-sandboxes -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
-export POD_NAME=$(kubectl get pods -n torque-sandboxes --sort-by=.metadata.creationTimestamp --no-headers | grep guacamole | tac | awk 'NR==1{print $1}')
-export qualix_outbound_ip=$(kubectl exec -i -t -n torque-sandboxes $POD_NAME -c guacamole -- sh -c "curl icanhazip.com" | tr -d '\n')
-kubectl exec -i -t -n torque-sandboxes $POD_NAME -c guacamole -- sh -c "touch /disableValidateLink"
-echo $qualix_ip
-echo $qualix_hostname
-echo $qualix_outbound_ip
+sleep 60s
+set -euo pipefail
+
+VM_NAME="$1"
+NAMESPACE="$2"
+kubectl wait vm/"${VM_NAME}" --for condition=Ready --timeout=600s
+# 1. Fetch VM JSON
+vm_json=$(kubectl get vm "${VM_NAME}" -n "${NAMESPACE}" -o json)
+
+# 2. VM Name (just echoes back)
+echo "$(echo "$vm_json" | jq -r '.metadata.name')"
+
+# 3. Attached Storage (via DataVolumeTemplates)
+echo "$vm_json" | jq -r '
+  .spec.dataVolumeTemplates[]? |
+  "- \(.metadata.name): size=\(.spec.persistentVolumeClaim.resources.requests.storage)"
+'
+
+# 4. IP Addresses (from the corresponding VMI)
+echo $(kubectl get vmi fedora-5gb-dv-2wxrthy1akbm -n quali -o json   | jq -r '
+      .status.interfaces[]?.ipAddress // "N/A"
+    '   | sed '/^N\/A$/d')
+
+# 5. Credentials (if using CloudInit secret)
+secret_name=$(echo "$vm_json" \
+  | jq -r '.spec.template.spec.domain.devices.cloudInitNoCloud.userDataSecretRef.name // ""')
+
+if [[ -n "$secret_name" ]]; then
+  echo "Credentials (from secret ${secret_name}):"
+  secret_json=$(kubectl get secret "${secret_name}" -n "${NAMESPACE}" -o json)
+
+  username=$(echo "$secret_json" \
+    | jq -r '.data.username' \
+    | base64 --decode)
+  password=$(echo "$secret_json" \
+    | jq -r '.data.password' \
+    | base64 --decode)
+
+  echo $username
+  echo $password
+else
+  echo ""
+  echo ""
+fi

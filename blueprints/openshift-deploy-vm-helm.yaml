@@ -24,3 +24,14 @@ grains:
         - namespace: '{{ .inputs.target_namespace }}'
         - imageNs: '{{ .inputs.image_namespace }}'
         - imageDs: '{{ .inputs.image_os }}'
+      scripts:
+        post-helm-install:
+          source:
+            store: ProductionBPs
+            path:  assets/scripts/get-robot-web-address.sh
+          outputs:
+            - vm_name
+            - storage
+            - ip
+            - user
+            - password
