@@ -85,6 +85,7 @@ spec:
             {{- $ifaceName := printf "net-%s" $index }}
             - name: {{ $ifaceName }}
               bridge: {}
+              acpiIndex: {{ $index }}
             {{- end }}
             {{- end }}
             {{- end }}
