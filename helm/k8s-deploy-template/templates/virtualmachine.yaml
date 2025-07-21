@@ -65,13 +65,18 @@ spec:
               disk:
                 bus: virtio
           interfaces:
-            {{- range $net := .Values.networks }}
+            {{- /* Ensure networks is always a list */}}
+            {{- $nets := .Values.networks }}
+            {{- if kindIs "string" $nets }}
+              {{- $nets = list $nets }}
+            {{- end }}
+            {{- range $net := $nets }}
             - name: {{ $net }}
               {{- if eq $net "default" }}
               pod: {}
               {{- else }}
               multus:
-                networkName: {{ $.Values.namespace }}/{{ $net }}
+                networkName: {{ $.Values.networkAttachment.namespace }}/{{ $net }}
               {{- end }}
             {{- end }}
           rng: {}
@@ -80,15 +85,16 @@ spec:
         memory:
           guest: {{ .Values.ram }}
       networks:
-        {{- range $net := .Values.networks }}
+            {{- /* Reuse the same list */}}
+            {{- range $net := $nets }}
         - name: {{ $net }}
           {{- if eq $net "default" }}
           pod: {}
           {{- else }}
           multus:
-            networkName: {{ $.Values.namespace }}/{{ $net }}
+            networkName: {{ $.Values.networkAttachment.namespace }}/{{ $net }}
           {{- end }}
-        {{- end }}
+            {{- end }}
       terminationGracePeriodSeconds: 180
       volumes:
         - name: rootdisk
