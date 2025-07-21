@@ -17,7 +17,7 @@ spec:
                   - -c
                   - |
                     if ! kubectl wait vmi/{{ .Values.vmName }} \
-                      --for=jsonpath='{.status.ready}'=true \
+                      --for=condition=AgentConnected \
                       -n {{ .Values.namespace }} \
                       --timeout=600s \
                       >/dev/null 2>&1; then
