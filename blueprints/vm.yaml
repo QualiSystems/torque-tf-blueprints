@@ -2,7 +2,8 @@ spec_version: 2
 inputs:
   Networks:
     type: 'string'
-  CPUs:
+  cpu:
+    alias: CPUs
     type: 'string'
     allowed-values:
       - '1'
@@ -10,17 +11,18 @@ inputs:
       - '4'
       - '8'
       - '16'
-  RAM:
+  ram:
+    alias: RAM
     type: 'string'
     allowed-values:
-      - '2'
-      - '4'
-      - '8'
-      - '16'
-      - '24'
-      - '32'
-  Template Path:
-    type: 'string'
+      - '1Gi'
+      - '2Gi'
+      - '4Gi'
+      - '8Gi'
+      - '16Gi'
+      - '24Gi'
+      - '32Gi'
+      - '64Gi'
   image_os:
     type: string
     default: fedora-5gb
@@ -47,7 +49,7 @@ grains:
         - imageDs: '{{ .inputs.image_os }}'
         - networks: '{{ .inputs.network }}'
         - cpu: '{{ .inputs.cpu }}'
-        - ram: '{{ .inputs.ram }}Gi'
+        - ram: '{{ .inputs.ram }}'
       scripts:
         post-helm-install:
           source:
