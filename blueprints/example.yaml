@@ -4,16 +4,16 @@ grains:
     kind: 'blueprint'
     spec:
       source:
-        store: 'qtorque'
-        path: 'Openshift-Network'
+        store: torque-tf-blueprints
+        path: blueprints/network
       outputs:
         - 'network-name'
   Openshift-VM:
     kind: 'blueprint'
     spec:
       source:
-        store: 'qtorque'
-        path: 'Openshift-VM'
+        store: torque-tf-blueprints
+        path: blueprints/vm
       inputs:
         - Networks: ''
         - CPUs: '2'
@@ -24,24 +24,24 @@ grains:
     kind: 'blueprint'
     spec:
       source:
-        store: 'qtorque'
-        path: 'Openshift-Network'
+        store: torque-tf-blueprints
+        path: blueprints/network
       outputs:
         - 'network-name'
   Corp A:
     kind: 'blueprint'
     spec:
       source:
-        store: 'qtorque'
-        path: 'Openshift-Network'
+        store: torque-tf-blueprints
+        path: blueprints/network
       outputs:
         - 'network-name'
   Mgmt-DHCP:
     kind: 'blueprint'
     spec:
       source:
-        store: 'qtorque'
-        path: 'Openshift-VM'
+        store: torque-tf-blueprints
+        path: blueprints/vm
       inputs:
         - Networks: '{{ .grains.["Management Network"].outputs.network-name }}'
         - CPUs: '1'
@@ -52,8 +52,8 @@ grains:
     kind: 'blueprint'
     spec:
       source:
-        store: 'qtorque'
-        path: 'Openshift-VM'
+        store: torque-tf-blueprints
+        path: blueprints/vm
       inputs:
         - Networks: '{{ .grains.["Management Network"].outputs.network-name }}'
         - CPUs: '1'
@@ -64,8 +64,8 @@ grains:
     kind: 'blueprint'
     spec:
       source:
-        store: 'qtorque'
-        path: 'Openshift-VM'
+        store: torque-tf-blueprints
+        path: blueprints/vm
       inputs:
         - Networks: ''
         - CPUs: ''
@@ -76,8 +76,8 @@ grains:
     kind: 'blueprint'
     spec:
       source:
-        store: 'qtorque'
-        path: 'Openshift-VM'
+        store: torque-tf-blueprints
+        path: blueprints/vm
       inputs:
         - Networks: ''
         - CPUs: ''
@@ -88,8 +88,8 @@ grains:
     kind: 'blueprint'
     spec:
       source:
-        store: 'qtorque'
-        path: 'Openshift-VM'
+        store: torque-tf-blueprints
+        path: blueprints/vm
       inputs:
         - Networks: ''
         - CPUs: ''
@@ -100,8 +100,8 @@ grains:
     kind: 'blueprint'
     spec:
       source:
-        store: 'qtorque'
-        path: 'Openshift-VM'
+        store: torque-tf-blueprints
+        path: blueprints/vm
       inputs:
         - Networks: '{{ .grains.["Management Network"].outputs.network-name }}'
         - CPUs: '1'
@@ -112,8 +112,8 @@ grains:
     kind: 'blueprint'
     spec:
       source:
-        store: 'qtorque'
-        path: 'Openshift-VM'
+        store: torque-tf-blueprints
+        path: blueprints/vm
       inputs:
         - Networks: ''
         - CPUs: ''

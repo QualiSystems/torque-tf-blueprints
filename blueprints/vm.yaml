@@ -21,3 +21,41 @@ inputs:
       - '32'
   Template Path:
     type: 'string'
+  image_os:
+    type: string
+    default: fedora-5gb
+  image_namespace:
+    type: string
+    default: default
+  target_namespace:
+    type: string
+    default: quali
+grains:
+  instance:
+    kind: helm
+    spec:
+      agent:
+        name: openshift-agent
+      source:
+        store: torque-tf-blueprints
+        path: helm/k8s-deploy-template
+      command-arguments: '--timeout 65m'
+      inputs:
+        - vmName: '{{ .inputs.image_os }}-dv-{{ sandboxid | downcase }}'
+        - namespace: '{{ .inputs.target_namespace }}'
+        - imageNs: '{{ .inputs.image_namespace }}'
+        - imageDs: '{{ .inputs.image_os }}'
+        - networks: '{{ .inputs.network }}'
+        - cpu: '{{ .inputs.cpu }}'
+        - ram: '{{ .inputs.ram }}'
+      scripts:
+        post-helm-install:
+          source:
+            store: torque-tf-blueprints
+            path:  scripts/get_openshift_vm_state.sh
+          outputs:
+            - vm_name
+            - storage
+            - ip
+            - user
+            - password

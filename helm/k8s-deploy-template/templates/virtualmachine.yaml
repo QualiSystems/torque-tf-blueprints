@@ -53,7 +53,7 @@ spec:
         firmware:
           uuid: {{ .Values.uuid }}
         cpu:
-          cores: 1
+          cores: {{ .Values.cpu }}
           sockets: 1
           threads: 1
         devices:
@@ -65,17 +65,34 @@ spec:
               disk:
                 bus: virtio
           interfaces:
-            - name: default
-              model: virtio
-              masquerade: {}
+{{- with splitList "," .Values.networks }}
+{{- range $index, $net := . }}
+            - name: {{ trim $net " " }}
+              {{- if eq (trim $net " ") 'default' }}
+              pod: {}
+              {{- else }}
+              multus:
+                networkName: {{ $.Values.namespace }}/{{ trim $net " " }}
+              {{- end }}
+{{- end }}
+{{- end }}
           rng: {}
         machine:
           type: pc-q35-rhel9.6.0
         memory:
-          guest: 2Gi
+          guest: {{ .Values.ram }}
       networks:
-        - name: default
+{{- with splitList "," .Values.networks }}
+{{- range $index, $net := . }}
+        - name: {{ trim $net " " }}
+          {{- if eq (trim $net " ") 'default' }}
           pod: {}
+          {{- else }}
+          multus:
+            networkName: {{ $.Values.namespace }}/{{ trim $net " " }}
+          {{- end }}
+{{- end }}
+{{- end }}
       terminationGracePeriodSeconds: 180
       volumes:
         - name: rootdisk

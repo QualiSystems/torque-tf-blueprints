@@ -3,3 +3,27 @@ outputs:
   network-name:
     quick: false
     value: 'net1'
+grains:
+  instance:
+    kind: helm
+    spec:
+      agent:
+        name: openshift-agent
+      source:
+        store: torque-tf-blueprints
+        path: helm/k8s-deploy-network
+      command-arguments: '--timeout 65m'
+      inputs:
+        - network: '{{ .inputs.image_os }}-dv-{{ sandboxid | downcase }}'
+        - namespace: '{{ .inputs.target_namespace }}'
+      scripts:
+        post-helm-install:
+          source:
+            store: torque-tf-blueprints
+            path:  scripts/get-robot-web-address.sh
+          outputs:
+            - vm_name
+            - storage
+            - ip
+            - user
+            - password

@@ -6,3 +6,6 @@ storageSize: 5Gi
 userName: fedora
 userPassword: 3t0u-qyyt-g82m
 uuid: 5d307ca9-b3ef-428c-8861-06e72d69f223
+ram: 2Gi
+cpu: 1
+networks: ""
