@@ -65,18 +65,23 @@ spec:
               disk:
                 bus: virtio
           interfaces:
-            {{- $nets := .Values.networks }}
-            {{- if kindIs "string" $nets }}
-              {{- $nets = list $nets }}
+            {{- if .Values.networks }}
+            {{- /* Split by either comma or semicolon */}}
+            {{- $networkList := regexSplit "[,;]" .Values.networks -1 }}
+            {{- range $index, $networkEntry := $networkList }}
+            {{- if ne ($networkEntry | trim) "" }}
+            {{- /* Extract namespace and network name */}}
+            {{- $parts := split "/" ($networkEntry | trim) }}
+            {{- $networkName := "" }}
+            {{- if eq (len $parts) 1 }}
+              {{- $networkName = (index $parts 0) | trim }}
+            {{- else }}
+              {{- $networkName = (index $parts 1) | trim }}
             {{- end }}
-            {{- range $net := $nets }}
-            - name: {{ $net }}
-              {{- if eq $net "default" }}
-              pod: {}
-              {{- else }}
-              multus:
-                networkName: {{ $.Values.namespace }}/{{ $net }}
-              {{- end }}
+            - name: {{ $networkName | replace "-" "" | replace "." "" | lower | printf "net%s" }}
+              bridge: {}
+            {{- end }}
+            {{- end }}
             {{- end }}
           rng: {}
         machine:
@@ -84,18 +89,26 @@ spec:
         memory:
           guest: {{ .Values.ram }}
       networks:
-        {{- if kindIs "string" .Values.networks }}
-          {{- $raw := .Values.networks }}
-          {{- $_ := set .Values "networks" (list $raw) }}
+        {{- if .Values.networks }}
+        {{- /* Split by either comma or semicolon */}}
+        {{- $networkList := regexSplit "[,;]" .Values.networks -1 }}
+        {{- range $index, $networkEntry := $networkList }}
+        {{- if ne ($networkEntry | trim) "" }}
+        {{- /* Extract namespace and network name */}}
+        {{- $parts := split "/" ($networkEntry | trim) }}
+        {{- $namespace := $.Release.Namespace }}
+        {{- $networkName := "" }}
+        {{- if eq (len $parts) 1 }}
+          {{- $networkName = (index $parts 0) | trim }}
+        {{- else }}
+          {{- $namespace = (index $parts 0) | trim }}
+          {{- $networkName = (index $parts 1) | trim }}
         {{- end }}
-        {{- range $net := .Values.networks }}
-        - name: {{ $net }}
-          {{- if eq $net "default" }}
-          pod: {}
-          {{- else }}
+        - name: {{ $networkName | replace "-" "" | replace "." "" | lower | printf "net%s" }}
           multus:
-            networkName: {{ $.Values.namespace }}/{{ $net }}
-          {{- end }}
+            networkName: {{ printf "%s/%s" $namespace $networkName }}
+        {{- end }}
+        {{- end }}
         {{- end }}
       terminationGracePeriodSeconds: 180
       volumes:
