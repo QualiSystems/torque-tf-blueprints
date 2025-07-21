@@ -13,13 +13,25 @@ spec:
         - name: my-script-container
           image: busybox  # Use a suitable image (e.g., busybox for simple scripts)
           command:
-                  - /bin/sh
-                  - -c
-                  - |
-                    if ! kubectl wait vmi/{{ .Values.vmName }} \
-                      --for=condition=AgentConnected \
-                      -n {{ .Values.namespace }} \
-                      --timeout=600s \
-                      >/dev/null 2>&1; then
-                      exit 2
-                    fi
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for VMI to be Ready…"
+              until kubectl wait vmi/{{ .Values.vmName }} \
+                         -n {{ .Values.namespace }} \
+                         --for=condition=Ready \
+                         --timeout=60s; do
+                echo "  …still waiting for Ready"
+                sleep 10
+              done
+
+              echo "Waiting for guest-agent…"
+              until kubectl wait vmi/{{ .Values.vmName }} \
+                         -n {{ .Values.namespace }} \
+                         --for=condition=AgentConnected \
+                         --timeout=60s; do
+                echo "  …still waiting for AgentConnected"
+                sleep 10
+              done
+
+              echo "✅ VM fully booted"
