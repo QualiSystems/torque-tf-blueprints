@@ -70,23 +70,9 @@ spec:
             {{- $networkList := regexSplit "[,;]" .Values.networks -1 }}
             {{- range $index, $networkEntry := $networkList }}
             {{- $networkEntry := $networkEntry | trim }}
-            # {{- if ne $networkEntry "" }}
-            # {{- /* Parse network entry safely */}}
-            # {{- $namespace := $.Release.Namespace }}
-            # {{- $networkName := $networkEntry }}
-            # {{- if contains "/" $networkEntry }}
-            #   {{- $nameParts := regexSplit "/" $networkEntry 2 }}
-            #   {{- if gt (len $nameParts) 1 }}
-            #     {{- $namespace = index $nameParts 0 | trim }}
-            #     {{- $networkName = index $nameParts 1 | trim }}
-            #   {{- end }}
-            # {{- end }}
-            # {{- /* Generate valid interface name - only allow letters, numbers, dashes and underscores */}}
-            # {{- $ifaceName := printf "net-%s" $index }}
             - name: net-{{ $index }}
               bridge: {}
               acpiIndex: {{ $index }}
-            # {{- end }}
             {{- end }}
             {{- end }}
           rng: {}
@@ -104,19 +90,12 @@ spec:
         {{- /* Parse network entry safely */}}
         {{- $namespace := $.Release.Namespace }}
         {{- $networkName := $networkEntry }}
-        # {{- if contains "/" $networkEntry }}
-        #   {{- $nameParts := regexSplit "/" $networkEntry 2 }}
-        #   {{- if gt (len $nameParts) 1 }}
-        #     {{- $namespace = index $nameParts 0 | trim }}
-        #     {{- $networkName = index $nameParts 1 | trim }}
-        #   {{- end }}
-        # {{- end }}
         - name: net-{{ $index }}
           {{- if contains "/" $networkEntry }}
-            multus:              
-              networkName: {{ $networkEntry }}
+          multus:              
+            networkName: {{ $networkEntry }}
           {{- else}}
-            pod: {}
+          pod: {}
           {{- end }}
         {{- end }}
         {{- end }}
