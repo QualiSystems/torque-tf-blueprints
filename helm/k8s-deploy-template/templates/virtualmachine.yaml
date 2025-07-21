@@ -83,7 +83,7 @@ spec:
             {{- end }}
             {{- /* Generate valid interface name - only allow letters, numbers, dashes and underscores */}}
             {{- $ifaceName := printf "net-%s" $index }}
-            - name: {{ $ifaceName }}
+            - name: net-{{ $index }}
               bridge: {}
               acpiIndex: {{ $index }}
             {{- end }}
@@ -113,7 +113,7 @@ spec:
         {{- end }}
         {{- /* Generate valid interface name - only allow letters, numbers, dashes and underscores */}}
         {{- $ifaceName := printf "net-%s" $index }}
-        - name: {{ $ifaceName }}
+        - name: net-{{ $index }}
           multus:
             networkName: {{ printf "%s/%s" $namespace $networkName }}
         {{- end }}
