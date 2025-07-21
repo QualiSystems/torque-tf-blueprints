@@ -1,0 +1,5 @@
+spec_version: 2
+outputs:
+  network-name:
+    quick: false
+    value: 'net1'

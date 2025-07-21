@@ -1,0 +1,122 @@
+spec_version: 2
+grains:
+  Management Network:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'qtorque'
+        path: 'Openshift-Network'
+      outputs:
+        - 'network-name'
+  Openshift-VM:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'qtorque'
+        path: 'Openshift-VM'
+      inputs:
+        - Networks: ''
+        - CPUs: '2'
+        - RAM: '8'
+        - Template Path: 'aaa'
+    depends-on: 'Management Network'
+  Egress Network:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'qtorque'
+        path: 'Openshift-Network'
+      outputs:
+        - 'network-name'
+  Corp A:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'qtorque'
+        path: 'Openshift-Network'
+      outputs:
+        - 'network-name'
+  Mgmt-DHCP:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'qtorque'
+        path: 'Openshift-VM'
+      inputs:
+        - Networks: '{{ .grains.["Management Network"].outputs.network-name }}'
+        - CPUs: '1'
+        - RAM: '2'
+        - Template Path: 'bbb'
+    depends-on: 'Management Network'
+  Jumpbox:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'qtorque'
+        path: 'Openshift-VM'
+      inputs:
+        - Networks: '{{ .grains.["Management Network"].outputs.network-name }}'
+        - CPUs: '1'
+        - RAM: '2'
+        - Template Path: '111'
+    depends-on: 'Management Network'
+  Strata-VM-300-11:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'qtorque'
+        path: 'Openshift-VM'
+      inputs:
+        - Networks: ''
+        - CPUs: ''
+        - RAM: ''
+        - Template Path: ''
+    depends-on: 'Management Network,Egress Network,Corp A'
+  Egress-DHCP:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'qtorque'
+        path: 'Openshift-VM'
+      inputs:
+        - Networks: ''
+        - CPUs: ''
+        - RAM: ''
+        - Template Path: ''
+    depends-on: 'Egress Network'
+  Egress:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'qtorque'
+        path: 'Openshift-VM'
+      inputs:
+        - Networks: ''
+        - CPUs: ''
+        - RAM: ''
+        - Template Path: ''
+    depends-on: 'Egress Network'
+  Domain-controller:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'qtorque'
+        path: 'Openshift-VM'
+      inputs:
+        - Networks: '{{ .grains.["Management Network"].outputs.network-name }}'
+        - CPUs: '1'
+        - RAM: '2'
+        - Template Path: '333'
+    depends-on: 'Management Network'
+  Windows10-client:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'qtorque'
+        path: 'Openshift-VM'
+      inputs:
+        - Networks: ''
+        - CPUs: ''
+        - RAM: ''
+        - Template Path: ''
+    depends-on: 'Corp A'

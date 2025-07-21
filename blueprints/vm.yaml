@@ -1,0 +1,23 @@
+spec_version: 2
+inputs:
+  Networks:
+    type: 'string'
+  CPUs:
+    type: 'string'
+    allowed-values:
+      - '1'
+      - '2'
+      - '4'
+      - '8'
+      - '16'
+  RAM:
+    type: 'string'
+    allowed-values:
+      - '2'
+      - '4'
+      - '8'
+      - '16'
+      - '24'
+      - '32'
+  Template Path:
+    type: 'string'
