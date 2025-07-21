@@ -45,7 +45,7 @@ grains:
         - namespace: '{{ .inputs.target_namespace }}'
         - imageNs: '{{ .inputs.image_namespace }}'
         - imageDs: '{{ .inputs.image_os }}'
-        - networks: '{{ .inputs.networks }}'
+        - networks: '{{{ .inputs.networks }}}'
         - cpu: '{{ .inputs.cpu }}'
         - ram: '{{ .inputs.ram }}'
       scripts:

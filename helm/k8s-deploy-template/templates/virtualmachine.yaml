@@ -65,34 +65,30 @@ spec:
               disk:
                 bus: virtio
           interfaces:
-{{- with splitList "," .Values.networks }}
-{{- range $index, $net := . }}
-            - name: {{ trim $net " " }}
-              {{- if eq (trim $net " ") 'default' }}
+            {{- range $net := .Values.networks }}
+            - name: {{ $net }}
+              {{- if eq $net "default" }}
               pod: {}
               {{- else }}
               multus:
-                networkName: {{ $.Values.namespace }}/{{ trim $net " " }}
+                networkName: {{ $.Values.namespace }}/{{ $net }}
               {{- end }}
-{{- end }}
-{{- end }}
+            {{- end }}
           rng: {}
         machine:
           type: pc-q35-rhel9.6.0
         memory:
           guest: {{ .Values.ram }}
       networks:
-{{- with splitList "," .Values.networks }}
-{{- range $index, $net := . }}
-        - name: {{ trim $net " " }}
-          {{- if eq (trim $net " ") 'default' }}
+        {{- range $net := .Values.networks }}
+        - name: {{ $net }}
+          {{- if eq $net "default" }}
           pod: {}
           {{- else }}
           multus:
-            networkName: {{ $.Values.namespace }}/{{ trim $net " " }}
+            networkName: {{ $.Values.namespace }}/{{ $net }}
           {{- end }}
-{{- end }}
-{{- end }}
+        {{- end }}
       terminationGracePeriodSeconds: 180
       volumes:
         - name: rootdisk
