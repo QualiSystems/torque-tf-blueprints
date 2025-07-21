@@ -47,7 +47,7 @@ grains:
         - imageDs: '{{ .inputs.image_os }}'
         - networks: '{{ .inputs.network }}'
         - cpu: '{{ .inputs.cpu }}'
-        - ram: '{{ .inputs.ram }}'
+        - ram: '{{ .inputs.ram }}Gi'
       scripts:
         post-helm-install:
           source:
