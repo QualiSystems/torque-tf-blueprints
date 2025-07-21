@@ -101,9 +101,9 @@ spec:
         {{- range $index, $networkEntry := $networkList }}
         {{- $networkEntry := $networkEntry | trim }}
         {{- if ne $networkEntry "" }}
-        # {{- /* Parse network entry safely */}}
-        # {{- $namespace := $.Release.Namespace }}
-        # {{- $networkName := $networkEntry }}
+        {{- /* Parse network entry safely */}}
+        {{- $namespace := $.Release.Namespace }}
+        {{- $networkName := $networkEntry }}
         # {{- if contains "/" $networkEntry }}
         #   {{- $nameParts := regexSplit "/" $networkEntry 2 }}
         #   {{- if gt (len $nameParts) 1 }}
@@ -112,8 +112,12 @@ spec:
         #   {{- end }}
         # {{- end }}
         - name: net-{{ $index }}
-          multus:              
-            networkName: {{ $networkEntry }}
+          {{- if contains "/" $networkEntry }}
+            multus:              
+              networkName: {{ $networkEntry }}
+          {{- else}}
+            pod: {}
+          {{- end }}
         {{- end }}
         {{- end }}
         {{- end }}
