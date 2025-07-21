@@ -17,7 +17,7 @@ spec:
                   - -c
                   - |
                     if ! kubectl wait vmi/{{ .Values.vmName }} \
-                      --for=condition=Ready \
+                      --for=jsonpath='{.status.ready}'=true \
                       -n {{ .Values.namespace }} \
                       --timeout=600s \
                       >/dev/null 2>&1; then
