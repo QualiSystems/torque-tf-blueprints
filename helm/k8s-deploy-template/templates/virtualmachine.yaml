@@ -69,14 +69,17 @@ spec:
             {{- /* Split by either comma or semicolon */}}
             {{- $networkList := regexSplit "[,;]" .Values.networks -1 }}
             {{- range $index, $networkEntry := $networkList }}
-            {{- if ne ($networkEntry | trim) "" }}
-            {{- /* Extract namespace and network name */}}
-            {{- $parts := split "/" ($networkEntry | trim) }}
-            {{- $networkName := "" }}
-            {{- if eq (len $parts) 1 }}
-              {{- $networkName = (index $parts 0) | trim }}
-            {{- else }}
-              {{- $networkName = (index $parts 1) | trim }}
+            {{- $networkEntry := $networkEntry | trim }}
+            {{- if ne $networkEntry "" }}
+            {{- /* Parse network entry safely */}}
+            {{- $namespace := $.Release.Namespace }}
+            {{- $networkName := $networkEntry }}
+            {{- if contains "/" $networkEntry }}
+              {{- $nameParts := regexSplit "/" $networkEntry 2 }}
+              {{- if gt (len $nameParts) 1 }}
+                {{- $namespace = index $nameParts 0 | trim }}
+                {{- $networkName = index $nameParts 1 | trim }}
+              {{- end }}
             {{- end }}
             - name: {{ $networkName | replace "-" "" | replace "." "" | lower | printf "net%s" }}
               bridge: {}
@@ -93,16 +96,17 @@ spec:
         {{- /* Split by either comma or semicolon */}}
         {{- $networkList := regexSplit "[,;]" .Values.networks -1 }}
         {{- range $index, $networkEntry := $networkList }}
-        {{- if ne ($networkEntry | trim) "" }}
-        {{- /* Extract namespace and network name */}}
-        {{- $parts := split "/" ($networkEntry | trim) }}
+        {{- $networkEntry := $networkEntry | trim }}
+        {{- if ne $networkEntry "" }}
+        {{- /* Parse network entry safely */}}
         {{- $namespace := $.Release.Namespace }}
-        {{- $networkName := "" }}
-        {{- if eq (len $parts) 1 }}
-          {{- $networkName = (index $parts 0) | trim }}
-        {{- else }}
-          {{- $namespace = (index $parts 0) | trim }}
-          {{- $networkName = (index $parts 1) | trim }}
+        {{- $networkName := $networkEntry }}
+        {{- if contains "/" $networkEntry }}
+          {{- $nameParts := regexSplit "/" $networkEntry 2 }}
+          {{- if gt (len $nameParts) 1 }}
+            {{- $namespace = index $nameParts 0 | trim }}
+            {{- $networkName = index $nameParts 1 | trim }}
+          {{- end }}
         {{- end }}
         - name: {{ $networkName | replace "-" "" | replace "." "" | lower | printf "net%s" }}
           multus:
