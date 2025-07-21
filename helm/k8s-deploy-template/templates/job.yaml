@@ -16,22 +16,12 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "Waiting for VMI to be Ready…"
-              until kubectl wait vmi/{{ .Values.vmName }} \
-                         -n {{ .Values.namespace }} \
-                         --for=condition=Ready \
-                         --timeout=60s; do
-                echo "  …still waiting for Ready"
-                sleep 10
-              done
+              set -e
 
-              echo "Waiting for guest-agent…"
-              until kubectl wait vmi/{{ .Values.vmName }} \
-                         -n {{ .Values.namespace }} \
-                         --for=condition=AgentConnected \
-                         --timeout=60s; do
-                echo "  …still waiting for AgentConnected"
-                sleep 10
-              done
+              echo "⏳ Waiting for VMI Ready…"
+              kubectl wait vmi/{{ .Values.vmName }} \
+                -n {{ .Values.namespace }} \
+                --for=condition=Ready \
+                --timeout=600s
 
-              echo "✅ VM fully booted"
+              echo "VM is fully booted!"
