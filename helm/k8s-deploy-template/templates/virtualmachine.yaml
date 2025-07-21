@@ -94,7 +94,7 @@ spec:
           pod: {}
           {{- else }}
           multus:
-            networkName: {{ $.Values.networkAttachment.namespace }}/{{ $net }}
+            networkName: {{ $.Values.namespace }}/{{ $net }}
           {{- end }}
         {{- end }}
       terminationGracePeriodSeconds: 180
