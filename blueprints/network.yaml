@@ -5,7 +5,7 @@ inputs:
     default: quali
 outputs:
   network-name:
-    value: '{{ .inputs.namespace }}/network-{{ .grains.generate_name.activities.deploy.outputs.uuid }}'
+    value: '{{ .inputs.namespace }}/network-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
 grains:
   generate_name:
     kind: shell
@@ -15,7 +15,7 @@ grains:
       activities:
         deploy:
           commands:
-            - name: my_script
+            - name: namegen
               command:  'export uuid=$(cat /proc/sys/kernel/random/uuid | cut -c1-6)'
               outputs:
                 - uuid
@@ -31,5 +31,5 @@ grains:
         path: helm/k8s-deploy-network
       command-arguments: '--wait'
       inputs:
-        - network: network-'{{ .grains.generate_name.activities.deploy.outputs.uuid }}'
+        - network: network-'{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
         - namespace: '{{ .inputs.namespace }}'
