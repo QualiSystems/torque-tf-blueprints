@@ -44,5 +44,5 @@ if [[ -n "$secret_name" ]]; then
   export password=$password
 else
   export user=""
-  export user=""
+  export password=""
 fi
