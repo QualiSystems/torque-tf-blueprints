@@ -36,15 +36,15 @@ inputs:
 
 outputs:
   vm_name:
-    value: '{{ .grains.instance.outputs.vm_name }}'
+    value: '{{ .grains.instance.scripts.post-helm-install.outputs.vm_name }}'
   storage:
-    value: '{{ .grains.instance.outputs.storage }}'
+    value: '{{ .grains.instance.scripts.post-helm-install.outputs.storage }}'
   ip:
-    value: '{{ .grains.instance.outputs.ip }}'
+    value: '{{ .grains.instance.scripts.post-helm-install.outputs.ip }}'
   user:
-    value: '{{ .grains.instance.outputs.user }}'
+    value: '{{ .grains.instance.scripts.post-helm-install.outputs.user }}'
   password:
-    value: '{{ .grains.instance.outputs.password }}'
+    value: '{{ .grains.instance.scripts.post-helm-install.outputs.password }}'
 
 grains:
   instance:
