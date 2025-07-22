@@ -4,10 +4,9 @@ set -euo pipefail
 
 VM_NAME="$1"
 NAMESPACE="$2"
-kubectl wait vmi/"${VM_NAME}" \
-                -n "${NAMESPACE}" \
-                --for=jsonpath='{.status.printableStatus}'=Running \
-                --timeout=400s
+
+
+echo $(kubectl wait vmi/"${VM_NAME}" -n "${NAMESPACE}" --for=condition=Ready --timeout=400s)
 
 # 1. Fetch VM JSON
 vm_json=$(kubectl get vm "${VM_NAME}" -n "${NAMESPACE}" -o json)
@@ -44,6 +43,6 @@ if [[ -n "$secret_name" ]]; then
   export user=$username
   export password=$password
 else
-  echo ""
-  echo ""
+  export user=""
+  export user=""
 fi
