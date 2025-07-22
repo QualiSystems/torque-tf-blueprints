@@ -6,23 +6,23 @@ VM_NAME="$1"
 NAMESPACE="$2"
 kubectl wait vmi/"${VM_NAME}" \
                 -n "${NAMESPACE}" \
-                --for=condition=AgentConnected \
+                --for=jsonpath='{.status.printableStatus}'=Running \
                 --timeout=400s
 
 # 1. Fetch VM JSON
 vm_json=$(kubectl get vm "${VM_NAME}" -n "${NAMESPACE}" -o json)
 
 # 2. VM Name (just echoes back)
-echo "$(echo "$vm_json" | jq -r '.metadata.name')"
+export vm_name="$(echo "$vm_json" | jq -r '.metadata.name')"
 
 # 3. Attached Storage (via DataVolumeTemplates)
-echo "$vm_json" | jq -r '
+export storage="$vm_json" | jq -r '
   .spec.dataVolumeTemplates[]? |
   "- \(.metadata.name): size=\(.spec.persistentVolumeClaim.resources.requests.storage)"
 '
 
 # 4. IP Addresses (from the corresponding VMI)
-echo $(kubectl get vmi "${VM_NAME}" -n "${NAMESPACE}" -o json   | jq -r '
+export ip=$(kubectl get vmi "${VM_NAME}" -n "${NAMESPACE}" -o json   | jq -r '
       .status.interfaces[]?.ipAddress // "N/A"
     '   | sed '/^N\/A$/d')
 
@@ -41,8 +41,8 @@ if [[ -n "$secret_name" ]]; then
     | jq -r '.data.password' \
     | base64 --decode)
 
-  echo $username
-  echo $password
+  export user=$username
+  export password=$password
 else
   echo ""
   echo ""
