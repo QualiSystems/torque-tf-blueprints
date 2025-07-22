@@ -1,10 +1,13 @@
+{{- $suffix := randAlphaNum 6 | lower -}}
+{{- $fullName := printf "%s-%s" .Values.vmName $suffix -}}
+
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
-  name: {{ .Values.vmName }}
+  name: {{ $fullName }}
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ .Values.vmName }}
+    app: {{ $fullName }}
     kubevirt.io/dynamic-credentials-support: "true"
     vm.kubevirt.io/template: centos-stream9-server-small
     vm.kubevirt.io/template.namespace: openshift
@@ -28,7 +31,7 @@ spec:
     - apiVersion: cdi.kubevirt.io/v1beta1
       kind: DataVolume
       metadata:
-        name: {{ .Values.vmName }}
+        name: {{ $fullName }}
       spec:
         sourceRef:
           kind: DataSource
@@ -41,7 +44,7 @@ spec:
   template:
     metadata:
       labels:
-        kubevirt.io/domain: {{ .Values.vmName }}
+        kubevirt.io/domain: {{ $fullName }}
         kubevirt.io/size: small
       annotations:
         vm.kubevirt.io/flavor: small
@@ -104,7 +107,7 @@ spec:
       volumes:
         - name: rootdisk
           dataVolume:
-            name: {{ .Values.vmName }}
+            name: {{ $fullName }}
         - name: cloudinitdisk
           cloudInitNoCloud:
             userData: |
