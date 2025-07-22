@@ -1,4 +1,4 @@
-echo "Getting outputs from OpenShift VM ${1} in namespace ${2}"
+echo "Getting outputs from OpenShift VM"
 VM_NAME="$1"
 NAMESPACE="$2"
 echo $(kubectl wait vmi/"${VM_NAME}" -n "${NAMESPACE}" --for=condition=Ready --timeout=400s)
