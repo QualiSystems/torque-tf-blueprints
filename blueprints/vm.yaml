@@ -33,6 +33,24 @@ inputs:
   target_namespace:
     type: string
     default: quali
+
+outputs:
+  vm_name:
+    type: string
+    value: '{{ .grains.mysql.outputs.vm_name }}'
+  storage:
+    type: string
+    value: '{{ .grains.mysql.outputs.storage }}'
+  ip:
+    type: string
+    value: '{{ .grains.mysql.outputs.ip }}'
+  user:
+    type: string
+    value: '{{ .grains.mysql.outputs.user }}'
+  password:
+    type: string
+    value: '{{ .grains.mysql.outputs.password }}'
+
 grains:
   instance:
     kind: helm

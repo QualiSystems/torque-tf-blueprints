@@ -6,8 +6,9 @@ VM_NAME="$1"
 NAMESPACE="$2"
 kubectl wait vmi/"${VM_NAME}" \
                 -n "${NAMESPACE}" \
-                --for=condition=Ready \
-                --timeout=300s
+                --for=condition=AgentConnected \
+                --timeout=400s
+
 # 1. Fetch VM JSON
 vm_json=$(kubectl get vm "${VM_NAME}" -n "${NAMESPACE}" -o json)
 
@@ -21,7 +22,7 @@ echo "$vm_json" | jq -r '
 '
 
 # 4. IP Addresses (from the corresponding VMI)
-echo $(kubectl get vmi fedora-5gb-dv-2wxrthy1akbm -n quali -o json   | jq -r '
+echo $(kubectl get vmi "${VM_NAME}" -n "${NAMESPACE}" -o json   | jq -r '
       .status.interfaces[]?.ipAddress // "N/A"
     '   | sed '/^N\/A$/d')
 
