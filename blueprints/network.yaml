@@ -1,8 +1,14 @@
 spec_version: 2
+inputs:
+  namespace:
+    type: string
+    default: quali
+  network:
+    type: string
+    default: 'network-{% assign random_number = "now" | date: "%N" | modulo: 15000 | plus: 0 %}'
 outputs:
   network-name:
-    quick: false
-    value: 'net1'
+    value: '{{ .inputs.namespace }}/{{ .inputs.network }}'
 grains:
   instance:
     kind: helm
@@ -14,16 +20,13 @@ grains:
         path: helm/k8s-deploy-network
       command-arguments: '--timeout 65m'
       inputs:
-        - network: '{{ .inputs.image_os }}-dv-{{ sandboxid | downcase }}'
-        - namespace: '{{ .inputs.target_namespace }}'
-      scripts:
-        post-helm-install:
-          source:
-            store: torque-tf-blueprints
-            path:  scripts/get-robot-web-address.sh
-          outputs:
-            - vm_name
-            - storage
-            - ip
-            - user
-            - password
+        - network: '{{ .inputs.network }}'
+        - namespace: '{{ .inputs.namespace }}'
+      # scripts:
+      #   post-helm-install:
+      #     source:
+      #       store: torque-tf-blueprints
+      #       path:  scripts/get_network_state.sh
+      #     arguments: '{{ .inputs.namespace }}'
+      #     outputs:
+      #       - network_name
