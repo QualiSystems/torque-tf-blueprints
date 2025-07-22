@@ -37,19 +37,19 @@ inputs:
 outputs:
   vm_name:
     type: string
-    value: '{{ .grains.mysql.outputs.vm_name }}'
+    value: '{{ .grains.instance.outputs.vm_name }}'
   storage:
     type: string
-    value: '{{ .grains.mysql.outputs.storage }}'
+    value: '{{ .grains.instance.outputs.storage }}'
   ip:
     type: string
-    value: '{{ .grains.mysql.outputs.ip }}'
+    value: '{{ .grains.instance.outputs.ip }}'
   user:
     type: string
-    value: '{{ .grains.mysql.outputs.user }}'
+    value: '{{ .grains.instance.outputs.user }}'
   password:
     type: string
-    value: '{{ .grains.mysql.outputs.password }}'
+    value: '{{ .grains.instance.outputs.password }}'
 
 grains:
   instance:
