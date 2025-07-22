@@ -57,8 +57,7 @@ grains:
         path: helm/k8s-deploy-template
       command-arguments: '--wait --wait-for-jobs --timeout 600s'
       inputs:
-        - vmName: '{{ .inputs.image_os }}-{{ sandboxid | downcase }}'
-        - namespace: '{{ .inputs.target_namespace }}'
+        - vmName: '{{ .inputs.image_os }}-{{ blueprintName | downcase | replace: " ", "-" }}'
         - imageNs: '{{ .inputs.image_namespace }}'
         - imageDs: '{{ .inputs.image_os }}'
         - networks: "{{ .inputs.networks }}"
