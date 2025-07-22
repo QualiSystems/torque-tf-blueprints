@@ -31,5 +31,5 @@ grains:
         path: helm/k8s-deploy-network
       command-arguments: '--wait'
       inputs:
-        - network: network-'{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
+        - network: 'network-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
         - namespace: '{{ .inputs.namespace }}'
