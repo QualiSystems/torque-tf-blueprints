@@ -10,7 +10,7 @@ outputs:
   network-name:
     value: '{{ .inputs.namespace }}/{{ .inputs.network }}'
 grains:
-  instance:
+  network:
     kind: helm
     spec:
       agent:
