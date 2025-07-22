@@ -3,30 +3,33 @@ inputs:
   namespace:
     type: string
     default: quali
-  network:
-    type: string
-    default: 'network-{% assign random_number = "now" | date: "%N" | modulo: 15000 | plus: 0 %}'
 outputs:
   network-name:
-    value: '{{ .inputs.namespace }}/{{ .inputs.network }}'
+    value: '{{ .inputs.namespace }}/network-{{ .grains.generate_name.activities.deploy.outputs.uuid }}'
 grains:
+  generate_name:
+    kind: shell
+    spec:
+      agent:
+        name: openshift-agent
+      activities:
+        deploy:
+          commands:
+            - name: my_script
+              command:  'export uuid=$(cat /proc/sys/kernel/random/uuid | cut -c1-6)'
+              outputs:
+                - uuid
+      
   network:
     kind: helm
+    depends-on: generate_name
     spec:
       agent:
         name: openshift-agent
       source:
         store: torque-tf-blueprints
         path: helm/k8s-deploy-network
-      command-arguments: '--timeout 65m'
+      command-arguments: '--wait'
       inputs:
-        - network: '{{ .inputs.network }}'
+        - network: network-'{{ .grains.generate_name.activities.deploy.outputs.uuid }}'
         - namespace: '{{ .inputs.namespace }}'
-      # scripts:
-      #   post-helm-install:
-      #     source:
-      #       store: torque-tf-blueprints
-      #       path:  scripts/get_network_state.sh
-      #     arguments: '{{ .inputs.namespace }}'
-      #     outputs:
-      #       - network_name
