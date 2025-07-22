@@ -1,7 +1,7 @@
 echo "Getting outputs from OpenShift VM"
 VM_NAME="$1"
 NAMESPACE="$2"
-echo $(kubectl wait vmi/"${VM_NAME}" -n "${NAMESPACE}" --for=condition=Ready --timeout=400s)
+echo $(kubectl wait vmi/${VM_NAME} -n ${NAMESPACE} --for=condition=Ready --timeout=400s)
 vm_json=$(kubectl get vm "${VM_NAME}" -n "${NAMESPACE}" -o json)
 export vm_name="$(echo "$vm_json" | jq -r '.metadata.name')"
 export storage="$vm_json" | jq -r '.spec.dataVolumeTemplates[]? | "- \(.metadata.name): size=\(.spec.persistentVolumeClaim.resources.requests.storage)"'

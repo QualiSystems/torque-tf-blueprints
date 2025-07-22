@@ -69,7 +69,7 @@ grains:
           source:
             store: torque-tf-blueprints
             path:  scripts/get_openshift_vm_state.sh
-            arguments: '{{ .inputs.image_os }}-{{ sandboxid | downcase }},{{ .inputs.target_namespace }}'
+            arguments: "{{ .inputs.image_os }}-{{ sandboxid | downcase }} {{ .inputs.target_namespace }}"
           outputs:
             - vm_name
             - storage
