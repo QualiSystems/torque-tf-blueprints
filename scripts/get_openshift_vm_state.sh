@@ -12,7 +12,7 @@ export secret_name=$(echo "$vm_json" \
 # echo "secret_name=$secret_name"
 if [[ -n "$secret_name" ]]; then
   # echo "Credentials (from secret ${secret_name}):"
-  export user=$(echo "$vm_json" | jq -r '.spec.template.spec.volumes[] | select(.name == "cloudinitdisk") | .cloudInitNoCloud.userData' | grep '^user' | awk -F': ' '{print $2}')
+  export user=$(echo "$vm_json" | jq -r '.spec.template.spec.volumes[] | select(.name == "cloudinitdisk") | .cloudInitNoCloud.userData' | grep '^user:' | awk -F': ' '{print $2}')
   export password=$(echo "$vm_json" | jq -r '.spec.template.spec.volumes[] | select(.name == "cloudinitdisk") | .cloudInitNoCloud.userData' | grep '^password:' | awk -F': ' '{print $2}')
 else
   export user=""
