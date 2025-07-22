@@ -6,7 +6,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: blueprints/network
+        path: blueprints/network.yaml
       outputs:
         - 'network-name'
   Openshift-VM:
@@ -14,7 +14,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: blueprints/vm
+        path: blueprints/vm.yaml
       inputs:
         - networks: '{{ .grains.["Management Network"].outputs.network-name }}'
     depends-on: 'Management Network'
@@ -23,7 +23,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: blueprints/network
+        path: blueprints/network.yaml
       outputs:
         - 'network-name'
   Corp A:
@@ -31,7 +31,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: blueprints/network
+        path: blueprints/network.yaml
       outputs:
         - 'network-name'
   Mgmt-DHCP:
@@ -39,7 +39,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: blueprints/vm
+        path: blueprints/vm.yaml
       inputs:
         - networks: '{{ .grains.["Management Network"].outputs.network-name }}'
     depends-on: 'Management Network'
@@ -48,7 +48,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: blueprints/vm
+        path: blueprints/vm.yaml
       inputs:
         - networks: '{{ .grains.["Management Network"].outputs.network-name }}'
     depends-on: 'Management Network'
@@ -57,7 +57,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: blueprints/vm
+        path: blueprints/vm.yaml
       inputs:
         - networks: '{{ .grains.["Management Network"].outputs.network-name }}, {{ .grains.["Egress Network"].outputs.network-name }}, {{ .grains.["Corp A"].outputs.network-name }}'
     depends-on: 'Management Network,Egress Network,Corp A'
@@ -66,7 +66,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: blueprints/vm
+        path: blueprints/vm.yaml
       inputs:
         - networks: '{{ .grains.["Egress Network"].outputs.network-name }}'
     depends-on: 'Egress Network'
@@ -75,7 +75,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: blueprints/vm
+        path: blueprints/vm.yaml
       inputs:
         - networks: '{{ .grains.["Egress Network"].outputs.network-name }}'
     depends-on: 'Egress Network'
@@ -84,7 +84,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: blueprints/vm
+        path: blueprints/vm.yaml
       inputs:
         - networks: '{{ .grains.["Management Network"].outputs.network-name }}'
     depends-on: 'Management Network'
@@ -93,7 +93,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: blueprints/vm
+        path: blueprints/vm.yaml
       inputs:
         - networks: '{{ .grains.["Corp A"].outputs.network-name }}'
     depends-on: 'Corp A'
