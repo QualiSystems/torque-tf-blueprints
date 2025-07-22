@@ -1,6 +1,8 @@
 echo "Getting outputs from OpenShift VM"
 export VM_NAME="$1"
 export NAMESPACE="$2"
+echo "VM Name: $VM_NAME"
+echo "Namespace: $NAMESPACE"
 echo $(kubectl wait vm/$VM_NAME -n $NAMESPACE --for=condition=Ready --timeout=400s)
 vm_json=$(kubectl get vm $VM_NAME -n $NAMESPACE -o json)
 export vm_name="$(echo "$vm_json" | jq -r '.metadata.name')"
