@@ -22,6 +22,6 @@ spec:
               kubectl wait vmi/{{ .Values.vmName }} \
                 -n {{ .Values.namespace }} \
                 --for=condition=Ready \
-                --timeout=600s
+                --timeout=300s
 
               echo "VM is fully booted!"
