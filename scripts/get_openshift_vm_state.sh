@@ -1,11 +1,11 @@
 echo "Getting outputs from OpenShift VM"
-VM_NAME="$1"
-NAMESPACE="$2"
-echo $(kubectl wait vmi/${VM_NAME} -n ${NAMESPACE} --for=condition=Ready --timeout=400s)
-vm_json=$(kubectl get vm "${VM_NAME}" -n "${NAMESPACE}" -o json)
+export VM_NAME="$1"
+export NAMESPACE="$2"
+echo $(kubectl wait vmi/$VM_NAME -n $NAMESPACE --for=condition=Ready --timeout=400s)
+vm_json=$(kubectl get vm $VM_NAME -n $NAMESPACE -o json)
 export vm_name="$(echo "$vm_json" | jq -r '.metadata.name')"
 export storage="$vm_json" | jq -r '.spec.dataVolumeTemplates[]? | "- \(.metadata.name): size=\(.spec.persistentVolumeClaim.resources.requests.storage)"'
-export ip=$(kubectl get vmi "${VM_NAME}" -n "${NAMESPACE}" -o json   | jq -r ' .status.interfaces[]?.ipAddress // "N/A"'   | sed '/^N\/A$/d')
+export ip=$(kubectl get vmi $VM_NAME -n $NAMESPACE -o json   | jq -r ' .status.interfaces[]?.ipAddress // "N/A"'   | sed '/^N\/A$/d')
 secret_name=$(echo "$vm_json" \
   | jq -r '.spec.template.spec.domain.devices.cloudInitNoCloud.userDataSecretRef.name // ""')
 if [[ -n "$secret_name" ]]; then
