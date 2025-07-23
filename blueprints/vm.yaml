@@ -26,10 +26,10 @@ inputs:
     default: '4Gi'
   image_os:
     type: string
-    default: fedora-5gb
+    default: fedora-5g-q
   image_namespace:
     type: string
-    default: default
+    default: quali
   target_namespace:
     type: string
     default: quali
