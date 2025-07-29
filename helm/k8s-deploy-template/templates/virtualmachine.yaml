@@ -1,6 +1,3 @@
-# {{- $suffix := randAlphaNum 6 | lower -}}
-# {{- $fullName := printf "%s-%s" .Values.vmName $suffix -}}
-
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
@@ -22,7 +19,7 @@ spec:
           resources:
             requests:
               storage: {{ .Values.storageSize }}
-            storageClassName: lvm-smartclone
+          storageClassName: lvm-smartclone
   template:
     metadata:
       labels:
