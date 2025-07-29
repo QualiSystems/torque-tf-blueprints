@@ -9,7 +9,7 @@ metadata:
   labels:
     app: {{ $fullName }}
     kubevirt.io/dynamic-credentials-support: "true"
-    vm.kubevirt.io/template: {{ .Values.imageDs }}
+    vm.kubevirt.io/template: '{{ .Values.imageNs }}/{{ .Values.imageDs }}'
     vm.kubevirt.io/template.namespace: {{ .Values.imageNs }}
     vm.kubevirt.io/template.revision: "1"
     vm.kubevirt.io/template.version: v0.34.0
