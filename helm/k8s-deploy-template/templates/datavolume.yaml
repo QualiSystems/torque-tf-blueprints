@@ -1,7 +1,12 @@
+{{- $suffix := randAlphaNum 6 | lower -}}
+{{- $fullName := printf "%s-%s" .Values.vmName $suffix -}}
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
-  name: {{ .Values.vmName }}
+  name: {{ $fullName }}
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  annotations:
   namespace: {{ .Values.namespace }}
 spec:
   sourceRef:
@@ -12,3 +17,4 @@ spec:
     resources:
       requests:
         storage: {{ .Values.storageSize }}
+      storageClassName: lvm-smartclone
