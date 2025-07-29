@@ -42,6 +42,7 @@ grains:
         path: blueprints/vm.yaml
       inputs:
         - image_os: fedora-5g-q
+        - storage_size: 5.32Gi  
         - networks: 'default,{{ .grains.["Management Network"].outputs.network-name }}'
     depends-on: 'Management Network'
   Jumpbox:
@@ -52,6 +53,7 @@ grains:
         path: blueprints/vm.yaml
       inputs:
         - image_os: fedora-5g-q
+        - storage_size: 5.32Gi  
         - networks: 'default,{{ .grains.["Management Network"].outputs.network-name }}'
     depends-on: 'Management Network'
   Strata-VM-300-11:

@@ -33,7 +33,7 @@ inputs:
   target_namespace:
     type: string
     default: quali
-  storageSize:
+  storage_size:
     type: string
     default: '512Mi'
 
@@ -77,7 +77,7 @@ grains:
         - imageNs: '{{ .inputs.image_namespace }}'
         - imageDs: '{{ .inputs.image_os }}'
         - networks: "{{ .inputs.networks }}"
-        - storageSize: '{{ .inputs.storageSize }}'
+        - storageSize: '{{ .inputs.storage_size }}'
         - cpu: '{{ .inputs.cpu }}'
         - ram: '{{ .inputs.ram }}'
       scripts:
