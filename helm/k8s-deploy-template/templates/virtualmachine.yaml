@@ -76,7 +76,7 @@ spec:
             {{- $networkEntry := $networkEntry | trim }}
             - name: net-{{ $index }}
               bridge: {}
-              acpiIndex: {{ $index + 1 }}
+              acpiIndex: {{ add $index 1 }}
             {{- end }}
             {{- end }}
           rng: {}
