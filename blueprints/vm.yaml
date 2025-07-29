@@ -50,8 +50,21 @@ outputs:
     value: '{{ .grains.instance.scripts.post-helm-install.outputs.password }}'
 
 grains:
+  generate_name:
+      kind: shell
+      spec:
+        agent:
+          name: openshift-agent
+        activities:
+          deploy:
+            commands:
+              - name: namegen
+                command:  'export uuid=$(cat /proc/sys/kernel/random/uuid | cut -c1-6)'
+                outputs:
+                  - uuid
   instance:
     kind: helm
+    depends-on: generate_name
     spec:
       agent:
         name: openshift-agent
@@ -60,7 +73,7 @@ grains:
         path: helm/k8s-deploy-template
       command-arguments: '--wait --wait-for-jobs --timeout 600s'
       inputs:
-        - vmName: '{{ .inputs.image_os }}'
+        - vmName: '{{ .inputs.image_os }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
         - imageNs: '{{ .inputs.image_namespace }}'
         - imageDs: '{{ .inputs.image_os }}'
         - networks: "{{ .inputs.networks }}"

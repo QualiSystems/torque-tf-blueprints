@@ -1,10 +1,10 @@
-{{- $suffix := randAlphaNum 6 | lower -}}
-{{- $fullName := printf "%s-%s" .Values.vmName $suffix -}}
+# {{- $suffix := randAlphaNum 6 | lower -}}
+# {{- $fullName := printf "%s-%s" .Values.vmName $suffix -}}
 
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
-  name: {{ $fullName }}
+  name: {{ .Values.vmName }}
   namespace: {{ .Values.namespace }}
 spec:
   runStrategy: RerunOnFailure
@@ -12,7 +12,7 @@ spec:
     - apiVersion: cdi.kubevirt.io/v1beta1
       kind: DataVolume
       metadata:
-        name: {{ $fullName }}
+        name: {{ .Values.vmName }}
       spec:
         sourceRef:
           kind: DataSource
@@ -26,7 +26,7 @@ spec:
   template:
     metadata:
       labels:
-        kubevirt.io/domain: {{ $fullName }}
+        kubevirt.io/domain: {{ .Values.vmName }}
         kubevirt.io/size: small
       annotations:
         vm.kubevirt.io/flavor: small
@@ -91,7 +91,7 @@ spec:
       volumes:
         - name: rootdisk
           dataVolume:
-            name: {{ $fullName }}
+            name: {{ .Values.vmName }}
         - name: cloudinitdisk
           cloudInitNoCloud:
             userData: |
