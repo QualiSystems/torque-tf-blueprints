@@ -41,7 +41,7 @@ spec:
           resources:
             requests:
               storage: {{ .Values.storageSize }}
-            storageClassName: lvm-smartclone
+          storageClassName: lvm-smartclone
   template:
     metadata:
       labels:
