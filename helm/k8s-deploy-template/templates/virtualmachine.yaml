@@ -9,7 +9,7 @@ metadata:
   labels:
     app: {{ $fullName }}
     kubevirt.io/dynamic-credentials-support: "true"
-    vm.kubevirt.io/template: centos-stream9-server-small
+    vm.kubevirt.io/template: fedora-42
     vm.kubevirt.io/template.namespace: openshift
     vm.kubevirt.io/template.revision: "1"
     vm.kubevirt.io/template.version: v0.34.0
@@ -41,6 +41,7 @@ spec:
           resources:
             requests:
               storage: {{ .Values.storageSize }}
+            storageClassName: lvm-smartclone
   template:
     metadata:
       labels:
@@ -48,7 +49,7 @@ spec:
         kubevirt.io/size: small
       annotations:
         vm.kubevirt.io/flavor: small
-        vm.kubevirt.io/os: centos-stream9
+        vm.kubevirt.io/os: fedora-42
         vm.kubevirt.io/workload: server
     spec:
       architecture: amd64
@@ -75,7 +76,7 @@ spec:
             {{- $networkEntry := $networkEntry | trim }}
             - name: net-{{ $index }}
               bridge: {}
-              acpiIndex: {{ $index }}
+              acpiIndex: {{ $index + 1 }}
             {{- end }}
             {{- end }}
           rng: {}
