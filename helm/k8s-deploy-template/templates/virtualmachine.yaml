@@ -76,7 +76,9 @@ spec:
             {{- $networkEntry := $networkEntry | trim }}
             - name: net-{{ $index }}
               bridge: {}
+              {{- if gt (len $networkList) 1 }}
               acpiIndex: {{ add $index 1 }}
+              {{- end }}
             {{- end }}
             {{- end }}
           rng: {}
