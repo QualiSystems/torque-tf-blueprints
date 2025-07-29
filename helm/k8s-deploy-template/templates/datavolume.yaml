@@ -7,6 +7,8 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: Helm
   annotations:
+    cdi.kubevirt.io/storage.bind.immediate.requested: "true"
+    cdi.kubevirt.io/storage.usePopulator: "false"
   namespace: {{ .Values.namespace }}
 spec:
   sourceRef:
@@ -14,7 +16,10 @@ spec:
     name: {{ .Values.imageDs }}
     namespace: {{ .Values.imageNs }}
   storage:
+    accessModes:
+      - ReadWriteOnce
     resources:
       requests:
         storage: {{ .Values.storageSize }}
-      storageClassName: lvm-smartclone
+    storageClassName: {{ .Values.storageClassName }}
+    volumeMode: Block
