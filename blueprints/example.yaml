@@ -1,14 +1,5 @@
 spec_version: 2
-inputs:
-  networks:
-    type: 'string'
-    style: 'text'
-    allowed_formats: []
-    originalName: 'networks'
-    default: 'default'
-  networks-Egress:
-    originalName: 'networks'
-    default: 'default'
+
 grains:
   mgmt_network:
     kind: 'blueprint'

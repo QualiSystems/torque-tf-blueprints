@@ -1,0 +1,94 @@
+---
+- name: Power Off VM in OpenShift using KubeVirt API
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  collections:
+    - kubernetes.core
+
+  vars:
+    # VM parameters - these can be overridden via extra vars
+    vm_name: "{{ vm_name }}"
+    namespace: "{{ namespace | default('vms') }}"
+    ansible_python_interpreter: /usr/bin/python3
+
+  tasks:
+    - name: Ensure Python dependencies for k8s modules
+      package:
+        name:
+          - python3-pip
+        state: present
+      become: true
+      ignore_errors: true  # Skip if running inside a container that doesn't support package installation
+
+    - name: Install Kubernetes & OpenShift Python client libs
+      pip:
+        name:
+          - kubernetes>=12.0.0
+          - openshift>=0.12.0
+        executable: pip3
+      ignore_errors: true  # Skip if running inside a container with these libraries pre-installed
+
+    - name: Check if VM exists
+      k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ namespace }}"
+        name: "{{ vm_name }}"
+      register: vm_status
+      failed_when: vm_status.resources | length == 0
+      
+    - name: Get current VM running state
+      set_fact:
+        vm_running: "{{ vm_status.resources[0].spec.running | default(false) }}"
+        
+    - name: Show current VM state
+      debug:
+        msg: "VM '{{ vm_name }}' in namespace '{{ namespace }}' is currently {{ 'running' if vm_running else 'stopped' }}"
+
+    - name: Power off VM if currently running
+      when: vm_running
+      block:
+        - name: Update VM definition to set running state to false
+          k8s:
+            state: patched
+            api_version: kubevirt.io/v1
+            kind: VirtualMachine
+            namespace: "{{ namespace }}"
+            name: "{{ vm_name }}"
+            definition:
+              spec:
+                running: false
+          register: vm_stop_result
+
+        - name: Show VM stop action result
+          debug:
+            msg: "Started powering off VM '{{ vm_name }}'"
+            
+        - name: Wait for VM to be stopped
+          k8s_info:
+            api_version: kubevirt.io/v1
+            kind: VirtualMachineInstance
+            namespace: "{{ namespace }}"
+            name: "{{ vm_name }}"
+          register: vmi_status
+          until: vmi_status.resources | length == 0
+          retries: 30
+          delay: 10
+          
+        - name: Confirm VM is stopped
+          k8s_info:
+            api_version: kubevirt.io/v1
+            kind: VirtualMachine
+            namespace: "{{ namespace }}"
+            name: "{{ vm_name }}"
+          register: vm_info
+          
+        - name: Display VM status
+          debug:
+            msg: "VM '{{ vm_name }}' has been successfully powered off"
+      
+    - name: VM is already stopped
+      debug:
+        msg: "VM '{{ vm_name }}' is already stopped - no action needed"
+      when: not vm_running
