@@ -41,6 +41,7 @@ grains:
         store: torque-tf-blueprints
         path: blueprints/vm.yaml
       inputs:
+        - image_os: fedora-5g-q
         - networks: '{{ .grains.["Management Network"].outputs.network-name }}'
     depends-on: 'Management Network'
   Jumpbox:
@@ -50,6 +51,7 @@ grains:
         store: torque-tf-blueprints
         path: blueprints/vm.yaml
       inputs:
+        - image_os: fedora-5g-q
         - networks: '{{ .grains.["Management Network"].outputs.network-name }}'
     depends-on: 'Management Network'
   Strata-VM-300-11:

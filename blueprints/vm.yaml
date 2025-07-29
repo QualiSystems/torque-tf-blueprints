@@ -23,16 +23,19 @@ inputs:
       - '24Gi'
       - '32Gi'
       - '64Gi'
-    default: '4Gi'
+    default: '1Gi'
   image_os:
     type: string
-    default: fedora-5g-q
+    default: tiny
   image_namespace:
     type: string
     default: quali
   target_namespace:
     type: string
     default: quali
+  storageSize:
+    type: string
+    default: '512Mi'
 
 outputs:
   vm_name:
@@ -61,6 +64,7 @@ grains:
         - imageNs: '{{ .inputs.image_namespace }}'
         - imageDs: '{{ .inputs.image_os }}'
         - networks: "{{ .inputs.networks }}"
+        - storageSize: '{{ .inputs.storageSize }}'
         - cpu: '{{ .inputs.cpu }}'
         - ram: '{{ .inputs.ram }}'
       scripts:
