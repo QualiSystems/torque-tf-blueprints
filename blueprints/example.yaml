@@ -1,103 +1,189 @@
 spec_version: 2
-
+inputs:
+  networks:
+    type: 'string'
+    style: 'text'
+    allowed_formats: []
+    originalName: 'networks'
+    default: 'default'
+  networks-Egress:
+    originalName: 'networks'
+    default: 'default'
 grains:
-  Management Network:
+  mgmt_network:
     kind: 'blueprint'
     spec:
       source:
-        store: torque-tf-blueprints
-        path: blueprints/network.yaml
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/network.yaml'
+      inputs:
+        - namespace: 'quali'
       outputs:
         - 'network-name'
-  Openshift-VM:
-    kind: 'blueprint'
-    spec:
-      source:
-        store: torque-tf-blueprints
-        path: blueprints/vm.yaml
-      inputs:
-        - networks: '{{ .grains.["Management Network"].outputs.network-name }}'
-    depends-on: 'Management Network'
-  Egress Network:
-    kind: 'blueprint'
-    spec:
-      source:
-        store: torque-tf-blueprints
-        path: blueprints/network.yaml
-      outputs:
-        - 'network-name'
-  Corp A:
-    kind: 'blueprint'
-    spec:
-      source:
-        store: torque-tf-blueprints
-        path: blueprints/network.yaml
-      outputs:
-        - 'network-name'
-  Mgmt-DHCP:
-    kind: 'blueprint'
-    spec:
-      source:
-        store: torque-tf-blueprints
-        path: blueprints/vm.yaml
-      inputs:
-        - image_os: fedora-5g-q
-        - storage_size: 5.32Gi  
-        - networks: 'default,{{ .grains.["Management Network"].outputs.network-name }}'
-    depends-on: 'Management Network'
-  Jumpbox:
-    kind: 'blueprint'
-    spec:
-      source:
-        store: torque-tf-blueprints
-        path: blueprints/vm.yaml
-      inputs:
-        - image_os: fedora-5g-q
-        - storage_size: 5.32Gi  
-        - networks: 'default,{{ .grains.["Management Network"].outputs.network-name }}'
-    depends-on: 'Management Network'
-  Strata-VM-300-11:
-    kind: 'blueprint'
-    spec:
-      source:
-        store: torque-tf-blueprints
-        path: blueprints/vm.yaml
-      inputs:
-        - networks: '{{ .grains.["Management Network"].outputs.network-name }}, {{ .grains.["Egress Network"].outputs.network-name }}, {{ .grains.["Corp A"].outputs.network-name }}'
-    depends-on: 'Management Network,Egress Network,Corp A'
-  Egress-DHCP:
-    kind: 'blueprint'
-    spec:
-      source:
-        store: torque-tf-blueprints
-        path: blueprints/vm.yaml
-      inputs:
-        - networks: '{{ .grains.["Egress Network"].outputs.network-name }}'
-    depends-on: 'Egress Network'
   Egress:
     kind: 'blueprint'
     spec:
       source:
-        store: torque-tf-blueprints
-        path: blueprints/vm.yaml
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/vm.yaml'
       inputs:
-        - networks: '{{ .grains.["Egress Network"].outputs.network-name }}'
-    depends-on: 'Egress Network'
-  Domain-controller:
+        - networks: 'default'
+        - cpu: '2'
+        - ram: '4Gi'
+        - image_os: 'fedora-42-5'
+        - image_namespace: 'quali'
+        - target_namespace: 'quali'
+        - storage_size: '5.3Gi'
+      outputs:
+        - 'vm_name'
+        - 'storage'
+        - 'ip'
+        - 'user'
+        - 'password'
+    depends-on: 'mgmt_network'
+  egress_network:
     kind: 'blueprint'
     spec:
       source:
-        store: torque-tf-blueprints
-        path: blueprints/vm.yaml
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/network.yaml'
       inputs:
-        - networks: '{{ .grains.["Management Network"].outputs.network-name }}'
-    depends-on: 'Management Network'
-  Windows10-client:
+        - namespace: 'quali'
+      outputs:
+        - 'network-name'
+  Jumpbox:
     kind: 'blueprint'
     spec:
       source:
-        store: torque-tf-blueprints
-        path: blueprints/vm.yaml
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/vm.yaml'
       inputs:
-        - networks: '{{ .grains.["Corp A"].outputs.network-name }}'
-    depends-on: 'Corp A'
+        - networks: 'default,{{ .grains.mgmt_network.outputs.network-name }},{{ .grains.egress_network.outputs.network-name }}'
+        - cpu: '4'
+        - ram: '8Gi'
+        - image_os: 'fedora-42-5'
+        - image_namespace: 'quali'
+        - target_namespace: 'quali'
+        - storage_size: '5.3Gi'
+      outputs:
+        - 'vm_name'
+        - 'storage'
+        - 'ip'
+        - 'user'
+        - 'password'
+    depends-on: 'mgmt_network,egress_network'
+  local_network:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/network.yaml'
+      inputs:
+        - namespace: 'quali'
+      outputs:
+        - 'network-name'
+  Windows:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/vm.yaml'
+      inputs:
+        - networks: '{{ .grains.egress_network.outputs.network-name }}'
+        - cpu: '1'
+        - ram: '1Gi'
+        - image_os: 'tiny'
+        - image_namespace: 'quali'
+        - target_namespace: 'quali'
+        - storage_size: '512Mi'
+      outputs:
+        - 'vm_name'
+        - 'storage'
+        - 'ip'
+        - 'user'
+        - 'password'
+    depends-on: 'egress_network'
+  Linux 1:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/vm.yaml'
+      inputs:
+        - networks: '{{ .grains.egress_network.outputs.network-name }},{{ .grains.local_network.outputs.network-name }}'
+        - cpu: '1'
+        - ram: '1Gi'
+        - image_os: 'tiny'
+        - image_namespace: 'quali'
+        - target_namespace: 'quali'
+        - storage_size: '512Mi'
+      outputs:
+        - 'vm_name'
+        - 'storage'
+        - 'ip'
+        - 'user'
+        - 'password'
+    depends-on: 'egress_network,local_network'
+  Linux 2:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/vm.yaml'
+      inputs:
+        - networks: '{{ .grains.egress_network.outputs.network-name }},{{ .grains.local_network.outputs.network-name }}'
+        - cpu: '1'
+        - ram: '1Gi'
+        - image_os: 'tiny'
+        - image_namespace: 'quali'
+        - target_namespace: 'quali'
+        - storage_size: '512Mi'
+      outputs:
+        - 'vm_name'
+        - 'storage'
+        - 'ip'
+        - 'user'
+        - 'password'
+    depends-on: 'egress_network,local_network'
+  Linux 3:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/vm.yaml'
+      inputs:
+        - networks: '{{ .grains.egress_network.outputs.network-name }},{{ .grains.local_network.outputs.network-name }}'
+        - cpu: '1'
+        - ram: '1Gi'
+        - image_os: 'tiny'
+        - image_namespace: 'quali'
+        - target_namespace: 'quali'
+        - storage_size: '512Mi'
+      outputs:
+        - 'vm_name'
+        - 'storage'
+        - 'ip'
+        - 'user'
+        - 'password'
+    depends-on: 'egress_network,local_network'
+  Linux 4:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/vm.yaml'
+      inputs:
+        - networks: 'default,{{ .grains.egress_network.outputs.network-name }},{{ .grains.local_network.outputs.network-name }}'
+        - cpu: '1'
+        - ram: '1Gi'
+        - image_os: 'tiny'
+        - image_namespace: 'quali'
+        - target_namespace: 'quali'
+        - storage_size: '512Mi'
+      outputs:
+        - 'vm_name'
+        - 'storage'
+        - 'ip'
+        - 'user'
+        - 'password'
+    depends-on: 'egress_network,local_network'
