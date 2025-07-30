@@ -3,7 +3,7 @@ description: Workflow to set a VM's power-state
 
 workflow: 
   scope: env_resource
-  resource-types: vsphere_virtual_machine
+  resource-types: VirtualMachine.kubevirt.io
 
 grains:
   Power On VM:
