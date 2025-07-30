@@ -10,7 +10,7 @@ grains:
     kind: ansible
     spec:
       source:
-        store: ProductionBPs
+        store: torque-tf-blueprints
         path: ansible/power-off-vm-openshift.yaml
       agent:
         name: openshift-agent
