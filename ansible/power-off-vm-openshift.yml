@@ -39,7 +39,7 @@
         vm_running: "{{ vm_status.resources[0].spec.running | default(false) }}"
     - name: Show current VM state
       debug:
-        msg: "VM '{{ vm_name }}' in namespace '{{ actual_namespace }}' is currently {{ 'running' if vm_running else 'stopped' }}"
+        msg: "VM '{{ vm_name }}' in namespace '{{ actual_namespace }}' is currently {{ 'running' if vm_running else 'stopped' }}. {{ vm_status }}"
 
     - name: Power off VM if currently running
       when: vm_running
