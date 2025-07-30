@@ -16,7 +16,7 @@ grains:
         name: openshift-agent
       inputs: 
       - vm_name: '{{ .bindings.[Display name] }}'
-      - namespace: '{{ .bindings.attributes.[Introspection data: namespace] }}'
+      - namespace: '{{ .bindings.attributes.namespace }}'
       env-vars: []
       outputs:
       - result
