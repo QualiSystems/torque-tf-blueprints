@@ -5,11 +5,12 @@
   gather_facts: false
   collections:
     - kubernetes.core
-
   vars:
     # VM parameters - these can be overridden via extra vars
     vm_name: "{{ vm_name }}"
-    namespace: "{{ namespace | default('vms') }}"
+    namespace_json: "{{ namespace | default('{}') }}"
+    parsed_namespace: "{{ namespace_json | from_json if namespace_json is string else namespace_json }}"
+    actual_namespace: "{{ parsed_namespace.Namespace | default('vms') }}"
     ansible_python_interpreter: /usr/bin/python3
 
   tasks:
@@ -27,13 +28,11 @@
           - kubernetes>=12.0.0
           - openshift>=0.12.0
         executable: pip3
-      ignore_errors: true  # Skip if running inside a container with these libraries pre-installed
-
-    - name: Check if VM exists
+      ignore_errors: true  # Skip if running inside a container with these libraries pre-installed    - name: Check if VM exists
       k8s_info:
         api_version: kubevirt.io/v1
         kind: VirtualMachine
-        namespace: "{{ namespace }}"
+        namespace: "{{ actual_namespace }}"
         name: "{{ vm_name }}"
       register: vm_status
       failed_when: vm_status.resources | length == 0
@@ -41,20 +40,19 @@
     - name: Get current VM running state
       set_fact:
         vm_running: "{{ vm_status.resources[0].spec.running | default(false) }}"
-        
     - name: Show current VM state
       debug:
-        msg: "VM '{{ vm_name }}' in namespace '{{ namespace }}' is currently {{ 'running' if vm_running else 'stopped' }}"
+        msg: "VM '{{ vm_name }}' in namespace '{{ actual_namespace }}' is currently {{ 'running' if vm_running else 'stopped' }}"
 
     - name: Power off VM if currently running
       when: vm_running
       block:
         - name: Update VM definition to set running state to false
-          k8s:
+          k8s:            
             state: patched
             api_version: kubevirt.io/v1
             kind: VirtualMachine
-            namespace: "{{ namespace }}"
+            namespace: "{{ actual_namespace }}"
             name: "{{ vm_name }}"
             definition:
               spec:
