@@ -93,3 +93,21 @@ grains:
             - ip
             - user
             - password
+  VM:
+    kind: terraform
+    depends-on: instance
+    spec:
+      source:
+        store: blueprints
+        path: terraform/openshift-introspec-vm
+      agent:
+        name: openshift-agent    
+      inputs:
+      - vm_name: '{{ .grains.instance.scripts.post-helm-install.outputs.vm_name }}'
+      - namespace: '{{ .inputs.target_namespace }}'
+      - ip: '{{ .grains.instance.scripts.post-helm-install.outputs.ip }}'
+      - user: '{{ .grains.instance.scripts.post-helm-install.outputs.user }}'
+      - password: '{{ .grains.instance.scripts.post-helm-install.outputs.password }}'
+      outputs:
+      - endpoint
+  
