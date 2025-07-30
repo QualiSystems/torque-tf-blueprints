@@ -19,23 +19,13 @@
         name:
           - python3-pip
         state: present
-      become: true
-      ignore_errors: true  # Skip if running inside a container that doesn't support package installation
 
     - name: Install Kubernetes & OpenShift Python client libs
       pip:
         name:
-          - kubernetes>=12.0.0
-          - openshift>=0.12.0
+          - kubernetes
+          - openshift
         executable: pip3
-      ignore_errors: true  # Skip if running inside a container with these libraries pre-installed    - name: Check if VM exists
-      k8s_info:
-        api_version: kubevirt.io/v1
-        kind: VirtualMachine
-        namespace: "{{ actual_namespace }}"
-        name: "{{ vm_name }}"
-      register: vm_status
-      failed_when: vm_status.resources | length == 0
       
     - name: Get current VM running state
       set_fact:
