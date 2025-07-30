@@ -93,7 +93,7 @@ grains:
             - ip
             - user
             - password
-  VM:
+  instance-introspection:
     kind: terraform
     depends-on: instance
     spec:
