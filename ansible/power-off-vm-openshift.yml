@@ -5,12 +5,11 @@
   gather_facts: false
   collections:
     - kubernetes.core
-  vars:
-    # VM parameters - these can be overridden via extra vars
-    vm_name: "{{ vm_name }}"
+  vars:    # VM parameters - these can be overridden via extra vars
     namespace_json: "{{ namespace | default('{}') }}"
     parsed_namespace: "{{ namespace_json | from_json if namespace_json is string else namespace_json }}"
     actual_namespace: "{{ parsed_namespace.Namespace | default('vms') }}"
+    vm_name: "{{ parsed_namespace['VM Name'] | default('') }}"
     ansible_python_interpreter: /usr/bin/python3
 
   tasks:
@@ -19,13 +18,21 @@
         name:
           - python3-pip
         state: present
-
     - name: Install Kubernetes & OpenShift Python client libs
       pip:
         name:
           - kubernetes
           - openshift
         executable: pip3
+        
+    - name: Check if VM exists
+      k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ actual_namespace }}"
+        name: "{{ vm_name }}"
+      register: vm_status
+      failed_when: vm_status.resources | length == 0
       
     - name: Get current VM running state
       set_fact:
