@@ -3,7 +3,7 @@ description: Workflow to set a VM's power-state
 
 workflow: 
   scope: env_resource
-  resource-types: torque_introspection_resource
+  resource-types: VirtualMachine.kubevirt.io
 
 grains:
   Power On VM:
@@ -15,8 +15,8 @@ grains:
       agent:
         name: openshift-agent
       inputs: 
-      - vm_name: '{{ .bindings.resource_type.torque_introspection_resource.inputs.vm_name }}'
-      - namespace: '{{ .bindings.resource_type.torque_introspection_resource.inputs.namespace }}'
+      - vm_name: '{{ .bindings.resource_type.VirtualMachine.kubevirt.io.inputs.vm_name }}'
+      - namespace: '{{ .bindings.resource_type.VirtualMachine.kubevirt.io.inputs.namespace }}'
       env-vars: []
       outputs:
       - result
