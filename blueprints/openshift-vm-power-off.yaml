@@ -11,7 +11,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: ansible/power-off-vm-openshift.yaml
+        path: ansible/power-off-vm-openshift.yml
       agent:
         name: openshift-agent
       inputs: 

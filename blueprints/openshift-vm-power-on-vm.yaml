@@ -11,7 +11,7 @@ grains:
     spec:
       source:
         store: torque-tf-blueprints
-        path: ansible/power-on-vm-openshift.yaml
+        path: ansible/power-on-vm-openshift.yml
       agent:
         name: openshift-agent
       inputs: 
