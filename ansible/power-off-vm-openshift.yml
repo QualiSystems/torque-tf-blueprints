@@ -64,7 +64,7 @@
           k8s_info:
             api_version: kubevirt.io/v1
             kind: VirtualMachineInstance
-            namespace: "{{ namespace }}"
+            namespace: "{{ actual_namespace }}"
             name: "{{ vm_name }}"
           register: vmi_status
           until: vmi_status.resources | length == 0
@@ -75,7 +75,7 @@
           k8s_info:
             api_version: kubevirt.io/v1
             kind: VirtualMachine
-            namespace: "{{ namespace }}"
+            namespace: "{{ actual_namespace }}"
             name: "{{ vm_name }}"
           register: vm_info
           
