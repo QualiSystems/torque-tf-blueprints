@@ -8,10 +8,10 @@
 
   vars:
     # VM parameters - these can be overridden via extra vars
-    vm_name: "{{ vm_name }}"
     namespace_json: "{{ namespace | default('{}') }}"
     parsed_namespace: "{{ namespace_json | from_json if namespace_json is string else namespace_json }}"
-    namespace: "{{ parsed_namespace.Namespace | default('vms') }}"
+    actual_namespace: "{{ parsed_namespace.Namespace | default('vms') }}"
+    vm_name: "{{ parsed_namespace['VM Name'] | default('') }}"
     ansible_python_interpreter: /usr/bin/python3
 
   tasks:
