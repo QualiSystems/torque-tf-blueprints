@@ -98,7 +98,7 @@ grains:
     depends-on: instance
     spec:
       source:
-        store: blueprints
+        store: torque-tf-blueprints
         path: terraform/openshift-introspec-vm
       agent:
         name: openshift-agent    
