@@ -6,7 +6,7 @@ workflow:
   resource-types: VirtualMachine.kubevirt.io
 
 grains:
-  Power On VM:
+  Power Off VM:
     kind: ansible
     spec:
       source:
