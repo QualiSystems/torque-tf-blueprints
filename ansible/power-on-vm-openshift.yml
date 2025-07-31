@@ -10,7 +10,7 @@
     # VM parameters - these can be overridden via extra vars
     namespace_json: "{{ namespace | default('{}') }}"
     parsed_namespace: "{{ namespace_json | from_json if namespace_json is string else namespace_json }}"
-    actual_namespace: "{{ parsed_namespace.Namespace | default('vms') }}"
+    namespace: "{{ parsed_namespace.Namespace | default('vms') }}"
     vm_name: "{{ parsed_namespace['VM Name'] | default('') }}"
     ansible_python_interpreter: /usr/bin/python3
 
@@ -20,16 +20,12 @@
         name:
           - python3-pip
         state: present
-      become: true
-      ignore_errors: true  # Skip if running inside a container that doesn't support package installation
-
     - name: Install Kubernetes & OpenShift Python client libs
       pip:
         name:
-          - kubernetes>=12.0.0
-          - openshift>=0.12.0
+          - kubernetes
+          - openshift
         executable: pip3
-      ignore_errors: true  # Skip if running inside a container with these libraries pre-installed
 
     - name: Check if VM exists
       k8s_info:
@@ -42,7 +38,7 @@
       
     - name: Get current VM running state
       set_fact:
-        vm_running: "{{ vm_status.resources[0].spec.running | default(false) }}"
+        vm_running: "{{ vm_status.resources[0].status.printableStatus | default(false) if vm_status.resources[0].status.printableStatus == 'Running' else false }}"
         
     - name: Show current VM state
       debug:
@@ -60,7 +56,7 @@
             name: "{{ vm_name }}"
             definition:
               spec:
-                running: true
+                runStrategy: "Always"
           register: vm_start_result
 
         - name: Show VM start action result

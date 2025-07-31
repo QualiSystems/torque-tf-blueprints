@@ -36,10 +36,11 @@
       
     - name: Get current VM running state
       set_fact:
-        vm_running: "{{ vm_status.status.printableStatus | default(false) }}"
+        vm_running: "{{ vm_status.resources[0].status.printableStatus | default(false) if vm_status.resources[0].status.printableStatus == 'Running' else false }}"
+
     - name: Show current VM state
       debug:
-        msg: "VM '{{ vm_name }}' in namespace '{{ actual_namespace }}' is currently {{ 'running' if vm_running else 'stopped' }}. {{ vm_status }}"
+        msg: "VM '{{ vm_name }}' in namespace '{{ actual_namespace }}' is currently {{ 'running' if vm_running else 'stopped' }}."
 
     - name: Power off VM if currently running
       when: vm_running
@@ -53,7 +54,7 @@
             name: "{{ vm_name }}"
             definition:
               spec:
-                running: false
+                runStrategy: "Halted"
           register: vm_stop_result
 
         - name: Show VM stop action result
