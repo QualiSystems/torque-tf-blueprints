@@ -60,7 +60,7 @@
 
         - name: Show VM stop action result
           debug:
-            msg: "Started powering off VM '{{ vm_name }}' with {{ 'FORCE' if force_shutdown else 'graceful' }} shutdown"
+            msg: "Started powering off VM '{{ vm_name }}' with {{ 'FORCE' if force_shutdown | bool else 'graceful' }} shutdown"
         
         # Only execute force delete when force_shutdown is true
         - name: Force delete the VMI (Virtual Machine Instance) to accelerate shutdown
@@ -74,12 +74,13 @@
             wait_timeout: 30
           when: force_shutdown | bool
           register: force_delete_result
+          ignore_errors: true  # Don't fail if VMI doesn't exist or times out
           
         # Show force shutdown result if applicable
         - name: Show force shutdown result
           debug:
-            msg: "Force shutdown of VM instance completed"
-          when: force_shutdown | bool and (force_delete_result.changed | default(false))
+            msg: "Force shutdown of VM instance {{ 'completed' if not (force_delete_result.failed | default(false)) else 'initiated but may still be in progress' }}"
+          when: force_shutdown | bool
             
         - name: Wait for VM to be stopped
           k8s_info:
@@ -89,8 +90,9 @@
             name: "{{ vm_name }}"
           register: vmi_status
           until: vmi_status.resources | length == 0
-          retries: 30
+          retries: 60
           delay: 10
+          ignore_errors: true  # Don't fail if we can't check status
           
         - name: Confirm VM is stopped
           k8s_info:
@@ -99,6 +101,7 @@
             namespace: "{{ namespace }}"
             name: "{{ vm_name }}"
           register: vm_info
+          ignore_errors: true  # Continue even if we can't get VM info
           
         - name: Display VM status
           debug:
