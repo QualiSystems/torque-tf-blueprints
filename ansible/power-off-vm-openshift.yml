@@ -8,8 +8,9 @@
   vars:    # VM parameters - these can be overridden via extra vars
     namespace_json: "{{ namespace | default('{}') }}"
     parsed_namespace: "{{ namespace_json | from_json if namespace_json is string else namespace_json }}"
-    actual_namespace: "{{ parsed_namespace.Namespace | default('vms') }}"
+    namespace: "{{ parsed_namespace.Namespace | default('vms') }}"
     vm_name: "{{ parsed_namespace['VM Name'] | default('') }}"
+    force_shutdown: "{{ force | default(false) }}"
     ansible_python_interpreter: /usr/bin/python3
 
   tasks:
@@ -29,7 +30,7 @@
       k8s_info:
         api_version: kubevirt.io/v1
         kind: VirtualMachine
-        namespace: "{{ actual_namespace }}"
+        namespace: "{{ namespace }}"
         name: "{{ vm_name }}"
       register: vm_status
       failed_when: vm_status.resources | length == 0
@@ -40,7 +41,7 @@
 
     - name: Show current VM state
       debug:
-        msg: "VM '{{ vm_name }}' in namespace '{{ actual_namespace }}' is currently {{ 'running' if vm_running else 'stopped' }}."
+        msg: "VM '{{ vm_name }}' in namespace '{{ namespace }}' is currently {{ 'running' if vm_running else 'stopped' }}."
 
     - name: Power off VM if currently running
       when: vm_running
@@ -50,7 +51,7 @@
             state: patched
             api_version: kubevirt.io/v1
             kind: VirtualMachine
-            namespace: "{{ actual_namespace }}"
+            namespace: "{{ namespace }}"
             name: "{{ vm_name }}"
             definition:
               spec:
@@ -59,13 +60,32 @@
 
         - name: Show VM stop action result
           debug:
-            msg: "Started powering off VM '{{ vm_name }}'"
+            msg: "Started powering off VM '{{ vm_name }}' with {{ 'FORCE' if force_shutdown else 'graceful' }} shutdown"
+        
+        # Only execute force delete when force_shutdown is true
+        - name: Force delete the VMI (Virtual Machine Instance) to accelerate shutdown
+          k8s:
+            state: absent
+            api_version: kubevirt.io/v1
+            kind: VirtualMachineInstance
+            namespace: "{{ namespace }}"
+            name: "{{ vm_name }}"
+            wait: yes
+            wait_timeout: 30
+          when: force_shutdown | bool
+          register: force_delete_result
+          
+        # Show force shutdown result if applicable
+        - name: Show force shutdown result
+          debug:
+            msg: "Force shutdown of VM instance completed"
+          when: force_shutdown | bool and (force_delete_result.changed | default(false))
             
         - name: Wait for VM to be stopped
           k8s_info:
             api_version: kubevirt.io/v1
             kind: VirtualMachineInstance
-            namespace: "{{ actual_namespace }}"
+            namespace: "{{ namespace }}"
             name: "{{ vm_name }}"
           register: vmi_status
           until: vmi_status.resources | length == 0
@@ -76,7 +96,7 @@
           k8s_info:
             api_version: kubevirt.io/v1
             kind: VirtualMachine
-            namespace: "{{ actual_namespace }}"
+            namespace: "{{ namespace }}"
             name: "{{ vm_name }}"
           register: vm_info
           

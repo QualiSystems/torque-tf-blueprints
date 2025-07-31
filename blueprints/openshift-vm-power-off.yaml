@@ -1,6 +1,15 @@
 spec_version: 2
 description: Workflow to set a VM's power-state
 
+inputs:
+  force_shutdown:
+    type: string
+    description: "Force turn off."
+    default: true
+    allowed-values:
+      - true
+      - false
+
 workflow: 
   scope: env_resource
   resource-types: torque_introspection_resource
@@ -17,6 +26,7 @@ grains:
       inputs: 
       - vm_name: '{{ .bindings.attributes.display_name }}'
       - namespace_json: '{{ .bindings.attributes.introspection_data }}'
+      - force_shutdown: '{{ .inputs.force_shutdown }}'
       env-vars: []
       outputs:
       - result
