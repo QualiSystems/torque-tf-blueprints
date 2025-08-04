@@ -26,6 +26,7 @@ grains:
     spec:
       agent:
         name: openshift-agent
+        use-storage: false
       source:
         store: torque-tf-blueprints
         path: helm/k8s-deploy-network
