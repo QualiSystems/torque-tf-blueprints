@@ -5,11 +5,8 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   # autoStart can be provided as a boolean or a string ("true"/"false", case-insensitive)
-  running: {{- if eq (lower (toString .Values.autoStart)) "true" -}}
-    true
-  {{- else -}}
-    false
-  {{- end }}
+  {{- $autoStart := (toString .Values.autoStart | lower) -}}
+  running: {{ eq $autoStart "true" }}
   runStrategy: RerunOnFailure
   dataVolumeTemplates:
     - apiVersion: cdi.kubevirt.io/v1beta1
