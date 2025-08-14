@@ -4,10 +4,13 @@ metadata:
   name: {{ .Values.vmName }}
   namespace: {{ .Values.namespace }}
 spec:
-  # autoStart can be provided as a boolean or a string ("true"/"false", case-insensitive)
+  # Determine run strategy based on autoStart (supports bool or string)
   {{- $autoStart := (toString .Values.autoStart | lower) -}}
-  running: {{ eq $autoStart "true" }}
+  {{- if eq $autoStart "true" }}
   runStrategy: RerunOnFailure
+  {{- else }}
+  runStrategy: Halted
+  {{- end }}
   dataVolumeTemplates:
     - apiVersion: cdi.kubevirt.io/v1beta1
       kind: DataVolume
