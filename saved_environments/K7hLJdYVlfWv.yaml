@@ -33,8 +33,7 @@ grains:
       commands: []
       env-vars: []
       inputs:
-      - networks: default,{{ .grains.mgmt_network.outputs.network-name }},{{ .grains.egress_network.outputs.network-name
-          }}
+      - networks: default,{{ .grains.mgmt_network.outputs.network-name }},{{ .grains.egress_network.outputs.network-name }}
       - cpu: 4
       - ram: 8Gi
       - image_os: fedora-42-5
@@ -57,8 +56,7 @@ grains:
       commands: []
       env-vars: []
       inputs:
-      - networks: '{{ .grains.egress_network.outputs.network-name }},{{ .grains.local_network.outputs.network-name
-          }}'
+      - networks: '{{ .grains.egress_network.outputs.network-name }},{{ .grains.local_network.outputs.network-name }}'
       - cpu: 1
       - ram: 1Gi
       - image_os: tiny
@@ -81,8 +79,7 @@ grains:
       commands: []
       env-vars: []
       inputs:
-      - networks: '{{ .grains.egress_network.outputs.network-name }},{{ .grains.local_network.outputs.network-name
-          }}'
+      - networks: '{{ .grains.egress_network.outputs.network-name }},{{ .grains.local_network.outputs.network-name }}'
       - cpu: 1
       - ram: 1Gi
       - image_os: tiny
@@ -105,8 +102,7 @@ grains:
       commands: []
       env-vars: []
       inputs:
-      - networks: '{{ .grains.egress_network.outputs.network-name }},{{ .grains.local_network.outputs.network-name
-          }}'
+      - networks: '{{ .grains.egress_network.outputs.network-name }},{{ .grains.local_network.outputs.network-name }}'
       - cpu: 1
       - ram: 1Gi
       - image_os: tiny
@@ -129,8 +125,7 @@ grains:
       commands: []
       env-vars: []
       inputs:
-      - networks: default,{{ .grains.egress_network.outputs.network-name }},{{ .grains.local_network.outputs.network-name
-          }}
+      - networks: default,{{ .grains.egress_network.outputs.network-name }},{{ .grains.local_network.outputs.network-name }}
       - cpu: 1
       - ram: 1Gi
       - image_os: tiny

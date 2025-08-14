@@ -36,6 +36,9 @@ inputs:
   storage_size:
     type: string
     default: '512Mi'
+  auto_start:
+    type: string
+    default: "true"
 
 outputs:
   vm_name:
@@ -81,6 +84,7 @@ grains:
         - storageSize: '{{ .inputs.storage_size }}'
         - cpu: '{{ .inputs.cpu }}'
         - ram: '{{ .inputs.ram }}'
+        - autoStart: '{{ .inputs.auto_start }}'
       scripts:
         post-helm-install:
           source:
