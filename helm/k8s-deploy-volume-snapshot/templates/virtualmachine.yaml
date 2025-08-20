@@ -17,22 +17,29 @@ spec:
       metadata:
         name: {{ .Values.vmName }}
       spec:
-        # If a VolumeSnapshot is provided, clone from it; else fall back to DataSource (imageDs/imageNs)
+        # Choose source: VolumeSnapshot (preferred) or DataSource; fail if neither provided
         {{- if .Values.volumeSnapshot }}
         source:
           snapshot:
             name: {{ .Values.volumeSnapshot }}
-        {{- else }}
+            {{- if .Values.volumeSnapshotNamespace }}
+            namespace: {{ .Values.volumeSnapshotNamespace }}
+            {{- end }}
+        {{- else if .Values.imageDs }}
         sourceRef:
           kind: DataSource
           name: {{ .Values.imageDs }}
           namespace: {{ .Values.imageNs }}
+        {{- else }}
+        {{- fail "Either volumeSnapshot or imageDs must be provided" }}
         {{- end }}
         storage:
           resources:
             requests:
               storage: {{ .Values.storageSize }}
-            storageClassName: lvm-smartclone
+          {{- if .Values.storageClassName }}
+          storageClassName: {{ .Values.storageClassName }}
+          {{- end }}
   template:
     metadata:
       labels:
