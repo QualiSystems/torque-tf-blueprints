@@ -30,6 +30,9 @@ inputs:
   image_namespace:
     type: string
     default: quali
+  image_snapshot:
+    type: string
+    default: quali
   target_namespace:
     type: string
     default: quali
@@ -82,6 +85,7 @@ grains:
         - imageDs: '{{ .inputs.image_os }}'
         - networks: "{{ .inputs.networks }}"
         - storageSize: '{{ .inputs.storage_size }}'
+        - volumeSnapshot: '{{ .inputs.image_snapshot }}'
         - cpu: '{{ .inputs.cpu }}'
         - ram: '{{ .inputs.ram }}'
         - autoStart: '{{ .inputs.auto_start }}'

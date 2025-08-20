@@ -1,0 +1,111 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: {{ .Values.vmName }}
+  namespace: {{ .Values.namespace }}
+spec:
+  # Determine run strategy based on autoStart (supports bool or string)
+  {{- $autoStart := (toString .Values.autoStart | lower) -}}
+  {{- if eq $autoStart "true" }}
+  runStrategy: RerunOnFailure
+  {{- else }}
+  runStrategy: Halted
+  {{- end }}
+  dataVolumeTemplates:
+    - apiVersion: cdi.kubevirt.io/v1beta1
+      kind: DataVolume
+      metadata:
+        name: {{ .Values.vmName }}
+      spec:
+        # If a VolumeSnapshot is provided, clone from it; else fall back to DataSource (imageDs/imageNs)
+        {{- if .Values.volumeSnapshot }}
+        source:
+          snapshot:
+            name: {{ .Values.volumeSnapshot }}
+        {{- else }}
+        sourceRef:
+          kind: DataSource
+          name: {{ .Values.imageDs }}
+          namespace: {{ .Values.imageNs }}
+        {{- end }}
+        storage:
+          resources:
+            requests:
+              storage: {{ .Values.storageSize }}
+            storageClassName: lvm-smartclone
+  template:
+    metadata:
+      labels:
+        kubevirt.io/domain: {{ .Values.vmName }}
+        kubevirt.io/size: small
+      annotations:
+        vm.kubevirt.io/flavor: small
+        vm.kubevirt.io/os: fedora-42
+        vm.kubevirt.io/workload: server
+    spec:
+      architecture: amd64
+      domain:
+        firmware:
+          uuid: {{ .Values.uuid }}
+        cpu:
+          cores: {{ .Values.cpu }}
+          sockets: 1
+          threads: 1
+        devices:
+          disks:
+            - name: rootdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+          interfaces:
+            {{- if .Values.networks }}
+            {{- /* Split by either comma or semicolon */}}
+            {{- $networkList := regexSplit "[,;]" .Values.networks -1 }}
+            {{- range $index, $networkEntry := $networkList }}
+            {{- $networkEntry := $networkEntry | trim }}
+            - name: net-{{ $index }}
+              bridge: {}
+              {{- if gt (len $networkList) 1 }}
+              acpiIndex: {{ add $index 1 }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
+          rng: {}
+        machine:
+          type: pc-q35-rhel9.6.0
+        memory:
+          guest: {{ .Values.ram }}
+      networks:
+        {{- if .Values.networks }}
+        {{- /* Split by either comma or semicolon */}}
+        {{- $networkList := regexSplit "[,;]" .Values.networks -1 }}
+        {{- range $index, $networkEntry := $networkList }}
+        {{- $networkEntry := $networkEntry | trim }}
+        {{- if ne $networkEntry "" }}
+        {{- /* Parse network entry safely */}}
+        {{- $namespace := $.Release.Namespace }}
+        {{- $networkName := $networkEntry }}
+        - name: net-{{ $index }}
+          {{- if contains "/" $networkEntry }}
+          multus:              
+            networkName: {{ $networkEntry }}
+          {{- else}}
+          pod: {}
+          {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+      terminationGracePeriodSeconds: 180
+      volumes:
+        - name: rootdisk
+          dataVolume:
+            name: {{ .Values.vmName }}
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              user: {{ .Values.userName }}
+              password: {{ .Values.userPassword }}
+              chpasswd: { expire: False }
