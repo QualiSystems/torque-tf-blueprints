@@ -1,14 +1,25 @@
 vmName: fedora
 namespace: quali
-imageNs: default
-imageDs: fedora-5gb
-storageSize: 5Gi
+
+# Option 1 (preferred if provided): clone from an existing VolumeSnapshot
+volumeSnapshot: ""            # set to snapshot name or leave empty to skip
+# volumeSnapshotNamespace: ""  # optional; defaults to release namespace if empty
+
+# Option 2: clone from an existing PVC (if snapshot not set)
+sourcePVC: ""                  # existing PVC name; used only if volumeSnapshot empty
+# sourcePVCNamespace: ""       # optional namespace for the PVC
+
+# Option 3: clone from a CDI DataSource (used if snapshot and PVC both empty)
+imageDs: fedora-5gb            # DataSource name
+imageNs: default               # DataSource namespace
+
+storageSize: 5Gi               # Requested size (must be >= source)
 storageClassName: lvm-smartclone
+
 userName: fedora
 userPassword: 3t0u-qyyt-g82m
 uuid: 5d307ca9-b3ef-428c-8861-06e72d69f223
 ram: 2Gi
-volumeSnapshot: snapshot
 cpu: 1
 networks: ""
 autoStart: true # may also be provided as a string "true"/"false" and will be coerced to boolean

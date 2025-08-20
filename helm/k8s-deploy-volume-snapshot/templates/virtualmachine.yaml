@@ -17,13 +17,22 @@ spec:
       metadata:
         name: {{ .Values.vmName }}
       spec:
-        # Choose source: VolumeSnapshot (preferred) or DataSource; fail if neither provided
-        {{- if .Values.volumeSnapshot }}
+        # Choose source precedence: VolumeSnapshot > existing PVC > DataSource; fail if none
+        {{- $snapshot := trim .Values.volumeSnapshot | default "" }}
+        {{- $pvc := trim .Values.sourcePVC | default "" }}
+        {{- if $snapshot }}
         source:
           snapshot:
-            name: {{ .Values.volumeSnapshot }}
+            name: {{ $snapshot }}
             {{- if .Values.volumeSnapshotNamespace }}
             namespace: {{ .Values.volumeSnapshotNamespace }}
+            {{- end }}
+        {{- else if $pvc }}
+        source:
+          pvc:
+            name: {{ $pvc }}
+            {{- if .Values.sourcePVCNamespace }}
+            namespace: {{ .Values.sourcePVCNamespace }}
             {{- end }}
         {{- else if .Values.imageDs }}
         sourceRef:
