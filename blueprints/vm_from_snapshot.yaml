@@ -24,7 +24,7 @@ inputs:
       - '32Gi'
       - '64Gi'
     default: '1Gi'
-  image_os:
+  vm_name:
     type: string
     default: tiny
   image_namespace:
@@ -80,12 +80,11 @@ grains:
       target-namespace: '{{ .inputs.target_namespace }}'
       command-arguments: '--wait --wait-for-jobs --timeout 600s'
       inputs:
-        - vmName: '{{ .inputs.image_os }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
-        - imageNs: '{{ .inputs.image_namespace }}'
-        - imageDs: '{{ .inputs.image_os }}'
-        - networks: "{{ .inputs.networks }}"
-        - storageSize: '{{ .inputs.storage_size }}'
+        - vmName: '{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
+        - namespace: '{{ .inputs.image_namespace }}'
         - volumeSnapshot: '{{ .inputs.image_snapshot }}'
+        - storageSize: '{{ .inputs.storage_size }}'
+        - networks: "{{ .inputs.networks }}"
         - cpu: '{{ .inputs.cpu }}'
         - ram: '{{ .inputs.ram }}'
         - autoStart: '{{ .inputs.auto_start }}'
@@ -94,7 +93,7 @@ grains:
           source:
             store: torque-tf-blueprints
             path:  scripts/get_openshift_vm_state.sh
-          arguments: "{{ .inputs.image_os }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} {{ .inputs.target_namespace }}"
+          arguments: "{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} {{ .inputs.target_namespace }}"
           outputs:
             - vm_name
             - storage

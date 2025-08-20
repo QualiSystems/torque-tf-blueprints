@@ -17,31 +17,17 @@ spec:
       metadata:
         name: {{ .Values.vmName }}
       spec:
-        # Choose source precedence: VolumeSnapshot > existing PVC > DataSource; fail if none
+        # Snapshot-only mode: require a VolumeSnapshot name
         {{- $snapshot := trim .Values.volumeSnapshot | default "" }}
-        {{- $pvc := trim .Values.sourcePVC | default "" }}
-        {{- if $snapshot }}
+        {{- if not $snapshot }}
+        {{- fail "volumeSnapshot must be provided (snapshot-only mode)" }}
+        {{- end }}
         source:
           snapshot:
             name: {{ $snapshot }}
             {{- if .Values.volumeSnapshotNamespace }}
             namespace: {{ .Values.volumeSnapshotNamespace }}
             {{- end }}
-        {{- else if $pvc }}
-        source:
-          pvc:
-            name: {{ $pvc }}
-            {{- if .Values.sourcePVCNamespace }}
-            namespace: {{ .Values.sourcePVCNamespace }}
-            {{- end }}
-        {{- else if .Values.imageDs }}
-        sourceRef:
-          kind: DataSource
-          name: {{ .Values.imageDs }}
-          namespace: {{ .Values.imageNs }}
-        {{- else }}
-        {{- fail "Either volumeSnapshot or imageDs must be provided" }}
-        {{- end }}
         storage:
           resources:
             requests:
