@@ -64,5 +64,5 @@ grains:
         deploy:
           commands:
             - 'echo $CONTRACT_FILE_PATH'
-            - 'echo "$cat $CONTRACT_FILE_PATH"'
+            - 'echo "$(cat $CONTRACT_FILE_PATH)"'
 
