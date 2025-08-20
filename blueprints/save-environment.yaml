@@ -61,7 +61,7 @@ grains:
       source:
         store: torque-tf-blueprints
         path: helm/k8s-clone-pvc-and-snapshot
-      target-namespace: '{{ .inputs.target_namespace }}'
+      target-namespace: quali
       command-arguments: '--wait --wait-for-jobs --timeout 600s'
       inputs:
         - vmNames: '{{ .grains.collect_vm_names.activities.deploy.commands.my_script.outputs.vmNames }}'
@@ -71,7 +71,7 @@ grains:
           source:
             store: torque-tf-blueprints
             path:  scripts/check_saved_pvc_snapshots.sh
-          arguments: "{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} {{ .inputs.target_namespace }}"
+          arguments: '{{ .grains.collect_vm_names.activities.deploy.commands.my_script.outputs.vmNames }}'
           outputs:
             - snapshots_json
   
