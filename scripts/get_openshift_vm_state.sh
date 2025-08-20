@@ -2,7 +2,7 @@ echo "Getting outputs from OpenShift VM"
 export VM_NAME=$1
 export NAMESPACE=$2
 # Retry logic to wait until the VM object exists before waiting for it to become Ready
-MAX_RETRIES=${MAX_RETRIES:-10}
+MAX_RETRIES=${MAX_RETRIES:-30}
 SLEEP_BETWEEN=${SLEEP_BETWEEN:-15}
 
 for attempt in $(seq 1 $MAX_RETRIES); do
