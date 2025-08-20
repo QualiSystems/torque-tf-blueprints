@@ -4,58 +4,22 @@ description: Workflow to set a VM's power-state
 workflow: 
   scope: env
 
-grains:
-  # power-off-vms:
-  #   kind: ansible
-  #   spec:
-  #     source:
-  #       store: torque-tf-blueprints
-  #       path: ansible/power-off-vm-openshift.yml
-  #     agent:
-  #       name: openshift-agent
-  #     inputs: 
-  #     - vm_name: '{{ .bindings.attributes.display_name }}'
-  #     - namespace_json: '{{ .bindings.attributes.introspection_data }}'
-  #     - force_shutdown: '{{ .inputs.force_shutdown }}'
-  #     env-vars: []
-  #     outputs:
-  #     - result
-  #     # Ansible inventory file in a YAML format
-  #     inventory-file:
-  #       localhost:
-  #         hosts:
-  #           127.0.0.1:
-  #             ansible_connection: local
+inputs:
+  torque_token:
+    type: string
+    description: "Token for Torque API."
+    default: ""
+  github_token:
+    type: string
+    description: "Token for GitHub API."
+    default: ""
+  github_repo:
+    type: string
+    description: "Name of the GitHub repository."
+    default: "https://github.com/QualiSystems/torque-tf-blueprints"
 
-  # save-volume-snapshot:
-  #   kind: helm
-  #   spec:
-  #     agent:
-  #       name: openshift-agent
-  #     source:
-  #       store: torque-tf-blueprints
-  #       path: helm/k8s-clone-pvc-and-snapshot
-  #     target-namespace: '{{ .inputs.target_namespace }}'
-  #     command-arguments: '--wait --wait-for-jobs --timeout 600s'
-  #     inputs:
-  #       - vmName: '{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
-  #       - namespace: '{{ .inputs.image_namespace }}'
-  #       - storageSize: '{{ .inputs.storage_size }}'
-  #       # - storageClassName: "{{ .inputs.storage_class_name }}"
-  #     scripts:
-  #       post-helm-install:
-  #         source:
-  #           store: torque-tf-blueprints
-  #           path:  scripts/get_openshift_vm_state.sh
-  #         arguments: "{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} {{ .inputs.target_namespace }}"
-  #         outputs:
-  #           - vm_name
-  #           - storage
-  #           - ip
-  #           - user
-  #           - password 
-  
-  shell_grain:
+grains:
+  collect_vm_names:
     kind: shell
     spec:
       agent:
@@ -63,6 +27,72 @@ grains:
       activities:
         deploy:
           commands:
-            - 'echo $CONTRACT_FILE_PATH'
-            - 'echo "$(cat $CONTRACT_FILE_PATH)"'
+            - name: my_script
+              command: >
+                if [ -f "$CONTRACT_FILE_PATH" ]; then vmNames=$(jq -r '(.inputs[] | select(.name=="target_namespace") | .value | gsub("^ +| +$";"")) as $ns | [ .inputs[] | select(.name=="vm_name") | .value | gsub("^ +| +$";"") | . + ":" + $ns ] | join(",")' "$CONTRACT_FILE_PATH"); else vmNames=""; fi; export vmNames
+              outputs:
+                - vmNames
+
+  power-off-vms:
+    kind: ansible
+    spec:
+      source:
+        store: torque-tf-blueprints
+        path: ansible/power-off-vm-openshift.yml
+      agent:
+        name: openshift-agent
+      inputs:
+      - vm_csv: '{{ .grains.collect_vm_names.activities.deploy.commands.my_script.outputs.vmNames }}'
+      outputs:
+      - result
+      # Ansible inventory file in a YAML format
+      inventory-file:
+        localhost:
+          hosts:
+            127.0.0.1:
+              ansible_connection: local
+  
+  save-volume-snapshot:
+    kind: helm
+    spec:
+      agent:
+        name: openshift-agent
+      source:
+        store: torque-tf-blueprints
+        path: helm/k8s-clone-pvc-and-snapshot
+      target-namespace: '{{ .inputs.target_namespace }}'
+      command-arguments: '--wait --wait-for-jobs --timeout 600s'
+      inputs:
+        - vmNames: '{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
+        - namespace: '{{ .inputs.image_namespace }}'
+        - storageSize: '{{ .inputs.storage_size }}'
+        # - storageClassName: "{{ .inputs.storage_class_name }}"
+      scripts:
+        post-helm-install:
+          source:
+            store: torque-tf-blueprints
+            path:  scripts/check_saved_pvc_snapshots.sh
+          arguments: "{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} {{ .inputs.target_namespace }}"
+          outputs:
+            - snapshots_json
+  
+  shell_grain:
+    kind: shell
+    spec:
+      env-vars:
+        - GITHUB_TOKEN: "{{ .inputs.github_token }}"
+        - TORQUE_TOKEN: "{{ .inputs.torque_token }}"
+        - GITHUB_REPO: "{{ .inputs.github_repo }}"
+      agent:
+        name: openshift-agent
+      files:
+        - source: torque-tf-blueprints
+          path: scripts/save_environment/save_environment.py
+        - source: torque-tf-blueprints
+          path: scripts/save_environment/requirements.txt
+      activities:
+        deploy:
+          commands:
+            - 'pip install -r scripts/save_environment/requirements.txt'
+            - 'python scripts/save_environment/save_environment.py {{ .params.}}'
 
