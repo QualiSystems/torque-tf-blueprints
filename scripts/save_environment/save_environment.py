@@ -43,6 +43,8 @@ def parse_args() -> Config:
     p.add_argument(
         "--workflow-contract",
         required=False,
+        type=str,
+        default=os.environ.get("CONTRACT_FILE_PATH"),
         help="JSON string representing the workflow/environment (must include id)",
     )
     p.add_argument(
@@ -68,9 +70,13 @@ def parse_args() -> Config:
     )
     args = p.parse_args()
 
-    # Parse workflow contract JSON if provided
+    workflow_contract = args.workflow_contract
     try:
-        request_obj = json.loads(args.workflow_contract) if args.workflow_contract else {}
+        if os.path.isfile(path=workflow_contract):
+            with open(workflow_contract, "r") as f:
+                request_obj = json.load(f)
+        else:
+            request_obj = json.loads(workflow_contract)
     except json.JSONDecodeError as e:
         sys.exit(f"Invalid JSON for --workflow-contract: {e}")
 
@@ -78,24 +84,19 @@ def parse_args() -> Config:
     torque_token = (
         args.torque_token
         or os.environ.get("TORQUE_API_TOKEN")
-        or request_obj.get("torque_token")
     )
     git_token = (
         args.git_token
         or os.environ.get("GITHUB_TOKEN")
-        or request_obj.get("git_token")
     )
     github_repo = (
         args.github_repo
         or os.environ.get("GITHUB_REPO")
-        or request_obj.get("github_repo")
     )
+
     space = args.space or request_obj.get("space") or "Openshift"
 
     env_id = request_obj.get("id") if isinstance(request_obj, dict) else None
-    if not env_id:
-        env_id = "K7hLJdYVlfWv"  # for debug purposes.
-        # sys.exit("Environment id missing (provide via --workflow-contract JSON using key 'id')")
 
     if not torque_token:
         sys.exit("Torque API token missing (use --torque-token or set TORQUE_API_TOKEN)")
@@ -168,7 +169,7 @@ def get_resource_name(env_data, timestamp) -> str:
 def modify_yaml(env_yaml) -> str:
     # Modify the environment YAML as needed
     modified_yaml = env_yaml
-    modified_yaml.
+    modified_yaml = yaml.safe_dump(modified_yaml, sort_keys=False)
     return modified_yaml
 
 

@@ -8,12 +8,20 @@ Behavior:
 * Storage size automatically matches the source PVC via Helm lookup (cluster must be reachable; dry-run without cluster will fail the lookup).
 * If any source PVC is missing, template fails early.
 */ -}}
-{{- $ns := .Values.namespace -}}
+{{- $globalNs := .Values.namespace -}}
 {{- $rawList := default .Values.vmName .Values.vmNames -}} {{/* backward compat: vmName if vmNames not set */}}
 {{- $names := splitList "," $rawList -}}
 {{- range $i, $n := $names }}
-{{- $vm := trim $n -}}
+{{- $entry := trim $n -}}
+{{- if not $entry }}{{- continue }}{{- end }}
+{{- $parts := splitList ":" $entry -}}
+{{- $vm := trim (index $parts 0) -}}
 {{- if not $vm }}{{- continue }}{{- end }}
+{{- $ns := $globalNs -}}
+{{- if ge (len $parts) 2 }}
+  {{- $maybeNs := trim (index $parts 1) -}}
+  {{- if $maybeNs }}{{- $ns = $maybeNs -}}{{- end -}}
+{{- end -}}
 {{- $rootPVC := $vm -}}
 {{- $srcPVC := (lookup "v1" "PersistentVolumeClaim" $ns $rootPVC) -}}
 {{- if not $srcPVC }}

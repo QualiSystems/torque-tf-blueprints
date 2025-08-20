@@ -35,6 +35,7 @@ grains:
 
   power-off-vms:
     kind: ansible
+    depends-on: collect_vm_names
     spec:
       source:
         store: torque-tf-blueprints
@@ -63,9 +64,7 @@ grains:
       target-namespace: '{{ .inputs.target_namespace }}'
       command-arguments: '--wait --wait-for-jobs --timeout 600s'
       inputs:
-        - vmNames: '{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
-        - namespace: '{{ .inputs.image_namespace }}'
-        - storageSize: '{{ .inputs.storage_size }}'
+        - vmNames: '{{ .grains.collect_vm_names.activities.deploy.commands.my_script.outputs.vmNames }}'
         # - storageClassName: "{{ .inputs.storage_class_name }}"
       scripts:
         post-helm-install:
