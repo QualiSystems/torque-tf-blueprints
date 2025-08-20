@@ -43,9 +43,7 @@ grains:
       agent:
         name: openshift-agent
       inputs:
-      - vm_csv: '{{ .grains.collect_vm_names.activities.deploy.commands.my_script.outputs.vmNames }}'
-      outputs:
-      - result
+        - vm_csv: '{{ .grains.collect_vm_names.activities.deploy.commands.my_script.outputs.vmNames }}'
       # Ansible inventory file in a YAML format
       inventory-file:
         localhost:
@@ -55,17 +53,16 @@ grains:
   
   save-volume-snapshot:
     kind: helm
+    depends-on: collect_vm_names
     spec:
       agent:
         name: openshift-agent
       source:
         store: torque-tf-blueprints
         path: helm/k8s-clone-pvc-and-snapshot
-      target-namespace: quali
       command-arguments: '--wait --wait-for-jobs --timeout 600s'
       inputs:
         - vmNames: '{{ .grains.collect_vm_names.activities.deploy.commands.my_script.outputs.vmNames }}'
-        # - storageClassName: "{{ .inputs.storage_class_name }}"
       scripts:
         post-helm-install:
           source:

@@ -68,6 +68,7 @@ grains:
                 command:  'export uuid=$(cat /proc/sys/kernel/random/uuid | cut -c1-6)'
                 outputs:
                   - uuid
+                  
   instance:
     kind: helm
     depends-on: generate_name
@@ -101,6 +102,7 @@ grains:
             - ip
             - user
             - password
+
   instance-introspection:
     kind: terraform
     depends-on: instance
