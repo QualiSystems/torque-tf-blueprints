@@ -76,7 +76,7 @@ grains:
         name: openshift-agent
       source:
         store: torque-tf-blueprints
-        path: helm/k8s-deploy-template
+        path: helm/k8s-deploy-volume-snapshot
       target-namespace: '{{ .inputs.target_namespace }}'
       command-arguments: '--wait --wait-for-jobs --timeout 600s'
       inputs:
