@@ -1,0 +1,25 @@
+#############################################
+# Values for k8s-clone-pvc-and-snapshot chart
+# This chart clones a VM rootdisk PVC and creates a VolumeSnapshot.
+#############################################
+
+# Comma-separated list of VM names to clone+snapshot. For backward compatibility you can still set vmName.
+vmNames: fedora
+
+# (Deprecated alternative single value; used only if vmNames empty)
+# vmName: fedora
+
+# Target namespace for created resources (saved PVC + snapshot)
+namespace: quali
+
+# (Optional) If the VM's rootdisk PVC name differs from vmName, set it here.
+# Otherwise the chart assumes the PVC name == vmName.
+# vmRootDiskPVC: custom-rootdisk-pvc
+
+# Storage size is auto-detected from each source PVC; no manual setting required.
+
+# StorageClass for the cloned PVC (must support cloning & snapshots)
+storageClassName: lvm-smartclone
+
+# (Optional) VolumeSnapshotClass to use. If empty, cluster default selection rules apply.
+# volumeSnapshotClassName: csi-snapclass

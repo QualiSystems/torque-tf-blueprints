@@ -1,0 +1,6 @@
+apiVersion: v2
+name: centos-stream9-vm
+description: A Helm chart to deploy a CDI DataVolume and KubeVirt VirtualMachine
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

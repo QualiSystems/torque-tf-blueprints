@@ -5,6 +5,55 @@ workflow:
   scope: env
 
 grains:
+  power-off-vms:
+    kind: ansible
+    spec:
+      source:
+        store: torque-tf-blueprints
+        path: ansible/power-off-vm-openshift.yml
+      agent:
+        name: openshift-agent
+      inputs: 
+      - vm_name: '{{ .bindings.attributes.display_name }}'
+      - namespace_json: '{{ .bindings.attributes.introspection_data }}'
+      - force_shutdown: '{{ .inputs.force_shutdown }}'
+      env-vars: []
+      outputs:
+      - result
+      # Ansible inventory file in a YAML format
+      inventory-file:
+        localhost:
+          hosts:
+            127.0.0.1:
+              ansible_connection: local
+
+  save-volume-snapshot:
+    kind: helm
+    spec:
+      agent:
+        name: openshift-agent
+      source:
+        store: torque-tf-blueprints
+        path: helm/k8s-clone-pvc-and-snapshot
+      target-namespace: '{{ .inputs.target_namespace }}'
+      command-arguments: '--wait --wait-for-jobs --timeout 600s'
+      inputs:
+        - vmName: '{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
+        - namespace: '{{ .inputs.image_namespace }}'
+        - storageSize: '{{ .inputs.storage_size }}'
+        # - storageClassName: "{{ .inputs.storage_class_name }}"
+      scripts:
+        post-helm-install:
+          source:
+            store: torque-tf-blueprints
+            path:  scripts/get_openshift_vm_state.sh
+          arguments: "{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} {{ .inputs.target_namespace }}"
+          outputs:
+            - vm_name
+            - storage
+            - ip
+            - user
+            - password 
   shell_grain:
     kind: shell
     spec:
@@ -15,24 +64,3 @@ grains:
           commands:
             - 'echo "another thing - {{.bindings.resource_type.random_string.attributes.result}}"'
 
-# grains:
-#   Power On VM:
-#     kind: ansible
-#     spec:
-#       source:
-#         store: torque-tf-blueprints
-#         path: ansible/power-on-vm-openshift.yml
-#       agent:
-#         name: openshift-agent
-#       inputs: 
-#       - vm_name: '{{ .bindings.attributes.display_name }}'
-#       - namespace_json: '{{ .bindings.attributes.introspection_data }}'
-#       env-vars: []
-#       outputs:
-#       - result
-#       # Ansible inventory file in a YAML format
-#       inventory-file:
-#         localhost:
-#           hosts:
-#             127.0.0.1:
-#               ansible_connection: local

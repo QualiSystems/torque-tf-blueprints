@@ -1,0 +1,4 @@
+requests
+pyyaml
+pygithub
+git+https://github.com/QualiSystemsLab/pyTorque.git#egg=pyTorque

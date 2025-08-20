@@ -1,0 +1,63 @@
+{{- /*
+This template now supports cloning and snapshotting multiple VM rootdisk PVCs.
+For each VM name provided (comma-separated in .Values.vmNames), it:
+  1. Clones the existing root PVC (<vmName>) into <vmName>-saved (same storage size as source) using dataSource cloning.
+  2. Creates a VolumeSnapshot <vmName>-saved-snap from the saved PVC.
+
+Behavior:
+* Storage size automatically matches the source PVC via Helm lookup (cluster must be reachable; dry-run without cluster will fail the lookup).
+* If any source PVC is missing, template fails early.
+*/ -}}
+{{- $ns := .Values.namespace -}}
+{{- $rawList := default .Values.vmName .Values.vmNames -}} {{/* backward compat: vmName if vmNames not set */}}
+{{- $names := splitList "," $rawList -}}
+{{- range $i, $n := $names }}
+{{- $vm := trim $n -}}
+{{- if not $vm }}{{- continue }}{{- end }}
+{{- $rootPVC := $vm -}}
+{{- $srcPVC := (lookup "v1" "PersistentVolumeClaim" $ns $rootPVC) -}}
+{{- if not $srcPVC }}
+{{- fail (printf "Source PVC %s not found in namespace %s" $rootPVC $ns) }}
+{{- end }}
+{{- $srcSize := (index $srcPVC.spec.resources.requests "storage") -}}
+{{- if not $srcSize }}
+{{- fail (printf "Could not determine storage size for PVC %s" $rootPVC) }}
+{{- end }}
+{{- $savedPVC := printf "%s-saved" $vm -}}
+{{- $snapshotName := printf "%s-saved-snap" $vm -}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $savedPVC }}
+  namespace: {{ $ns }}
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    vm.kubevirt.io/name: {{ $vm }}
+  annotations:
+    snapshot.cloned.from.pvc: {{ $rootPVC }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $.Values.storageClassName }}
+  dataSource:
+    name: {{ $rootPVC }}
+    kind: PersistentVolumeClaim
+    apiGroup: ""
+  resources:
+    requests:
+      storage: {{ $srcSize }}
+---
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: {{ $snapshotName }}
+  namespace: {{ $ns }}
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    vm.kubevirt.io/name: {{ $vm }}
+spec:
+  source:
+    persistentVolumeClaimName: {{ $savedPVC }}
+  volumeSnapshotClassName: {{ $.Values.volumeSnapshotClassName | default "" | quote }}
+{{- end }}
