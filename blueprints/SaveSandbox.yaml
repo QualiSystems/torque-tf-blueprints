@@ -63,5 +63,6 @@ grains:
       activities:
         deploy:
           commands:
-            - 'echo "{{.bindings}}"'
+            - 'echo "{{.bindings.id}}"'
+            - 'echo "{{.bindings.grains}}"'
 

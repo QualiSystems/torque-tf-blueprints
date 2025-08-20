@@ -1,5 +1,5 @@
 echo "Getting outputs from OpenShift VM"
-# sleep 30
+sleep 30
 export VM_NAME=$1
 export NAMESPACE=$2
 echo $(kubectl wait vm/$VM_NAME -n $NAMESPACE --for=condition=Ready --timeout=600s)
