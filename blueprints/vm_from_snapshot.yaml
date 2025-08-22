@@ -75,13 +75,15 @@ grains:
     spec:
       agent:
         name: openshift-agent
+      env-vars:
+        - name: VM_NAME
+          value: '{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
       source:
         store: torque-tf-blueprints
         path: helm/k8s-deploy-template
       target-namespace: '{{ .inputs.target_namespace }}'
-      command-arguments: '--wait --wait-for-jobs --timeout 600s'
+      command-arguments: '--wait --wait-for-jobs --timeout 600s --set vmName="$VM_NAME"'
       inputs:
-        - vmName: '{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
         - namespace: '{{ .inputs.target_namespace }}'
         - volumeSnapshotNamespace: '{{ .inputs.image_namespace }}'
         - volumeSnapshot: '{{ .inputs.image_snapshot }}'
