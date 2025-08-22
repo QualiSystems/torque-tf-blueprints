@@ -1,0 +1,42 @@
+spec_version: 2
+
+grains:
+  mgmt_network:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/network.yaml'
+      inputs:
+        - namespace: 'quali'
+      outputs:
+        - 'network-name'
+  egress_network:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/network.yaml'
+      inputs:
+        - namespace: 'quali'
+      outputs:
+        - 'network-name'
+  Jumpbox:
+    kind: 'blueprint'
+    spec:
+      source:
+        store: 'torque-tf-blueprints'
+        path: 'blueprints/vm_from_snapshot.yaml'
+      env-vars:
+        - VM_NAME: 'jumpbox-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
+      inputs:
+        - networks: 'default,{{ .grains.mgmt_network.outputs.network-name }},{{ .grains.egress_network.outputs.network-name }}'
+        - cpu: '4'
+        - ram: '8Gi'
+      outputs:
+        - 'vm_name'
+        - 'storage'
+        - 'ip'
+        - 'user'
+        - 'password'
+    depends-on: 'mgmt_network,egress_network'
