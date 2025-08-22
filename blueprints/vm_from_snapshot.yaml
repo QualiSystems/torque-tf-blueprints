@@ -76,8 +76,7 @@ grains:
       agent:
         name: openshift-agent
       env-vars:
-        - name: VM_NAME
-          value: '{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
+        - VM_NAME: '{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
       source:
         store: torque-tf-blueprints
         path: helm/k8s-deploy-template
