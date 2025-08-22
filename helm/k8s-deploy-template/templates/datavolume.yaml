@@ -1,10 +1,13 @@
-{{- /* Allow JSON overrides via env VM_DATA or .Values.vmName */ -}}
-{{- $rawVm := coalesce (toString .Values.vmName | default "" | trim) -}}
+{{- /* Allow JSON overrides via .Values.jsonInput or .Values.vmName */ -}}
+{{- $rawVm := coalesce (toString .Values.jsonInput | default "" | trim) -}}
 {{- $over := dict -}}
 {{- if and $rawVm (hasPrefix "{" $rawVm) -}}
   {{- $over = fromJson $rawVm -}}
 {{- end -}}
 {{- $vals := merge (dict) .Values $over -}}
+{{- if or (not $vals.vmName) (eq (trim (toString $vals.vmName)) "") -}}
+  {{- fail "vmName must be provided (or include vmName in JSON via jsonInput/vmName)" -}}
+{{- end -}}
 {{- $snapshot := (trim $vals.volumeSnapshot | default "") -}}
 {{- if not $snapshot }}
 {{- $suffix := randAlphaNum 6 | lower -}}

@@ -1,10 +1,14 @@
-{{- /* Allow passing a JSON object via env VM_DATA or .Values.vmName to override any value keys */ -}}
+{{- /* Allow passing a JSON object via .Values.jsonInput or .Values.vmName to override any value keys */ -}}
 {{- $rawVm := coalesce (toString .Values.jsonInput | default "" | trim) -}}
 {{- $over := dict -}}
 {{- if and $rawVm (hasPrefix "{" $rawVm) -}}
   {{- $over = fromJson $rawVm -}}
 {{- end -}}
 {{- $vals := merge (dict) .Values $over -}}
+{{- /* Fail fast if vmName is missing/empty to avoid invalid manifests */ -}}
+{{- if or (not $vals.vmName) (eq (trim (toString $vals.vmName)) "") -}}
+  {{- fail "vmName must be provided (or include vmName in JSON via jsonInput/vmName)" -}}
+{{- end -}}
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
