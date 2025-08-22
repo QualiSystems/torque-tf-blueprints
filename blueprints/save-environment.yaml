@@ -53,7 +53,7 @@ grains:
   
   save-volume-snapshot:
     kind: helm
-    depends-on: collect_vm_names
+    depends-on: power-off-vms
     spec:
       agent:
         name: openshift-agent
@@ -72,12 +72,13 @@ grains:
           outputs:
             - snapshots_json
   
-  shell_grain:
+  save-env-script:
     kind: shell
+    depends-on: save-volume-snapshot
     spec:
       env-vars:
         - GITHUB_TOKEN: "{{ .inputs.github_token }}"
-        - TORQUE_TOKEN: "{{ .inputs.torque_token }}"
+        - TORQUE_API_TOKEN: "{{ .inputs.torque_token }}"
         - GITHUB_REPO: "{{ .inputs.github_repo }}"
       agent:
         name: openshift-agent
@@ -89,6 +90,6 @@ grains:
       activities:
         deploy:
           commands:
-            - 'pip install -r scripts/save_environment/requirements.txt'
-            - 'python scripts/save_environment/save_environment.py {{ .params.}}'
+            - 'pip install -r ./scripts/save_environment/requirements.txt'
+            - 'python ./scripts/save_environment/save_environment.py --space={{ spaceName }} '
 

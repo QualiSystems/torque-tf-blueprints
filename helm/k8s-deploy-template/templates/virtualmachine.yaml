@@ -1,11 +1,18 @@
+{{- /* Allow passing a JSON object via env VM_DATA or .Values.vmName to override any value keys */ -}}
+{{- $rawVm := coalesce (env "VM_DATA" | default "" | trim) (toString .Values.vmName | default "" | trim) -}}
+{{- $over := dict -}}
+{{- if and $rawVm (hasPrefix "{" $rawVm) -}}
+  {{- $over = fromJson $rawVm -}}
+{{- end -}}
+{{- $vals := merge (dict) .Values $over -}}
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
-  name: {{ .Values.vmName }}
-  namespace: {{ .Values.namespace }}
+  name: {{ $vals.vmName }}
+  namespace: {{ $vals.namespace }}
 spec:
   # Determine run strategy based on autoStart (supports bool or string)
-  {{- $autoStart := (toString .Values.autoStart | lower) -}}
+  {{- $autoStart := (toString $vals.autoStart | lower) -}}
   {{- if eq $autoStart "true" }}
   runStrategy: RerunOnFailure
   {{- else }}
@@ -15,21 +22,37 @@ spec:
     - apiVersion: cdi.kubevirt.io/v1beta1
       kind: DataVolume
       metadata:
-        name: {{ .Values.vmName }}
+        name: {{ $vals.vmName }}
       spec:
+        {{- /* If volumeSnapshot is provided, use snapshot source; otherwise, use DataSource */}}
+        {{- $snapshot := (trim $vals.volumeSnapshot | default "") -}}
+        {{- if $snapshot }}
+        source:
+          snapshot:
+            name: {{ $snapshot }}
+            {{- if $vals.volumeSnapshotNamespace }}
+            namespace: {{ $vals.volumeSnapshotNamespace }}
+            {{- end }}
+        {{- else }}
         sourceRef:
           kind: DataSource
-          name: {{ .Values.imageDs }}
-          namespace: {{ .Values.imageNs }}
+          name: {{ $vals.imageDs }}
+          namespace: {{ $vals.imageNs }}
+        {{- end }}
         storage:
           resources:
             requests:
-              storage: {{ .Values.storageSize }}
-            storageClassName: lvm-smartclone
+              storage: {{ $vals.storageSize }}
+          {{- /* Allow override of storageClassName, default to previous value for backward compatibility */}}
+          {{- if $vals.storageClassName }}
+          storageClassName: {{ $vals.storageClassName }}
+          {{- else }}
+          storageClassName: lvm-smartclone
+          {{- end }}
   template:
     metadata:
       labels:
-        kubevirt.io/domain: {{ .Values.vmName }}
+        kubevirt.io/domain: {{ $vals.vmName }}
         kubevirt.io/size: small
       annotations:
         vm.kubevirt.io/flavor: small
@@ -39,9 +62,9 @@ spec:
       architecture: amd64
       domain:
         firmware:
-          uuid: {{ .Values.uuid }}
+          uuid: {{ $vals.uuid }}
         cpu:
-          cores: {{ .Values.cpu }}
+          cores: {{ $vals.cpu }}
           sockets: 1
           threads: 1
         devices:
@@ -53,9 +76,9 @@ spec:
               disk:
                 bus: virtio
           interfaces:
-            {{- if .Values.networks }}
+            {{- if $vals.networks }}
             {{- /* Split by either comma or semicolon */}}
-            {{- $networkList := regexSplit "[,;]" .Values.networks -1 }}
+            {{- $networkList := regexSplit "[,;]" $vals.networks -1 }}
             {{- range $index, $networkEntry := $networkList }}
             {{- $networkEntry := $networkEntry | trim }}
             - name: net-{{ $index }}
@@ -69,11 +92,11 @@ spec:
         machine:
           type: pc-q35-rhel9.6.0
         memory:
-          guest: {{ .Values.ram }}
+          guest: {{ $vals.ram }}
       networks:
-        {{- if .Values.networks }}
+        {{- if $vals.networks }}
         {{- /* Split by either comma or semicolon */}}
-        {{- $networkList := regexSplit "[,;]" .Values.networks -1 }}
+        {{- $networkList := regexSplit "[,;]" $vals.networks -1 }}
         {{- range $index, $networkEntry := $networkList }}
         {{- $networkEntry := $networkEntry | trim }}
         {{- if ne $networkEntry "" }}
@@ -94,11 +117,11 @@ spec:
       volumes:
         - name: rootdisk
           dataVolume:
-            name: {{ .Values.vmName }}
+            name: {{ $vals.vmName }}
         - name: cloudinitdisk
           cloudInitNoCloud:
             userData: |
               #cloud-config
-              user: {{ .Values.userName }}
-              password: {{ .Values.userPassword }}
+              user: {{ $vals.userName }}
+              password: {{ $vals.userPassword }}
               chpasswd: { expire: False }

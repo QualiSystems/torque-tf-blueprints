@@ -1,5 +1,14 @@
+{{- /* Allow JSON overrides via env VM_DATA or .Values.vmName */ -}}
+{{- $rawVm := coalesce (env "VM_DATA" | default "" | trim) (toString .Values.vmName | default "" | trim) -}}
+{{- $over := dict -}}
+{{- if and $rawVm (hasPrefix "{" $rawVm) -}}
+  {{- $over = fromJson $rawVm -}}
+{{- end -}}
+{{- $vals := merge (dict) .Values $over -}}
+{{- $snapshot := (trim $vals.volumeSnapshot | default "") -}}
+{{- if not $snapshot }}
 {{- $suffix := randAlphaNum 6 | lower -}}
-{{- $fullName := printf "%s-%s" .Values.vmName $suffix -}}
+{{- $fullName := printf "%s-%s" $vals.vmName $suffix -}}
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
@@ -9,17 +18,32 @@ metadata:
   annotations:
     cdi.kubevirt.io/storage.bind.immediate.requested: "true"
     cdi.kubevirt.io/storage.usePopulator: "false"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ $vals.namespace }}
 spec:
+  {{- $snapshot := (trim $vals.volumeSnapshot | default "") -}}
+  {{- if $snapshot }}
+  source:
+    snapshot:
+      name: {{ $snapshot }}
+      {{- if $vals.volumeSnapshotNamespace }}
+      namespace: {{ $vals.volumeSnapshotNamespace }}
+      {{- end }}
+  {{- else }}
   sourceRef:
     kind: DataSource
-    name: {{ .Values.imageDs }}
-    namespace: {{ .Values.imageNs }}
+    name: {{ $vals.imageDs }}
+    namespace: {{ $vals.imageNs }}
+  {{- end }}
   storage:
     accessModes:
       - ReadWriteOnce
     resources:
       requests:
-        storage: {{ .Values.storageSize }}
-    storageClassName: {{ .Values.storageClassName }}
+        storage: {{ $vals.storageSize }}
+    {{- if $vals.storageClassName }}
+    storageClassName: {{ $vals.storageClassName }}
+    {{- end }}
     volumeMode: Block
+{{- else }}
+{{- /* Snapshot provided: skip standalone DataVolume creation */ -}}
+{{- end }}
