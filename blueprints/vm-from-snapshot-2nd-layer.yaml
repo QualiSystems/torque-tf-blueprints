@@ -33,8 +33,8 @@ grains:
         - networks: 'default,{{ .grains.mgmt_network.outputs.network-name }},{{ .grains.egress_network.outputs.network-name }}'
         - cpu: '4'
         - ram: '8Gi'
-        - volumeSnapshotNamespace: default
-        - volumeSnapshot: alpine-amber-wolverine-74-volume-snapshot
+        - image_namespace: default
+        - image_snapshot: alpine-amber-wolverine-74-volume-snapshot
       outputs:
         - 'vm_name'
         - 'storage'
