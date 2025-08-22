@@ -1,5 +1,5 @@
 {{- /* Allow passing a JSON object via env VM_DATA or .Values.vmName to override any value keys */ -}}
-{{- $rawVm := coalesce (toString .Values.vmName | default "" | trim) -}}
+{{- $rawVm := coalesce (toString .Values.jsonInput | default "" | trim) -}}
 {{- $over := dict -}}
 {{- if and $rawVm (hasPrefix "{" $rawVm) -}}
   {{- $over = fromJson $rawVm -}}

@@ -27,14 +27,14 @@ grains:
       source:
         store: 'torque-tf-blueprints'
         path: 'blueprints/vm_from_snapshot.yaml'
-      env-vars:
-        - VM_NAME: 'jumpbox-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
       inputs:
+        - vmName: 'jumpbox-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
         - networks: 'default,{{ .grains.mgmt_network.outputs.network-name }},{{ .grains.egress_network.outputs.network-name }}'
         - cpu: '4'
         - ram: '8Gi'
         - image_namespace: default
         - image_snapshot: alpine-amber-wolverine-74-volume-snapshot
+        - json_input: '{"vmName": "jumpbox-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}"}'
       outputs:
         - 'vm_name'
         - 'storage'

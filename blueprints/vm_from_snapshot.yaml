@@ -42,6 +42,9 @@ inputs:
   auto_start:
     type: string
     default: "true"
+  json_input:
+    type: string
+    default: ""
 
 outputs:
   vm_name:
@@ -75,8 +78,6 @@ grains:
     spec:
       agent:
         name: openshift-agent
-      env-vars:
-        - VM_NAME: '{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
       source:
         store: torque-tf-blueprints
         path: helm/k8s-deploy-template
@@ -91,6 +92,7 @@ grains:
         - cpu: '{{ .inputs.cpu }}'
         - ram: '{{ .inputs.ram }}'
         - autoStart: '{{ .inputs.auto_start }}'
+        - jsonInput: '{{ .inputs.json_input }}'
       scripts:
         post-helm-install:
           source:
