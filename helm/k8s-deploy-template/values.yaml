@@ -4,6 +4,8 @@ imageNs: default
 imageDs: fedora-5gb
 storageSize: 5Gi
 storageClassName: lvm-smartclone
+volumeSnapshot: ""            # REQUIRED: snapshot name
+volumeSnapshotNamespace: ""  # optional; defaults to release namespace if empty
 userName: fedora
 userPassword: 3t0u-qyyt-g82m
 uuid: 5d307ca9-b3ef-428c-8861-06e72d69f223
