@@ -38,7 +38,7 @@ inputs:
     default: quali
   storage_size:
     type: string
-    default: '512Mi'
+    default: '1548Mi'
   auto_start:
     type: string
     default: "true"
