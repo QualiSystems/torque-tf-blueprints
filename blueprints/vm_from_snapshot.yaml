@@ -43,7 +43,7 @@ inputs:
     type: string
     default: "true"
   json_input:
-    type: dict
+    type: string
     default: ""
 
 outputs:
