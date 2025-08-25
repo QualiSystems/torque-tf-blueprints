@@ -4,7 +4,7 @@
 {{- if and $rawVm (hasPrefix "{" $rawVm) -}}
   {{- $over = fromJson $rawVm -}}
 {{- end -}}
-{{- $vals := merge (dict) .Values $over -}}
+{{- $vals := mergeOverwrite (dict) .Values $over -}}
 {{- /* Fail fast if vmName is missing/empty to avoid invalid manifests */ -}}
 {{- if or (not $vals.vmName) (eq (trim (toString $vals.vmName)) "") -}}
   {{- fail "vmName must be provided (or include jsonInput.vmName)" -}}
