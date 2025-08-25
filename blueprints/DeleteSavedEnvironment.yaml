@@ -1,0 +1,28 @@
+spec_version: 2
+description: Workflow to set a VM's power-state
+
+workflow: 
+  scope: env_resource
+  resource-types: torque_introspection_resource
+
+grains:
+  Power On VM:
+    kind: ansible
+    spec:
+      source:
+        store: torque-tf-blueprints
+        path: ansible/power-on-vm-openshift.yml
+      agent:
+        name: openshift-agent
+      inputs: 
+      - vm_name: '{{ .bindings.attributes.display_name }}'
+      - namespace_json: '{{ .bindings.attributes.introspection_data }}'
+      env-vars: []
+      outputs:
+      - result
+      # Ansible inventory file in a YAML format
+      inventory-file:
+        localhost:
+          hosts:
+            127.0.0.1:
+              ansible_connection: local
