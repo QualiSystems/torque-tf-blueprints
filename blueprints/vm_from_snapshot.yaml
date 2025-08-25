@@ -85,6 +85,7 @@ grains:
       command-arguments: '--wait --wait-for-jobs --timeout 600s --debug'
       inputs:
         - namespace: '{{ .inputs.target_namespace }}'
+        - vmNamePrefix: '-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
         - volumeSnapshotNamespace: '{{ .inputs.image_namespace }}'
         - volumeSnapshot: '{{ .inputs.image_snapshot }}'
         - storageSize: '{{ .inputs.storage_size }}'
@@ -98,7 +99,7 @@ grains:
           source:
             store: torque-tf-blueprints
             path:  scripts/get_openshift_vm_state.sh
-          arguments: "{{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} {{ .inputs.target_namespace }}"
+          arguments: "{{ .inputs.target_namespace }} {{ .inputs.vm_name }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} {{ .inputs.json_input.vmName }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}"
           outputs:
             - vm_name
             - storage

@@ -29,12 +29,12 @@ grains:
         path: 'blueprints/vm_from_snapshot.yaml'
       inputs:
         - json_input: 
-            vm_name: "jumpbox"
+            vmName: "jumpbox"
             networks: "default,{{ .grains.mgmt_network.outputs.network-name }},{{ .grains.egress_network.outputs.network-name }}"
             cpu: "4"
             ram: "8Gi"
-            image_namespace: "default"
-            image_snapshot: "alpine-amber-wolverine-74-volume-snapshot"
+            volumeSnapshotNamespace: "default"
+            volumeSnapshot: "alpine-amber-wolverine-74-volume-snapshot"
       outputs:
         - 'vm_name'
         - 'storage'

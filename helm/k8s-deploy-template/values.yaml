@@ -1,4 +1,5 @@
 vmName: fedora
+vmNamePrefix: "-"
 namespace: quali
 imageNs: default
 imageDs: fedora-5gb
