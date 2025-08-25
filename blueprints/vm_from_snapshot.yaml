@@ -100,7 +100,7 @@ grains:
           source:
             store: torque-tf-blueprints
             path:  scripts/get_openshift_vm_state.sh
-          arguments: "{{ .inputs.target_namespace }} {{ .inputs.vm_name }} {{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} '{{ .inputs.json_input }}'"
+          arguments: '{{ .inputs.target_namespace }} {{ .inputs.vm_name }} {{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} "{{ .inputs.json_input }}"'
           outputs:
             - vm_name
             - storage
