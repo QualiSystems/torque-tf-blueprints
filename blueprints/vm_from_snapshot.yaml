@@ -46,17 +46,17 @@ inputs:
     type: string
     default: ""
 
-outputs:
-  vm_name:
-    value: '{{ .grains.instance.scripts.post-helm-install.outputs.vm_name }}'
-  storage:
-    value: '{{ .grains.instance.scripts.post-helm-install.outputs.storage }}'
-  ip:
-    value: '{{ .grains.instance.scripts.post-helm-install.outputs.ip }}'
-  user:
-    value: '{{ .grains.instance.scripts.post-helm-install.outputs.user }}'
-  password:
-    value: '{{ .grains.instance.scripts.post-helm-install.outputs.password }}'
+# outputs:
+#   vm_name:
+#     value: '{{ .grains.instance.scripts.post-helm-install.outputs.vm_name }}'
+#   storage:
+#     value: '{{ .grains.instance.scripts.post-helm-install.outputs.storage }}'
+#   ip:
+#     value: '{{ .grains.instance.scripts.post-helm-install.outputs.ip }}'
+#   user:
+#     value: '{{ .grains.instance.scripts.post-helm-install.outputs.user }}'
+#   password:
+#     value: '{{ .grains.instance.scripts.post-helm-install.outputs.password }}'
 
 grains:
   generate_name:
@@ -101,28 +101,28 @@ grains:
             store: torque-tf-blueprints
             path:  scripts/get_openshift_vm_state.sh
           arguments: "{{ .inputs.target_namespace }} {{ .inputs.vm_name }} {{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} '{{ .inputs.json_input }}'"
-          outputs:
-            - vm_name
-            - storage
-            - ip
-            - user
-            - password
+          # outputs:
+          #   - vm_name
+          #   - storage
+          #   - ip
+          #   - user
+          #   - password
             
-  instance-introspection:
-    kind: terraform
-    depends-on: instance
-    spec:
-      source:
-        store: torque-tf-blueprints
-        path: terraform/openshift-introspec-vm
-      agent:
-        name: openshift-agent
-        isolated: true
-      inputs:
-      - vm_name: '{{ .grains.instance.scripts.post-helm-install.outputs.vm_name }}'
-      - namespace: '{{ .inputs.target_namespace }}'
-      - ip: '{{ .grains.instance.scripts.post-helm-install.outputs.ip }}'
-      - user: '{{ .grains.instance.scripts.post-helm-install.outputs.user }}'
-      - password: '{{ .grains.instance.scripts.post-helm-install.outputs.password }}'
-      outputs:
-      - endpoint
+  # instance-introspection:
+  #   kind: terraform
+  #   depends-on: instance
+  #   spec:
+  #     source:
+  #       store: torque-tf-blueprints
+  #       path: terraform/openshift-introspec-vm
+  #     agent:
+  #       name: openshift-agent
+  #       isolated: true
+  #     inputs:
+  #     - vm_name: '{{ .grains.instance.scripts.post-helm-install.outputs.vm_name }}'
+  #     - namespace: '{{ .inputs.target_namespace }}'
+  #     - ip: '{{ .grains.instance.scripts.post-helm-install.outputs.ip }}'
+  #     - user: '{{ .grains.instance.scripts.post-helm-install.outputs.user }}'
+  #     - password: '{{ .grains.instance.scripts.post-helm-install.outputs.password }}'
+  #     outputs:
+  #     - endpoint
