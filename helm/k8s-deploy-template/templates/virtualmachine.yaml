@@ -5,14 +5,21 @@
   {{- $over = fromJson $rawVm -}}
 {{- end -}}
 {{- $vals := mergeOverwrite (dict) .Values $over -}}
-{{- /* Fail fast if vmName is missing/empty to avoid invalid manifests */ -}}
-{{- if or (not $vals.vmName) (eq (trim (toString $vals.vmName)) "") -}}
-  {{- fail "vmName must be provided (or include jsonInput.vmName)" -}}
+{{- /* Choose base name: prefer vm_name, fallback to vmName */ -}}
+{{- $baseNameRaw := coalesce $vals.vm_name $vals.vmName -}}
+{{- $baseName := (toString $baseNameRaw | trim) -}}
+{{- /* Optional suffix to append as '-suffix' */ -}}
+{{- $suffix := (toString ($vals.vmNameSuffix | default "") | trim) -}}
+{{- $suffixPart := ternary (printf "-%s" $suffix) "" (ne $suffix "") -}}
+{{- $vmFinalName := printf "%s%s" $baseName $suffixPart -}}
+{{- /* Fail fast if base name is missing/empty to avoid invalid manifests */ -}}
+{{- if eq $baseName "" -}}
+  {{- fail "vmName must be provided (or include jsonInput.vmName / jsonInput.vm_name)" -}}
 {{- end -}}
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
-  name: {{ $vals.vmName }}
+  name: {{ $vmFinalName }}
   namespace: {{ $vals.namespace }}
 spec:
   # Determine run strategy based on autoStart (supports bool or string)
@@ -26,7 +33,7 @@ spec:
     - apiVersion: cdi.kubevirt.io/v1beta1
       kind: DataVolume
       metadata:
-        name: {{ $vals.vmName }}
+  name: {{ $vmFinalName }}
       spec:
         {{- /* If volumeSnapshot is provided, use snapshot source; otherwise, use DataSource */}}
         {{- $snapshot := (trim $vals.volumeSnapshot | default "") -}}
@@ -56,7 +63,7 @@ spec:
   template:
     metadata:
       labels:
-        kubevirt.io/domain: {{ $vals.vmName }}
+  kubevirt.io/domain: {{ $vmFinalName }}
         kubevirt.io/size: small
       annotations:
         vm.kubevirt.io/flavor: small
@@ -121,7 +128,7 @@ spec:
       volumes:
         - name: rootdisk
           dataVolume:
-            name: {{ $vals.vmName }}
+            name: {{ $vmFinalName }}
         - name: cloudinitdisk
           cloudInitNoCloud:
             userData: |

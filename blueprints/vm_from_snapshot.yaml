@@ -85,7 +85,7 @@ grains:
       command-arguments: '--wait --wait-for-jobs --timeout 600s --debug'
       inputs:
         - namespace: '{{ .inputs.target_namespace }}'
-        - vmNamePrefix: '-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
+        - vmNameSuffix: '{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
         - volumeSnapshotNamespace: '{{ .inputs.image_namespace }}'
         - volumeSnapshot: '{{ .inputs.image_snapshot }}'
         - storageSize: '{{ .inputs.storage_size }}'
