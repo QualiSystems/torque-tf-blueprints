@@ -78,6 +78,7 @@ grains:
     spec:
       agent:
         name: openshift-agent
+        isolated: true
       source:
         store: torque-tf-blueprints
         path: helm/k8s-deploy-template
@@ -115,7 +116,8 @@ grains:
         store: torque-tf-blueprints
         path: terraform/openshift-introspec-vm
       agent:
-        name: openshift-agent    
+        name: openshift-agent
+        isolated: true
       inputs:
       - vm_name: '{{ .grains.instance.scripts.post-helm-install.outputs.vm_name }}'
       - namespace: '{{ .inputs.target_namespace }}'
