@@ -1,8 +1,9 @@
 echo "Getting outputs from OpenShift VM"
-export VM_NAME=$2
+
 export NAMESPACE=$1
+export VM_NAME=$2
 export VM_JSON_INPUT=$3
-export UUID=$3
+export UUID=$4
 echo "VM_NAME=$VM_NAME"
 echo "NAMESPACE=$NAMESPACE"
 echo "VM_JSON_INPUT=$VM_JSON_INPUT"
