@@ -1,14 +1,13 @@
-{{- /* Allow passing a JSON object via .Values.jsonInput or .Values.vmName to override any value keys */ -}}
-{{- $rawVm := coalesce (toString .Values.jsonInput | default "" | trim) -}}
+{{- /* Allow passing a JSON object via .Values.jsonInput to override any value keys */ -}}
+{{- $rawVm := (toString .Values.jsonInput | default "" | trim) -}}
 {{- $over := dict -}}
 {{- if and $rawVm (hasPrefix "{" $rawVm) -}}
   {{- $over = fromJson $rawVm -}}
-  {{- printf "Json Input variable loaded" }}
 {{- end -}}
 {{- $vals := merge (dict) .Values $over -}}
 {{- /* Fail fast if vmName is missing/empty to avoid invalid manifests */ -}}
 {{- if or (not $vals.vmName) (eq (trim (toString $vals.vmName)) "") -}}
-  {{- fail "vmName must be provided (or include vmName in JSON via jsonInput/vmName)" -}}
+  {{- fail "vmName must be provided (or include jsonInput.vmName)" -}}
 {{- end -}}
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
