@@ -26,7 +26,27 @@ if [[ -n "$VM_JSON_INPUT" ]]; then
       echo "[DEBUG] No vmName found in VM_JSON_INPUT or it's empty/null"
     fi
   else
-    echo "[DEBUG] VM_JSON_INPUT is not valid JSON; skipping vmName override"
+    echo "[DEBUG] VM_JSON_INPUT is not valid JSON; attempting fallback key-value parse for vmName"
+    # Fallback: support formats like {vmName: myvm, uuid: 123} or vmName=myvm,uuid=123
+    raw_kv="$VM_JSON_INPUT"
+    # Strip surrounding braces
+    raw_kv="${raw_kv#\{}"; raw_kv="${raw_kv%\}}"
+    # Normalize separators to comma
+    raw_kv="${raw_kv//;/,}"
+    echo "[DEBUG] Fallback KV normalized: $raw_kv"
+    IFS=',' read -r -a _kv_pairs <<< "$raw_kv"
+    for _kv in "${_kv_pairs[@]}"; do
+      _kv_trimmed=$(echo "$_kv" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+      _k=$(echo "$_kv_trimmed" | sed -E 's/[:=].*$//' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+      _v=$(echo "$_kv_trimmed" | sed -E 's/^[^:=]*[:=][[:space:]]*//' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+      # Strip surrounding quotes from value
+      _v="${_v%\"}"; _v="${_v#\"}"; _v="${_v%\'}"; _v="${_v#\'}"
+      echo "[DEBUG] Fallback pair: key='$_k' value='$_v'"
+      if [[ "$_k" == "vmName" && -n "$_v" && "$_v" != "null" ]]; then
+        export VM_NAME="$_v"
+        echo "VM_NAME overridden from fallback vmName: $VM_NAME"
+      fi
+    done
   fi
 else
   echo "[DEBUG] VM_JSON_INPUT is empty; skipping vmName override"
@@ -47,7 +67,21 @@ if [[ -z "$UUID" || "$UUID" == "$VM_JSON_INPUT" ]]; then
       echo "[DEBUG] No uuid found in VM_JSON_INPUT or it's empty/null"
     fi
   else
-    echo "[DEBUG] VM_JSON_INPUT is not valid JSON; skipping uuid parsing"
+    echo "[DEBUG] VM_JSON_INPUT is not valid JSON; attempting fallback key-value parse for uuid"
+    raw_kv="$VM_JSON_INPUT"
+    raw_kv="${raw_kv#\{}"; raw_kv="${raw_kv%\}}"
+    raw_kv="${raw_kv//;/,}"
+    IFS=',' read -r -a _kv_pairs <<< "$raw_kv"
+    for _kv in "${_kv_pairs[@]}"; do
+      _kv_trimmed=$(echo "$_kv" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+      _k=$(echo "$_kv_trimmed" | sed -E 's/[:=].*$//' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+      _v=$(echo "$_kv_trimmed" | sed -E 's/^[^:=]*[:=][[:space:]]*//' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+      _v="${_v%\"}"; _v="${_v#\"}"; _v="${_v%\'}"; _v="${_v#\'}"
+      if [[ "$_k" == "uuid" && -n "$_v" && "$_v" != "null" ]]; then
+        export UUID="$_v"
+        echo "[DEBUG] UUID overridden from fallback uuid: $UUID"
+      fi
+    done
   fi
 else
   echo "[DEBUG] UUID already provided and differs from VM_JSON_INPUT; not overriding"
