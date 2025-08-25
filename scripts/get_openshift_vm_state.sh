@@ -62,7 +62,8 @@ if ! kubectl wait "vm/$VM_NAME" -n "$NAMESPACE" --for=condition=Ready --timeout=
   exit 2
 fi
 export vm_json=$(kubectl get vm $VM_NAME -n $NAMESPACE -o json)
-export vm_name="$(echo "$vm_json" | jq -r '.metadata.name')"
+export vm_name="$VM_NAME"
+echo "vm_name=$vm_name"
 export storage="$(echo "$vm_json" | jq -r '.spec.dataVolumeTemplates[]? | "\(.metadata.name) size=\(.spec.storage.resources.requests.storage)"')"
 echo "storage=$storage"
 export ip=$(kubectl get vmi $VM_NAME -n $NAMESPACE -o json   | jq -r ' .status.interfaces[]?.ipAddress // "N/A"'   | sed '/^N\/A$/d')
