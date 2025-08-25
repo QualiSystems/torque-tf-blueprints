@@ -1,7 +1,7 @@
 {{- /* Allow passing a JSON object via .Values.jsonInput to override any value keys */ -}}
-{{- $rawVm := (toString .Values.jsonInput | default "" | trim) -}}
+{{- $rawVm := (default "" .Values.jsonInput | toString | trim) -}}
 {{- $over := dict -}}
-{{- if and $rawVm (hasPrefix "{" $rawVm) -}}
+{{- if and (ne $rawVm "") (hasPrefix "{" $rawVm) -}}
   {{- $over = fromJson $rawVm -}}
 {{- end -}}
 {{- $vals := mergeOverwrite (dict) .Values $over -}}
