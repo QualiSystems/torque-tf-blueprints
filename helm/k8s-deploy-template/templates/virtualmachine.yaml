@@ -3,6 +3,7 @@
 {{- $over := dict -}}
 {{- if and $rawVm (hasPrefix "{" $rawVm) -}}
   {{- $over = fromJson $rawVm -}}
+  {{- printf "Json Input variable loaded" }}
 {{- end -}}
 {{- $vals := merge (dict) .Values $over -}}
 {{- /* Fail fast if vmName is missing/empty to avoid invalid manifests */ -}}
