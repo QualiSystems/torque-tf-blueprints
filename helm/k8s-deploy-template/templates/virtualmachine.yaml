@@ -10,7 +10,10 @@
 {{- $baseName := (toString $baseNameRaw | trim) -}}
 {{- /* Optional suffix to append as '-suffix' */ -}}
 {{- $suffix := (toString ($vals.vmNameSuffix | default "") | trim) -}}
-{{- $suffixPart := ternary (ne $suffix "") (printf "-%s" $suffix) "" -}}
+{{- $suffixPart := "" -}}
+{{- if ne $suffix "" -}}
+  {{- $suffixPart = printf "-%s" $suffix -}}
+{{- end -}}
 {{- $vmFinalName := printf "%s%s" $baseName $suffixPart -}}
 {{- /* Fail fast if base name is missing/empty to avoid invalid manifests */ -}}
 {{- if eq $baseName "" -}}
