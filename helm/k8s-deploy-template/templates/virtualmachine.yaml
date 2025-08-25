@@ -10,7 +10,7 @@
 {{- $baseName := (toString $baseNameRaw | trim) -}}
 {{- /* Optional suffix to append as '-suffix' */ -}}
 {{- $suffix := (toString ($vals.vmNameSuffix | default "") | trim) -}}
-{{- $suffixPart := ternary (printf "-%s" $suffix) "" (ne $suffix "") -}}
+{{- $suffixPart := ternary (ne $suffix "") (printf "-%s" $suffix) "" -}}
 {{- $vmFinalName := printf "%s%s" $baseName $suffixPart -}}
 {{- /* Fail fast if base name is missing/empty to avoid invalid manifests */ -}}
 {{- if eq $baseName "" -}}
@@ -33,10 +33,10 @@ spec:
     - apiVersion: cdi.kubevirt.io/v1beta1
       kind: DataVolume
       metadata:
-  name: {{ $vmFinalName }}
+        name: {{ $vmFinalName }}
       spec:
         {{- /* If volumeSnapshot is provided, use snapshot source; otherwise, use DataSource */}}
-        {{- $snapshot := (trim $vals.volumeSnapshot | default "") -}}
+        {{- $snapshot := (toString $vals.volumeSnapshot | default "" | trim) -}}
         {{- if $snapshot }}
         source:
           snapshot:
@@ -63,7 +63,7 @@ spec:
   template:
     metadata:
       labels:
-  kubevirt.io/domain: {{ $vmFinalName }}
+        kubevirt.io/domain: {{ $vmFinalName }}
         kubevirt.io/size: small
       annotations:
         vm.kubevirt.io/flavor: small
@@ -116,7 +116,7 @@ spec:
         {{- $networkName := $networkEntry }}
         - name: net-{{ $index }}
           {{- if contains "/" $networkEntry }}
-          multus:              
+          multus:
             networkName: {{ $networkEntry }}
           {{- else}}
           pod: {}
