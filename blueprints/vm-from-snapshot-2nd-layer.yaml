@@ -29,7 +29,7 @@ grains:
         path: 'blueprints/vm_from_snapshot.yaml'
       inputs:
         - json_input: 
-            vmName: 'jumpbox-{{ "now" | date: "%d-%m-%YT%H-%M-%S-%NS"}}'
+            vmName: 'jumpbox' #  -{{ "now" | date: "%d-%m-%YT%H-%M-%S-%NS"}}'
             networks: "default,{{ .grains.mgmt_network.outputs.network-name }},{{ .grains.egress_network.outputs.network-name }}"
             cpu: "4"
             ram: "8Gi"
