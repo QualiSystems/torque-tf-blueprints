@@ -34,7 +34,7 @@ grains:
             cpu: "4"
             ram: "8Gi"
             volumeSnapshotNamespace: "default"
-            volumeSnapshot: "alpine-amber-wolverine-74-volume-snapshot"
+            volumeSnapshot: "alpine-snapshot"
       outputs:
         - 'vm_name'
         - 'storage'
