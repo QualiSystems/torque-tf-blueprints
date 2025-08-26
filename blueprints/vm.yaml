@@ -26,10 +26,10 @@ inputs:
     default: '1Gi'
   image_os:
     type: string
-    default: tiny
+    default: alpine-nfs
   image_namespace:
     type: string
-    default: quali
+    default: default
   target_namespace:
     type: string
     default: quali
@@ -39,6 +39,9 @@ inputs:
   auto_start:
     type: string
     default: "true"
+  json_input:
+    type: string
+    default: ""
 
 outputs:
   vm_name:
@@ -75,7 +78,7 @@ grains:
         store: torque-tf-blueprints
         path: helm/k8s-deploy-template
       target-namespace: '{{ .inputs.target_namespace }}'
-      command-arguments: '--wait --wait-for-jobs --timeout 600s'
+      command-arguments: '--wait --timeout 600s'
       inputs:
         - vmName: '{{ .inputs.image_os }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
         - imageNs: '{{ .inputs.image_namespace }}'
@@ -85,12 +88,13 @@ grains:
         - cpu: '{{ .inputs.cpu }}'
         - ram: '{{ .inputs.ram }}'
         - autoStart: '{{ .inputs.auto_start }}'
+        - jsonInput: '{{ .inputs.json_input }}'
       scripts:
         post-helm-install:
           source:
             store: torque-tf-blueprints
             path:  scripts/get_openshift_vm_state.sh
-          arguments: "{{ .inputs.image_os }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} {{ .inputs.target_namespace }}"
+          arguments: "{{ .inputs.target_namespace }} {{ .inputs.vm_name }} {{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }} '{{ .inputs.json_input }}'"
           outputs:
             - vm_name
             - storage
