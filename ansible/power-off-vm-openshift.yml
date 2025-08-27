@@ -7,14 +7,14 @@
     - kubernetes.core
   vars:
     parsed_namespace: "{{ namespace_json | default({}) }}"
-    namespace: "{{ parsed_namespace['Namespace'] }}"
+    vm_namespace: "{{ parsed_namespace['Namespace'] }}"
     vm_name: "{{ parsed_namespace['VM Name'] }}"
     force_shutdown: "{{ force | default(false) }}"
     ansible_python_interpreter: /usr/bin/python3
 
 
   tasks:
-    - name: Show parsed namespace (debug)
+    - name: Show parsed vm_namespace (debug)
       debug:
         var: parsed_namespace
 
@@ -24,9 +24,9 @@
           vm_name: "{{ parsed_namespace['VM Name'] }}"
           parsed_namespace: "{{ parsed_namespace | to_nice_json }}"
 
-    - name: Show namespace
+    - name: Show vm_namespace
       debug:
-        msg: "Namespace is {{ namespace }}"
+        msg: "Namespace is {{ vm_namespace }}"
     - name: Ensure Python dependencies for k8s modules
       package:
         name:
@@ -43,7 +43,7 @@
       k8s_info:
         api_version: kubevirt.io/v1
         kind: VirtualMachine
-        namespace: "{{ namespace }}"
+        namespace: "{{ vm_namespace }}"
         name: "{{ vm_name }}"
       register: vm_status
       failed_when: vm_status.resources | length == 0
@@ -54,7 +54,7 @@
 
     - name: Show current VM state
       debug:
-        msg: "VM '{{ vm_name }}' in namespace '{{ namespace }}' is currently {{ 'running' if vm_running else 'stopped' }}."
+        msg: "VM '{{ vm_name }}' in vm_namespace '{{ vm_namespace }}' is currently {{ 'running' if vm_running else 'stopped' }}."
 
     - name: Power off VM if currently running
       when: vm_running
@@ -64,7 +64,7 @@
             state: patched
             api_version: kubevirt.io/v1
             kind: VirtualMachine
-            namespace: "{{ namespace }}"
+            namespace: "{{ vm_namespace }}"
             name: "{{ vm_name }}"
             definition:
               spec:
@@ -81,7 +81,7 @@
             state: absent
             api_version: kubevirt.io/v1
             kind: VirtualMachineInstance
-            namespace: "{{ namespace }}"
+            namespace: "{{ vm_namespace }}"
             name: "{{ vm_name }}"
             wait: yes
             wait_timeout: 30
@@ -99,7 +99,7 @@
           k8s_info:
             api_version: kubevirt.io/v1
             kind: VirtualMachineInstance
-            namespace: "{{ namespace }}"
+            namespace: "{{ vm_namespace }}"
             name: "{{ vm_name }}"
           register: vmi_status
           until: vmi_status.resources | length == 0
@@ -111,7 +111,7 @@
           k8s_info:
             api_version: kubevirt.io/v1
             kind: VirtualMachine
-            namespace: "{{ namespace }}"
+            namespace: "{{ vm_namespace }}"
             name: "{{ vm_name }}"
           register: vm_info
           ignore_errors: true  # Continue even if we can't get VM info
