@@ -36,6 +36,9 @@ inputs:
   storage_size:
     type: string
     default: '1100Mi'
+  storage_class:
+    type: string
+    default: lvms-vg1
   auto_start:
     type: string
     default: "true"
@@ -88,6 +91,7 @@ grains:
         - storageSize: '{{ .inputs.storage_size }}'
         - cpu: '{{ .inputs.cpu }}'
         - ram: '{{ .inputs.ram }}'
+        - storageClassName: '{{ .inputs.storage_class }}'
         - autoStart: '{{ .inputs.auto_start }}'
         - jsonInput: '{{ .inputs.json_input }}'
       scripts:
