@@ -81,7 +81,7 @@ grains:
       command-arguments: '--wait --timeout 600s --debug'
       inputs:
         - vmName: '{{ .inputs.image_os }}'
-        - vmNameSuffix: "-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}"
+        - vmNameSuffix: "{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}"
         - imageNs: '{{ .inputs.image_namespace }}'
         - imageDs: '{{ .inputs.image_os }}'
         - networks: "{{ .inputs.networks }}"
