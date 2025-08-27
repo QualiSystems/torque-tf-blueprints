@@ -1,0 +1,17 @@
+vmName: fedora
+vmNameSuffix: "c34ddd"
+namespace: quali
+imageNs: default
+imageDs: alpine-nfs
+storageSize: 1100Mi
+storageClassName: lvm-smartclone
+volumeSnapshot: ""            # REQUIRED: snapshot name
+volumeSnapshotNamespace: ""  # optional; defaults to release namespace if empty
+userName: fedora
+userPassword: 3t0u-qyyt-g82m
+uuid: 5d307ca9-b3ef-428c-8861-06e72d69f223
+ram: 1Gi
+cpu: 1
+networks: "default"
+jsonInput: ""
+autoStart: "true" # may also be provided as a string "true"/"false" and will be coerced to boolean
