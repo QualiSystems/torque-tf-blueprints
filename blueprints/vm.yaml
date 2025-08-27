@@ -35,7 +35,7 @@ inputs:
     default: quali
   storage_size:
     type: string
-    default: '512Mi'
+    default: '1100Mi'
   auto_start:
     type: string
     default: "true"
@@ -80,7 +80,8 @@ grains:
       target-namespace: '{{ .inputs.target_namespace }}'
       command-arguments: '--wait --timeout 600s --debug'
       inputs:
-        - vmName: '{{ .inputs.image_os }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
+        - vmName: '{{ .inputs.image_os }}'
+        - vmNameSuffix: "-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}"
         - imageNs: '{{ .inputs.image_namespace }}'
         - imageDs: '{{ .inputs.image_os }}'
         - networks: "{{ .inputs.networks }}"
