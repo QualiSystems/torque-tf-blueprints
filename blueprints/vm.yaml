@@ -78,7 +78,7 @@ grains:
         store: torque-tf-blueprints
         path: helm/k8s-deploy-template
       target-namespace: '{{ .inputs.target_namespace }}'
-      command-arguments: '--wait --timeout 600s'
+      command-arguments: '--wait --timeout 600s --debug'
       inputs:
         - vmName: '{{ .inputs.image_os }}-{{ .grains.generate_name.activities.deploy.commands.namegen.outputs.uuid }}'
         - imageNs: '{{ .inputs.image_namespace }}'
