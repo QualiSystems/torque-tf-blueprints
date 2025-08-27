@@ -267,17 +267,15 @@ def main():
         resource_name = get_resource_name(env_data, timestamp)
         yaml_url = save_yaml_to_github(cfg, env_yaml, timestamp)
         payload = build_resource_payload(cfg, yaml_url, env_data, resource_name, timestamp)
-        resp = torque_client.post_custom_resource(payload)
-        try:
-            data = resp.json()
-        except Exception:
-            data = {"raw": resp.text}
+        # resp = torque_client.post_custom_resource(payload)
+        # try:
+        #     data = resp.json()
+        # except Exception:
+        #     data = {"raw": resp.text}
         
-        print("Success: resource stored/updated")
-        print(json.dumps(data, indent=2))
-        curl_payload = json.dumps(payload).replace('"', '\\"')
-        print(f"To update the resource manually, use:\ncurl -X POST {cfg.torque_url}/api/custom_resource -H 'Authorization: Bearer Token' -H 'Content-Type: application/json' --data \"{curl_payload}\"")
-
+        print("Success: Environment Saved")
+        # print(json.dumps(data, indent=2))
+        
 
 if __name__ == "__main__":
     main()
