@@ -43,7 +43,7 @@ grains:
       agent:
         name: openshift-agent
       inputs:
-        - vm_csv: '{{ .grains.collect_vm_names.activities.deploy.commands.my_script.outputs.vmNames }}'
+        - vms: '{{ .grains.collect_vm_names.activities.deploy.commands.my_script.outputs.vmNames }}'
       # Ansible inventory file in a YAML format
       inventory-file:
         localhost:

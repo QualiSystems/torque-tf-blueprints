@@ -10,7 +10,7 @@
     parsed_namespace: "{{ namespace_json | from_json if namespace_json is string else namespace_json }}"
     namespace: "{{ parsed_namespace.Namespace | default('quali') }}"
     vm_name: "{{ parsed_namespace['VM Name'] | default('') }}"
-    vm_csv: "{{ vm_csv | default('') }}"  # New: optional comma-separated list of vmName[:namespace] pairs; if provided supersedes single vm_name/namespace
+    vm_csv: "{{ vms | default('') }}"  # New: optional comma-separated list of vmName[:namespace] pairs; if provided supersedes single vm_name/namespace
     force_shutdown: "{{ force | default(false) }}"
     ansible_python_interpreter: /usr/bin/python3
 
@@ -30,21 +30,21 @@
     - name: Init VM list from vm_csv (if provided)
       set_fact:
         vms_to_process: []
-      when: vm_csv | length > 0
+      when: (vm_csv | default('')) | length > 0
 
     - name: Build VM list entries
       set_fact:
         vms_to_process: "{{ vms_to_process + [ { 'vm_name': item.split(':')[0], 'namespace': (item.split(':') | length > 1) | ternary(item.split(':')[1], namespace) } ] }}"
-      loop: "{{ vm_csv.split(',') | map('trim') | reject('equalto','') | list }}"
-      when: vm_csv | length > 0
+      loop: "{{ (vm_csv | default('')) | split(',') | map('trim') | reject('equalto','') | list }}"
+      when: (vm_csv | default('')) | length > 0
 
     - name: Show parsed VM list
       debug:
         var: vms_to_process
-      when: vm_csv | length > 0
+      when: (vm_csv | default('')) | length > 0
 
     - name: Power off multiple VMs (vm_csv mode)
-      when: vm_csv | length > 0
+      when: (vm_csv | default('')) | length > 0
       include_tasks: power_off_vm_task.yml
       loop: "{{ vms_to_process }}"
       loop_control:
@@ -52,7 +52,7 @@
         label: "{{ target.vm_name }} in {{ target.namespace }}"
 
     - name: Power off single VM (legacy mode)
-      when: vm_csv | length == 0
+      when: (vm_csv | default('')) | length == 0
       block:
         
         - name: Check if VM exists
