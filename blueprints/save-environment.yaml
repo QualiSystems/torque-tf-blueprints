@@ -91,5 +91,5 @@ grains:
         deploy:
           commands:
             - 'pip install -r ./scripts/save_environment/requirements.txt'
-            - 'python ./scripts/save_environment/save_environment.py --space={{ spaceName }} --new_inputs={{ ..grains.instance.scripts.post-helm-install.outputs.snapshots_json }} --workflow-contract={{ workflowContract }} --github-token=$GITHUB_TOKEN --torque-token=$TORQUE_API_TOKEN --github-repo=$GITHUB_REPO'
+            - "python ./scripts/save_environment/save_environment.py --space={{ spaceName }} --new_inputs='{{ ..grains.instance.scripts.post-helm-install.outputs.snapshots_json }}' --workflow-contract={{ workflowContract }}"
 
