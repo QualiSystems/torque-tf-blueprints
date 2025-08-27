@@ -12,6 +12,7 @@ from github import Auth
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, List
 from pytorque import TorqueClient, TorqueConfig
+from pytorque.models.environment import EnvironmentEacSpec
 
 
 @dataclass
@@ -20,6 +21,7 @@ class Config:
     git_token: str
     github_repo: str
     space: str
+    saved_artifacts: Dict[str, str]
     environment_id: str
     request: Dict[str, Any]
     torque_url: str = "https://portal.qtorque.io/api"
@@ -46,6 +48,12 @@ def parse_args() -> Config:
         type=str,
         default=os.environ.get("CONTRACT_FILE_PATH"),
         help="JSON string representing the workflow/environment (must include id)",
+    )
+    p.add_argument(
+        "--new_inputs",
+        required=False,
+        type=str,
+        help="JSON string representing the new inputs per grain for the environment",
     )
     p.add_argument(
         "--torque-token",
@@ -80,6 +88,12 @@ def parse_args() -> Config:
     except json.JSONDecodeError as e:
         sys.exit(f"Invalid JSON for --workflow-contract: {e}")
 
+    saved_artifacts = args.new_inputs
+    try:
+        saved_artifacts_obj = json.loads(saved_artifacts)
+    except json.JSONDecodeError as e:
+        sys.exit(f"Invalid JSON for --new_inputs: {e}")
+
     # Merge precedence layers
     torque_token = (
         args.torque_token
@@ -96,7 +110,7 @@ def parse_args() -> Config:
 
     space = args.space or request_obj.get("space") or "Openshift"
 
-    env_id = request_obj.get("id") if isinstance(request_obj, dict) else None
+    env_id = request_obj.get("id", "") if isinstance(request_obj, dict) else ""
 
     if not torque_token:
         sys.exit("Torque API token missing (use --torque-token or set TORQUE_API_TOKEN)")
@@ -109,6 +123,7 @@ def parse_args() -> Config:
         space=space,
         token=torque_token,
         git_token=git_token,
+        saved_artifacts=saved_artifacts_obj,
         github_repo=github_repo,
         request=request_obj,
         environment_id=env_id,
@@ -166,10 +181,14 @@ def get_resource_name(env_data, timestamp) -> str:
     return f"env-{env_name.replace(' ', '-')}-{timestamp}"
 
 
-def modify_yaml(env_yaml) -> str:
+def modify_yaml(env_yaml: EnvironmentEacSpec, saved_artifacts: Dict[str, Any]) -> str:
     # Modify the environment YAML as needed
     modified_yaml = env_yaml
-    modified_yaml = yaml.safe_dump(modified_yaml, sort_keys=False)
+    for key, value in saved_artifacts.items():
+        grain_name = key
+        grain = modified_yaml.get_grain(grain_name)
+        if grain and value:
+            grain.update_grain_input(value)
     return modified_yaml
 
 
@@ -243,7 +262,7 @@ def main():
         env_yaml = torque_client.get_spaces_by_space_name_environments_by_environment_id_eac(
             space_name=cfg.space, environment_id=cfg.environment_id
         )
-        env_yaml = modify_yaml(env_yaml)
+        env_yaml = modify_yaml(env_yaml, cfg.saved_artifacts)
         env_data = torque_client.get_spaces_by_space_name_environments_by_environment_id(cfg.space, cfg.environment_id)
         resource_name = get_resource_name(env_data, timestamp)
         yaml_url = save_yaml_to_github(cfg, env_yaml, timestamp)
