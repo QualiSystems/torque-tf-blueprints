@@ -87,7 +87,7 @@ def parse_args() -> Config:
             request_obj = json.loads(workflow_contract)
     except json.JSONDecodeError as e:
         sys.exit(f"Invalid JSON for --workflow-contract: {e}")
-
+    print(args.new_inputs)
     saved_artifacts = args.new_inputs
     try:
         saved_artifacts_obj = json.loads(saved_artifacts)
