@@ -1,32 +1,18 @@
----
 - name: Power Off VM in OpenShift using KubeVirt API
   hosts: localhost
   connection: local
   gather_facts: false
   collections:
     - kubernetes.core
-  vars:
-    parsed_namespace: "{{ namespace_json | default({}) }}"
-    namespace: "{{ parsed_namespace['Namespace'] }}"
-    vm_name: "{{ parsed_namespace['VM Name'] }}"
+  vars:    # VM parameters - these can be overridden via extra vars
+    # namespace_json: "{{ vm_namespace | default('{}') }}"
+    parsed_namespace: "{{ namespace_json | from_json if namespace_json is string else namespace_json }}"
+    namespace: "{{ parsed_namespace.Namespace | default('') }}"
+    vm_name: "{{ parsed_namespace['VM Name'] | default('') }}"
     force_shutdown: "{{ force | default(false) }}"
     ansible_python_interpreter: /usr/bin/python3
 
-
   tasks:
-    - name: Show parsed namespace (debug)
-      debug:
-        var: parsed_namespace
-
-    - name: Show vm_name
-      debug:
-        msg: 
-          vm_name: "{{ parsed_namespace['VM Name'] }}"
-          parsed_namespace: "{{ parsed_namespace | to_nice_json }}"
-
-    - name: Show namespace
-      debug:
-        msg: "Namespace is {{ namespace }}"
     - name: Ensure Python dependencies for k8s modules
       package:
         name:

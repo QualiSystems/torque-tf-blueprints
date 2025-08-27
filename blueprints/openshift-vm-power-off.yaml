@@ -24,8 +24,7 @@ grains:
       agent:
         name: openshift-agent
       inputs: 
-      - vm_name: '{{ .bindings.attributes.display_name }}'
-      - namespace_json: '{{ .bindings.attributes.introspection_data }}'
+      - namespace_json: '[{{ .bindings.attributes.introspection_data }}]'
       - force_shutdown: '{{ .inputs.force_shutdown }}'
       env-vars: []
       outputs:
