@@ -17,6 +17,10 @@ inputs:
     type: string
     description: "Name of the GitHub repository."
     default: "https://github.com/QualiSystems/torque-tf-blueprints"
+  target_namespace:
+    type: string
+    description: "Target namespace for the workflow."
+    default: "quali"
 
 grains:
   power-off-vms:
@@ -39,7 +43,6 @@ grains:
 
   collect_vm_names:
     kind: shell
-    depends-on: power-off-vms
     spec:
       agent:
         name: openshift-agent
@@ -54,14 +57,16 @@ grains:
   
   save-volume-snapshot:
     kind: helm
-    depends-on: power-off-vms
+    depends-on: collect_vm_names
     spec:
       agent:
         name: openshift-agent
+        isolated: true
       source:
         store: torque-tf-blueprints
         path: helm/k8s-clone-pvc-and-snapshot
-      command-arguments: '--wait --wait-for-jobs --timeout 600s'
+      target-namespace: '{{ .inputs.target_namespace }}'
+      command-arguments: '--wait --timeout 600s --debug'
       inputs:
         - vmNames: '{{ .grains.collect_vm_names.activities.deploy.commands.get-vm-names.outputs.vmNames }}'
       scripts:
