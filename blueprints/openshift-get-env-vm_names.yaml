@@ -5,7 +5,8 @@ workflow:
   scope: env
 
 outputs:
-  vmNames: '{{ .grains.collect_vm_names.activities.deploy.commands.get-vm-names.outputs.vmNames }}'
+  vm_names:
+    value: '{{ .grains.collect_vm_names.activities.deploy.commands.get-vm-names.outputs.vmNames }}'
 
 grains:
   collect_vm_names:
