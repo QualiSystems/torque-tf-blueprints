@@ -16,7 +16,7 @@ grains:
         name: openshift-agent
       files:
         - source: torque-tf-blueprints
-          path: scripts\get_vm_names\get_vm_names.py
+          path: scripts/get_vm_names/get_vm_names.py
       activities:
         deploy:
           commands:
