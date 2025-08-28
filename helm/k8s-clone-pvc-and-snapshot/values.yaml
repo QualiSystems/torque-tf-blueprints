@@ -12,14 +12,5 @@ vmNames: fedora
 # Target namespace for created resources (saved PVC + snapshot)
 namespace: quali
 
-# (Optional) If the VM's rootdisk PVC name differs from vmName, set it here.
-# Otherwise the chart assumes the PVC name == vmName.
-# vmRootDiskPVC: custom-rootdisk-pvc
-
-# Storage size is auto-detected from each source PVC; no manual setting required.
-
-# StorageClass for the cloned PVC (must support cloning & snapshots)
-storageClassName: lvm-smartclone
-
 # (Optional) VolumeSnapshotClass to use. If empty, cluster default selection rules apply.
-# volumeSnapshotClassName: csi-snapclass
+volumeSnapshotClassName: ""
