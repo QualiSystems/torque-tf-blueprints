@@ -38,8 +38,8 @@ grains:
       activities:
         deploy:
           commands:
-            - 'pip install -r ./scripts/bulk_workflow_run/requirements.txt'
-            - "python ./scripts/bulk_workflow_run/bulk_workflow_run.py --space={{ spaceName }} --workflow=openshift-vm-power-off"
+            - 'pip install -r requirements.txt'
+            - "python bulk_workflow_run.py --space={{ spaceName }} --workflow=openshift-vm-power-off"
 
   collect_vm_names:
     kind: shell
@@ -96,8 +96,8 @@ grains:
       activities:
         deploy:
           commands:
-            - 'pip install -r ./scripts/save_environment/requirements.txt'
-            - "python ./scripts/save_environment/save_environment.py --space={{ spaceName }} --new_inputs='{{ .grains.save-volume-snapshot.scripts.post-helm-install.outputs.snapshots_json }}' --workflow-contract=$CONTRACT_FILE_PATH"
+            - 'pip install -r requirements.txt'
+            - "python save_environment.py --space={{ spaceName }} --new_inputs='{{ .grains.save-volume-snapshot.scripts.post-helm-install.outputs.snapshots_json }}' --workflow-contract=$CONTRACT_FILE_PATH"
 
   power-on-vms:
     kind: shell
