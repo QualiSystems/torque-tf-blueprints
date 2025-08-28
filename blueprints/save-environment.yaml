@@ -35,9 +35,12 @@ grains:
           path: scripts/bulk_workflow_run/bulk_workflow_run.py
         - source: torque-tf-blueprints
           path: scripts/bulk_workflow_run/requirements.txt
+        - source: torque-tf-blueprints
+          path: scripts/pyTorque-api-wheel/pytorque-0.1.1.2-py3-none-any.whl
       activities:
         deploy:
           commands:
+            - 'pip install -r pytorque-0.1.1.2-py3-none-any.whl'
             - 'pip install -r requirements.txt'
             - "python bulk_workflow_run.py --space={{ spaceName }} --workflow=openshift-vm-power-off"
 
@@ -93,9 +96,12 @@ grains:
           path: scripts/save_environment/save_environment.py
         - source: torque-tf-blueprints
           path: scripts/save_environment/requirements.txt
+        - source: torque-tf-blueprints
+          path: scripts/pyTorque-api-wheel/pytorque-0.1.1.2-py3-none-any.whl
       activities:
         deploy:
           commands:
+            - 'pip install -r pytorque-0.1.1.2-py3-none-any.whl'
             - 'pip install -r requirements.txt'
             - "python save_environment.py --space={{ spaceName }} --new_inputs='{{ .grains.save-volume-snapshot.scripts.post-helm-install.outputs.snapshots_json }}' --workflow-contract=$CONTRACT_FILE_PATH"
 
@@ -112,8 +118,11 @@ grains:
           path: scripts/bulk_workflow_run/bulk_workflow_run.py
         - source: torque-tf-blueprints
           path: scripts/bulk_workflow_run/requirements.txt
+        - source: torque-tf-blueprints
+          path: scripts/pyTorque-api-wheel/pytorque-0.1.1.2-py3-none-any.whl
       activities:
         deploy:
           commands:
+            - 'pip install -r pytorque-0.1.1.2-py3-none-any.whl'
             - 'pip install -r ./scripts/bulk_workflow_run/requirements.txt'
             - "python ./scripts/bulk_workflow_run/bulk_workflow_run.py --space={{ spaceName }} --workflow=openshift-vm-power-on"
