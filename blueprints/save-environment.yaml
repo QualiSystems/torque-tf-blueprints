@@ -34,22 +34,23 @@ grains:
                 - vmNames
 
   power-off-vms:
-    kind: ansible
-    depends-on: collect_vm_names
+    kind: shell
+    depends-on: save-volume-snapshot
     spec:
-      source:
-        store: torque-tf-blueprints
-        path: ansible/power-off-vm-openshift.yml
+      env-vars:
+        - TORQUE_API_TOKEN: "{{ .inputs.torque_token }}"
       agent:
         name: openshift-agent
-      inputs:
-        - namespace_json: '{{ .grains.collect_vm_names.activities.deploy.commands.my_script.outputs.vmNames }}'
-      # Ansible inventory file in a YAML format
-      inventory-file:
-        localhost:
-          hosts:
-            127.0.0.1:
-              ansible_connection: local
+      files:
+        - source: torque-tf-blueprints
+          path: scripts/bulk_workflow_run/bulk_workflow_run.py
+        - source: torque-tf-blueprints
+          path: scripts/bulk_workflow_run/requirements.txt
+      activities:
+        deploy:
+          commands:
+            - 'pip install -r ./scripts/bulk_workflow_run/requirements.txt'
+            - "python ./scripts/bulk_workflow_run/bulk_workflow_run.py --space={{ spaceName }} --workflow=openshift-vm-power-off"
   
   save-volume-snapshot:
     kind: helm
@@ -93,3 +94,21 @@ grains:
             - 'pip install -r ./scripts/save_environment/requirements.txt'
             - "python ./scripts/save_environment/save_environment.py --space={{ spaceName }} --new_inputs='{{ .grains.save-volume-snapshot.scripts.post-helm-install.outputs.snapshots_json }}' --workflow-contract=$CONTRACT_FILE_PATH"
 
+  power-on-vms:
+    kind: shell
+    depends-on: save-env-script
+    spec:
+      env-vars:
+        - TORQUE_API_TOKEN: "{{ .inputs.torque_token }}"
+      agent:
+        name: openshift-agent
+      files:
+        - source: torque-tf-blueprints
+          path: scripts/bulk_workflow_run/bulk_workflow_run.py
+        - source: torque-tf-blueprints
+          path: scripts/bulk_workflow_run/requirements.txt
+      activities:
+        deploy:
+          commands:
+            - 'pip install -r ./scripts/bulk_workflow_run/requirements.txt'
+            - "python ./scripts/bulk_workflow_run/bulk_workflow_run.py --space={{ spaceName }} --workflow=openshift-vm-power-on"
