@@ -36,7 +36,7 @@ grains:
           commands:
             - 'pip install -r ./scripts/bulk_workflow_run/requirements.txt'
             - "python ./scripts/bulk_workflow_run/bulk_workflow_run.py --space={{ spaceName }} --workflow=openshift-vm-power-off"
-            
+
   collect_vm_names:
     kind: shell
     spec:
@@ -45,7 +45,7 @@ grains:
       activities:
         deploy:
           commands:
-            - name: my_script
+            - name: get-vm-names
               command: >
                 if [ -f "$CONTRACT_FILE_PATH" ]; then vmNames=$(jq -r '(.inputs[] | select(.name=="target_namespace") | .value | gsub("^ +| +$";"")) as $ns | [ .inputs[] | select(.name=="vm_name") | .value | gsub("^ +| +$";"") | . + ":" + $ns ] | join(",")' "$CONTRACT_FILE_PATH"); else vmNames=""; fi; export vmNames
               outputs:
@@ -62,13 +62,13 @@ grains:
         path: helm/k8s-clone-pvc-and-snapshot
       command-arguments: '--wait --wait-for-jobs --timeout 600s'
       inputs:
-        - vmNames: '{{ .grains.collect_vm_names.activities.deploy.commands.my_script.outputs.vmNames }}'
+        - vmNames: '{{ .grains.collect_vm_names.activities.deploy.commands.get-vm-names.outputs.vmNames }}'
       scripts:
         post-helm-install:
           source:
             store: torque-tf-blueprints
             path:  scripts/check_saved_pvc_snapshots.sh
-          arguments: '{{ .grains.collect_vm_names.activities.deploy.commands.my_script.outputs.vmNames }}'
+          arguments: '{{ .grains.collect_vm_names.activities.deploy.commands.get-vm-names.outputs.vmNames }}'
           outputs:
             - snapshots_json
   
