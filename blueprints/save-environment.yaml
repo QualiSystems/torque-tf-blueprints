@@ -39,6 +39,7 @@ grains:
 
   collect_vm_names:
     kind: shell
+    depends-on: power-off-vms
     spec:
       agent:
         name: openshift-agent
