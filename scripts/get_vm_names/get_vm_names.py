@@ -117,8 +117,8 @@ def main():
     if not contract:
         raise ValueError("Missing --env-file argument or CONTRACT_FILE_PATH env var")
     env = parse_env_file(Path(contract))
-    print(env.summarize())
-    print("\n---")
+    # print(env.summarize())
+    # print("\n---")
     response = ""
     for resource in env.resources:
         if "virtualmachine" in resource.resource_type.lower():

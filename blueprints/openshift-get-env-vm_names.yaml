@@ -7,9 +7,34 @@ workflow:
 outputs:
   vm_names:
     value: '{{ .grains.collect_vm_names.activities.deploy.commands.get-vm-names.outputs.vmNames }}'
+  vm_names1:
+    value: '{{ .grains.collect_vm_names.activities.deploy.commands.get-vm-names2.outputs.vmNames }}'
+  vm_names2:
+    value: '{{ .grains.collect_vm_names2.activities.deploy.commands.get-vm-names.outputs.vmNames }}'
 
 grains:
   collect_vm_names:
+    kind: shell
+    spec:
+      agent:
+        name: openshift-agent
+      activities:
+        deploy:
+          commands:
+            - name: get-vm-names
+              command: >
+                'export vmNames="$(jq -r '.resources[] | select(.resource_type | test("(?i)virtualmachine")) | .resource_name' $CONTRACT_FILE_PATH)" && echo "VM Names: $vmNames"'
+              # for debugging add && cat $CONTRACT_FILE_PATH
+              outputs:
+                - vmNames
+            - name: get-vm-names2
+              command: >
+                export vmNames="Names" && echo "VM Names: $vmNames"
+              # for debugging add && cat $CONTRACT_FILE_PATH
+              outputs:
+                - vmNames
+
+  collect_vm_names2:
     kind: shell
     spec:
       agent:
