@@ -125,7 +125,7 @@ def main():
             if response:
                 response += ","
             response += resource.resource_name
-    os.environ['vmNames'] = response
+    os.environ['vmNames'] = response.replace('"', '')
     print(response)
 
 

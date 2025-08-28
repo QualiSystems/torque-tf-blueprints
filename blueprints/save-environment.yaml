@@ -60,7 +60,7 @@ grains:
         deploy:
           commands:
             - name: get-vm-names
-              command: 'export vmNames="$(python get_vm_names.py)" && echo "VM Names: $vmNames"'
+              command: 'export vmNames=$(python get_vm_names.py) && echo "VM Names: $vmNames"'
               outputs:
                 - vmNames
   
