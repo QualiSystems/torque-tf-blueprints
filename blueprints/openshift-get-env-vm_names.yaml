@@ -21,6 +21,6 @@ grains:
         deploy:
           commands:
             - name: get-vm-names
-              command: python get_vm_names.py
+              command: 'python get_vm_names.py && echo "VM Names: $vmNames"'
               outputs:
                 - vmNames
