@@ -145,7 +145,7 @@ def main():
             "entity_metadata": {
                 "type": "env_resource",
                 "environment_id": env.id,
-                "grain_path": "Jumpbox." + resource.grain_path,
+                "grain_path": resource.grain_path,
                 "resource_id": resource.identifier,
             },
             "env_references_values": {},
