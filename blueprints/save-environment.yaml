@@ -24,7 +24,7 @@ inputs:
   snapshot_storage_class:
     type: string
     description: "Storage class for the volume snapshots."
-    default: "lvms-vg1"
+    default: "lvms-vg2"
 
 grains:
   power-off-vms:

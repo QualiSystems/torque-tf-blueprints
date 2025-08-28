@@ -28,7 +28,8 @@ Behavior:
 {{- fail (printf "Source PVC %s not found in namespace %s" $rootPVC $ns) }}
 {{- end }}
 {{- $srcSize := (index $srcPVC.spec.resources.requests "storage") -}}
-{{- $srcClassName := (index $srcPVC.spec "storageClassName" | default $.Values.volumeSnapshotClassName) -}}
+{{- $srcClassName := (index $srcPVC.spec "storageClassName" | default "") -}}
+{{- $className := ($.Values.volumeSnapshotClassName | default $srcClassName) -}}
 {{- if not $srcSize }}
 {{- fail (printf "Could not determine storage size for PVC %s" $rootPVC) }}
 {{- end }}
@@ -48,7 +49,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: {{ $srcClassName }}
+  storageClassName: {{ $className }}
+  volumeMode: Block
   dataSource:
     name: {{ $rootPVC }}
     kind: PersistentVolumeClaim
@@ -68,5 +70,5 @@ metadata:
 spec:
   source:
     persistentVolumeClaimName: {{ $savedPVC }}
-  volumeSnapshotClassName: {{ $.Values.volumeSnapshotClassName | default "" | quote }}
+  volumeSnapshotClassName: {{ $className | quote }}
 {{- end }}
