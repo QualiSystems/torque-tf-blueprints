@@ -1,0 +1,23 @@
+spec_version: 2
+description: Workflow to set a VM's power-state
+
+workflow: 
+  scope: env
+
+outputs:
+  vmNames: '{{ .grains.collect_vm_names.activities.deploy.commands.get-vm-names.outputs.vmNames }}'
+
+grains:
+  collect_vm_names:
+    kind: shell
+    spec:
+      agent:
+        name: openshift-agent
+      activities:
+        deploy:
+          commands:
+            - name: get-vm-names
+              command: >
+                export vmNames=$(jq -r '.resources[] | select(.resource_type | test("(?i)virtualmachine")) | .resource_name' "$CONTRACT_FILE_PATH") && echo "VM Names: $vmNames" && cat $CONTRACT_FILE_PATH
+              outputs:
+                - vmNames
