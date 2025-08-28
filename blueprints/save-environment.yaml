@@ -57,7 +57,7 @@ grains:
   
   save-volume-snapshot:
     kind: helm
-    depends-on: collect_vm_names
+    depends-on: collect_vm_names, power-off-vms
     spec:
       agent:
         name: openshift-agent
