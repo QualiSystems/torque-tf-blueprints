@@ -20,6 +20,7 @@ grains:
       activities:
         deploy:
           commands:
-            - "python get_vm_names.py"
+            - name: get-vm-names
+              command: python get_vm_names.py
           outputs:
             - vmNames
