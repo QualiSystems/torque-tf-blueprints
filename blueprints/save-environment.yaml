@@ -35,7 +35,6 @@ grains:
 
   power-off-vms:
     kind: shell
-    depends-on: save-volume-snapshot
     spec:
       env-vars:
         - TORQUE_API_TOKEN: "{{ .inputs.torque_token }}"
