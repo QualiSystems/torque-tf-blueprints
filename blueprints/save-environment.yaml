@@ -21,6 +21,10 @@ inputs:
     type: string
     description: "Target namespace for the workflow."
     default: "quali"
+  snapshot_storage_class:
+    type: string
+    description: "Storage class for the volume snapshots."
+    default: "lvms-vg1"
 
 grains:
   power-off-vms:
@@ -74,6 +78,8 @@ grains:
       command-arguments: '--wait --timeout 600s --debug'
       inputs:
         - vmNames: '{{ .grains.collect_vm_names.activities.deploy.commands.get-vm-names.outputs.vmNames }}'
+        - namespace: '{{ .inputs.target_namespace }}'
+        - volumeSnapshotClassName: '{{ .inputs.snapshot_storage_class }}'
       scripts:
         post-helm-install:
           source:
