@@ -54,7 +54,7 @@ grains:
           commands:
             - name: get-vm-names
               command: >
-                if [ -f "$CONTRACT_FILE_PATH" ]; then vmNames=$(jq -r '(.inputs[] | select(.name=="target_namespace") | .value | gsub("^ +| +$";"")) as $ns | [ .inputs[] | select(.name=="vm_name") | .value | gsub("^ +| +$";"") | . + ":" + $ns ] | join(",")' "$CONTRACT_FILE_PATH"); else vmNames=""; fi; export vmNames && echo "VM Names: $vmNames" && cat "$CONTRACT_FILE_PATH"
+                if [ -f "$CONTRACT_FILE_PATH" ]; then vmNames=$(jq -r '(.inputs[] | select(.name=="target_namespace") | .value | gsub("^ +| +$";"")) as $ns | [ .inputs[] | select(.name=="vm_name") | .value | gsub("^ +| +$";"") | . + ":" + $ns ] | join(",")' "$CONTRACT_FILE_PATH"); else vmNames=""; fi; export vmNames && echo "VM Names: $vmNames" && cat $CONTRACT_FILE_PATH
               outputs:
                 - vmNames
   
