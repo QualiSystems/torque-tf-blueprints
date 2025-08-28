@@ -11,6 +11,8 @@ outputs:
     value: '{{ .grains.collect_vm_names.activities.deploy.commands.get-vm-names2.outputs.vmNames }}'
   vm_names2:
     value: '{{ .grains.collect_vm_names2.activities.deploy.commands.get-vm-names.outputs.vmNames }}'
+  vm_names3:
+    value: '{{ .grains.collect_vm_names2.activities.deploy.commands.get-vm-names2.outputs.vms }}'
 
 grains:
   collect_vm_names:
@@ -49,3 +51,7 @@ grains:
               command: 'python get_vm_names.py && echo "VM Names: $vmNames"'
               outputs:
                 - vmNames
+            - name: get-vm-names2
+              command: 'export vms="$(python get_vm_names.py)" && echo "VM Names: $vms"'
+              outputs:
+                - vms

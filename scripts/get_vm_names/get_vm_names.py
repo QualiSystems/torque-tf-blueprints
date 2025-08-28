@@ -126,6 +126,7 @@ def main():
                 response += ","
             response += resource.resource_name
     os.environ['vmNames'] = response
+    print(response)
 
 
 if __name__ == "__main__":
