@@ -49,12 +49,14 @@ grains:
     spec:
       agent:
         name: openshift-agent
+      files:
+        - source: torque-tf-blueprints
+          path: scripts/get_vm_names/get_vm_names.py
       activities:
         deploy:
           commands:
             - name: get-vm-names
-              command: >
-                export vmNames=$(jq -r '.resources[] | select(.resource_type | test("(?i)virtualmachine")) | .resource_name' "$CONTRACT_FILE_PATH") && echo "VM Names: $vmNames" && cat $CONTRACT_FILE_PATH
+              command: 'export vmNames="$(python get_vm_names.py)" && echo "VM Names: $vmNames"'
               outputs:
                 - vmNames
   
