@@ -22,5 +22,5 @@ grains:
           commands:
             - name: get-vm-names
               command: python get_vm_names.py
-          outputs:
-            - vmNames
+              outputs:
+                - vmNames
