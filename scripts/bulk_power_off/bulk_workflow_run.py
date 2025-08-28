@@ -18,13 +18,12 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from pytorque import TorqueClient  # pip install pytorque
-import httpx
-from dotenv import load_dotenv
 
 
 @dataclass
@@ -108,108 +107,54 @@ class EnvironmentEnvelope:
         return "\n".join(lines)
 
 
-def execute_workflow(
-    client: TorqueClient,
-    env_id: str,
-    workflow_name: str,
-    space: Optional[str] = None,
-    payload: Optional[Dict[str, Any]] = None,
-    base_url_override: Optional[str] = None,
-    timeout: int = 60,
-):
-    """Execute a Torque workflow against an environment.
-
-    Tries to use a generic HTTP method on TorqueClient if available; otherwise
-    falls back to a direct httpx call using client's base_url and token.
-    """
-    # # Pull connection details from client / env
-    # base_url = (
-    #     base_url_override
-    #     or getattr(client, "base_url", None)
-    #     or os.getenv("TORQUE_BASE_URL")
-    #     or "https://portal.qtorque.io"
-    # )
-    # api_token = getattr(client, "api_token", None) or os.getenv("TORQUE_API_TOKEN")
-    # if not api_token:
-    #     raise RuntimeError("Missing TORQUE_API_TOKEN for authentication.")
-
-    # path = WORKFLOW_EXECUTE_PATH.format(
-    #     space=(space or "default"),
-    #     env_id=env_id,
-    #     workflow=workflow_name,
-    # )
-    # url = f"{base_url.rstrip('/')}{path}"
-    # json_payload = payload or {}
-
-    # # First, try to use a high-level request helper if the client exposes one
-    # # (this keeps auth/session behavior consistent with the library).
-    # for attr in ("request", "_request", "http_request"):
-    #     if hasattr(client, attr):
-    #         req_fn = getattr(client, attr)
-    #         try:
-    #             return req_fn("POST", path, json=json_payload, timeout=timeout)
-    #         except TypeError:
-    #             # Some clients expect full URL
-    #             try:
-    #                 return req_fn("POST", url, json=json_payload, timeout=timeout)
-    #             except Exception:
-    #                 pass
-    #         except Exception:
-    #             # Fall through to raw httpx
-    #             pass
-
-    # # Raw httpx fallback using the token
-    # headers = {
-    #     "Authorization": f"Bearer {api_token}",
-    #     "Accept": "application/json",
-    #     "Content-Type": "application/json",
-    # }
-    # with httpx.Client(timeout=timeout) as s:
-    #     resp = s.post(url, headers=headers, json=json_payload)
-    # return resp
-
-
 def parse_env_file(path: Path) -> EnvironmentEnvelope:
     data = json.loads(Path(path).read_text())
     return EnvironmentEnvelope.from_dict(data)
 
 
 def main():
-    load_dotenv()
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument(
-        "--env-file", 
-        default=os.environ.get("CONTRACT_FILE_PATH"),
-        help="Path to ENV.json"
-        )
-    ap.add_argument("--workflow", default="Power Off", help="Workflow name to run")
     ap.add_argument("--space", default="OpenShift", help="Torque space / namespace for the environment")
+    ap.add_argument("--workflow", default="openshift-vm-power-off", help="Workflow name to run")
+    ap.add_argument("--token", default=os.getenv("TORQUE_API_TOKEN"), help="Optional JSON payload to send to the workflow")
     args = ap.parse_args()
-    contract = args.env_file
+    contract = os.getenv("CONTRACT_FILE_PATH")
     if not contract:
-        contract = os.environ.get("CONTRACT_FILE_PATH")
+        raise ValueError("Missing --env-file argument or CONTRACT_FILE_PATH env var")
     env = parse_env_file(Path(contract))
     print(env.summarize())
     print("\n---")
 
     client = TorqueClient(
-        base_url=(args.base_url or os.getenv("TORQUE_BASE_URL") or "https://portal.qtorque.io"),
-        api_token=(os.getenv("TORQUE_API_TOKEN") or ""),
+        api_token=args.token,
     )
+    environment_details = client.get_spaces_by_space_name_environments_by_environment_id(space_name=args.space, environment_id=env.id)
+    workflow_details = client.get_spaces_by_space_name_catalog_by_blueprint_name(space_name=args.space, blueprint_name=args.workflow)
+    for resource in env.resources:
+        grain = env.grains.get(resource.grain_path)
+        print(f"Found resource: {resource.identifier}")
+        payload = {
+            "environment_name": f"{args.workflow}-{uuid.uuid4()}",
+            "blueprint_name": args.workflow,
+            "inputs": {},
+            "source": {
+                "repository_name": workflow_details.details.repository_name
+            },
+            "automation": "false",
+            "owner_email": env.owner_email,
+            "entity_metadata": {
+                "type": "env_resource",
+                "environment_id": env.id,
+                "grain_path": "Jumpbox." + resource.grain_path,
+                "resource_id": resource.identifier,
+            },
+            "env_references_values": {},
+            "instantiation_name": f"{args.workflow}-{str(uuid.uuid4())[:8]}"
+        }
+        print(f"Executing workflow '{args.workflow}' on environment '{env.id}'...")
+        response = client.post_spaces_by_space_name_environments(space_name=args.space, body=payload)
 
-    payload = json.loads(args.payload) if args.payload else {}
-
-    print(f"Executing workflow '{args.workflow}' on environment '{env.id}'...")
-    resp = execute_workflow(
-        client=client,
-        env_id=env.id,
-        workflow_name=args.workflow,
-        space=args.space,
-        payload=payload,
-        base_url_override=args.base_url,
-    )
     print(f"done")
-
 
 
 if __name__ == "__main__":
