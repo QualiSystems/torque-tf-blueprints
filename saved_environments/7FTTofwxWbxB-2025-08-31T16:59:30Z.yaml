@@ -1,0 +1,51 @@
+environment:
+  environment_name: vm-from-snapshot-2nd-layer-20250828T07445266
+  owner_email: costya.y@quali.com
+  state: active
+grains:
+  mgmt_network:
+    kind: blueprint
+    spec:
+      commands: []
+      env-vars: []
+      inputs:
+      - namespace: quali
+      outputs:
+      - network-name
+      source:
+        store: torque-tf-blueprints
+        path: blueprints/network.yaml
+  egress_network:
+    kind: blueprint
+    spec:
+      commands: []
+      env-vars: []
+      inputs:
+      - namespace: quali
+      outputs:
+      - network-name
+      source:
+        store: torque-tf-blueprints
+        path: blueprints/network.yaml
+  Jumpbox:
+    depends-on: mgmt_network,egress_network
+    kind: blueprint
+    spec:
+      commands: []
+      env-vars: []
+      inputs:
+      - json_input: '{"vmName": "jumpbox", "networks": "default,{{ .grains.mgmt_network.outputs.network-name
+          }},{{ .grains.egress_network.outputs.network-name }}", "cpu": "4", "ram":
+          "8Gi", "volumeSnapshotNamespace": "my-ns", "volumeSnapshot": "jumpbox-b5e0aa-saved-snap"}'
+      outputs:
+      - vm_name
+      - storage
+      - ip
+      - user
+      - password
+      source:
+        store: torque-tf-blueprints
+        path: blueprints/vm_from_snapshot.yaml
+inputs: {}
+outputs: {}
+spec_version: 2
