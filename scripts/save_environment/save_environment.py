@@ -7,12 +7,12 @@ from urllib.parse import urlparse
 import yaml
 import base64
 import zlib
-from github import Github
-from github import Auth
+import requests
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, List
 from pytorque import TorqueClient, TorqueConfig
-from pytorque.models.environment import EnvironmentEacSpec
+from pytorque.models.environment import EnvironmentEacSpec, Grain
+from pytorque.models.generated import EnvironmentResponse
 
 
 @dataclass
@@ -52,6 +52,7 @@ def parse_args() -> Config:
     p.add_argument(
         "--new_inputs",
         required=False,
+        default='{"jumpbox-b5e0aa-saved-snap":"my-ns"}',
         type=str,
         help="JSON string representing the new inputs per grain for the environment",
     )
@@ -131,11 +132,14 @@ def parse_args() -> Config:
     )
 
 
-def build_resource_payload(cfg: Config, yaml_url: str, env_data, resource_name: str, timestamp: str) -> Dict[str, Any]:
+def build_resource_payload(cfg: Config, yaml_url: str, env_data: EnvironmentResponse,
+                           saved_artifacts: Dict[str, Any],
+                           resource_name: str,
+                           timestamp: str) -> Dict[str, Any]:
     # Prepare the payload for the custom resource
-    env_details = env_data.get("details", {})
-    blueprint_display_name = env_details.get("definition", {}).get("metadata", {}).get("blueprint_display_name", "unknown")
-    blueprint = env_details.get("definition", {}).get("metadata", {}).get("blueprint_name", "unknown")
+    env_details = env_data.details
+    blueprint_display_name = env_details.definition.metadata.blueprint_display_name
+    blueprint = env_details.definition.metadata.blueprint_name
     payload = {
         "name": resource_name,
         "description": f"Environment {cfg.environment_id} from space {cfg.space}",
@@ -154,13 +158,17 @@ def build_resource_payload(cfg: Config, yaml_url: str, env_data, resource_name: 
                 "name": "blueprint",
                 "value": blueprint,
             },
-            # {
-            #     "name": "created_at",
-            #     "value": timestamp,
-            # },
+            {
+                "name": "created_at",
+                "value": f"{timestamp}",
+            },
+            {
+                "name": "artifacts",
+                "value": json.dumps(saved_artifacts),
+            },
             {
                 "name": "owner_email",
-                "value": env_data.get("initiator", {}).get("email", "unknown"),
+                "value": env_data.initiator.email,
             },
         ],
         "tags": [
@@ -175,20 +183,22 @@ def build_resource_payload(cfg: Config, yaml_url: str, env_data, resource_name: 
     return payload
 
 
-def get_resource_name(env_data, timestamp) -> str:
+def get_resource_name(env_data: EnvironmentResponse, timestamp) -> str:
     # Use environment ID as resource name, or generate a unique one if not provided
-    env_name = env_data.get('details', {}).get('definition', {}).get('metadata', {}).get('name', 'unknown')
+    env_name = env_data.details.definition.metadata.name
     return f"env-{env_name.replace(' ', '-')}-{timestamp}"
 
 
-def modify_yaml(env_yaml: EnvironmentEacSpec, saved_artifacts: Dict[str, Any]) -> str:
+def modify_yaml(env_yaml: EnvironmentEacSpec, saved_artifacts: Dict[str, Any]) -> Any:
     # Modify the environment YAML as needed
     modified_yaml = env_yaml
     for key, value in saved_artifacts.items():
         grain_name = key
         grain = modified_yaml.get_grain(grain_name)
         if grain and value:
-            grain.update_grain_input(value)
+            # Guard attribute access to avoid issues if API changes
+            grain.update_grain_input(new_inputs=value)
+
     return modified_yaml
 
 
@@ -212,45 +222,78 @@ def save_yaml_to_github(cfg: Config, env_yaml: Any, timestamp: str) -> str:
 
     Returns the raw GitHub URL to the file so that it can be accessed directly.
     """
-    g = Github(auth=Auth.Token(cfg.git_token))
     print(f"Saving environment YAML to GitHub repository {cfg.github_repo}")
     git_org, git_repo = _parse_repo(cfg.github_repo)
-    repo = g.get_repo(f"{git_org}/{git_repo}")
-    rel_path = f"saved_environments/{cfg.environment_id}-{timestamp}.yaml"
+    rel_path = (f"saved_environments/{cfg.environment_id}-"
+                f"{timestamp.replace(':', '-')}.yaml")
 
     # Convert env_yaml to YAML text
     if isinstance(env_yaml, str):
         yaml_text = env_yaml
     else:  # assume dict-like
-        yaml_text = yaml.safe_dump(env_yaml, sort_keys=False)
+        yaml_text = yaml.safe_dump(env_yaml)
+
+    # Resolve default branch
+    repo_url = f"https://api.github.com/repos/{git_org}/{git_repo}"
+    headers = {
+        "Authorization": f"token {cfg.git_token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    try:
+        repo_resp = requests.get(repo_url, headers=headers, timeout=30, verify=cfg.verify_tls)
+        repo_resp.raise_for_status()
+        default_branch = repo_resp.json().get("default_branch", "main")
+    except Exception as e:
+        print(f"Warning: failed to resolve default branch, falling back to 'main': {e}")
+        default_branch = "main"
+
+    content_url = f"https://api.github.com/repos/{git_org}/{git_repo}/contents/{rel_path}"
 
     message = f"Save environment {cfg.environment_id} snapshot at {timestamp}"
-    try:
-        # If file exists, update; else create
-        try:
-            existing_obj = repo.get_contents(rel_path)
-            # get_contents may return a single ContentFile or a list
-            if isinstance(existing_obj, list):
-                # find exact match
-                match = next((c for c in existing_obj if getattr(c, 'path', None) == rel_path), None)
-            else:
-                match = existing_obj
-            if match and getattr(match, 'sha', None):
-                repo.update_file(rel_path, message, yaml_text, match.sha)
-                action = "updated"
-            else:
-                raise FileNotFoundError
-        except Exception:
-            repo.create_file(rel_path, message, yaml_text)
-            action = "created"
-        print(f"Environment YAML {action}: {repo.full_name}/{rel_path}")
-    except Exception as e:
-        print(f"Failed to save environment YAML to GitHub: {e}", file=sys.stderr)
-        raise
+    b64_content = base64.b64encode(yaml_text.encode("utf-8")).decode("utf-8")
 
-    # Construct raw URL (works for public or private with auth)
-    raw_url = f"https://raw.githubusercontent.com/{git_org}/{git_repo}/main/{rel_path}"
+    # First, check if the file exists to get its SHA (required for update)
+    sha: Optional[str] = None
+    get_params = {"ref": default_branch}
+    get_resp = requests.get(content_url, headers=headers, params=get_params, timeout=30, verify=cfg.verify_tls)
+    if get_resp.status_code == 200:
+        sha = get_resp.json().get("sha")
+
+    payload: Dict[str, Any] = {
+        "message": message,
+        "content": b64_content,
+        "branch": default_branch,
+    }
+    if sha:
+        payload["sha"] = sha
+
+    put_resp = requests.put(content_url, headers=headers, json=payload, timeout=60, verify=cfg.verify_tls)
+    if put_resp.status_code not in (200, 201):
+        print(f"GitHub API error: {put_resp.status_code} {put_resp.text}", file=sys.stderr)
+        put_resp.raise_for_status()
+
+    action = "updated" if sha else "created"
+    print(f"Environment YAML {action}: {git_org}/{git_repo}/{rel_path} on branch {default_branch}")
+
+    # Construct raw URL (works for public repos; private needs auth when fetched)
+    raw_url = f"https://raw.githubusercontent.com/{git_org}/{git_repo}/{default_branch}/{rel_path}"
     return raw_url
+
+
+def convert_saved_artifacts(saved_artifacts: Dict[str, Any], request: Dict[str, Any]) -> Dict[str, str]:
+    """Convert saved artifacts from a JSON string to a dictionary."""
+    response = {}
+    for key in saved_artifacts:
+        for value in request.get("resources", []):
+            if key.startswith(value.get("resource_name", "")):
+                grain = value.get("grain_path")
+                if grain:
+                    grain_name = grain.split(".")[0]
+                    new_inputs = {"json_input": {"volumeSnapshotNamespace":
+                                                               saved_artifacts[key], "volumeSnapshot": key}}
+                    response[grain_name] = new_inputs
+    return response
 
 
 def main():
@@ -262,20 +305,22 @@ def main():
         env_yaml = torque_client.get_spaces_by_space_name_environments_by_environment_id_eac(
             space_name=cfg.space, environment_id=cfg.environment_id
         )
-        env_yaml = modify_yaml(env_yaml, cfg.saved_artifacts)
+        saved_artifacts = convert_saved_artifacts(cfg.saved_artifacts, cfg.request)
+        env_yaml = modify_yaml(env_yaml, saved_artifacts)
         env_data = torque_client.get_spaces_by_space_name_environments_by_environment_id(cfg.space, cfg.environment_id)
         resource_name = get_resource_name(env_data, timestamp)
-        yaml_url = save_yaml_to_github(cfg, env_yaml, timestamp)
-        payload = build_resource_payload(cfg, yaml_url, env_data, resource_name, timestamp)
-        # resp = torque_client.post_custom_resource(payload)
-        # try:
-        #     data = resp.json()
-        # except Exception:
-        #     data = {"raw": resp.text}
+        yaml_url = save_yaml_to_github(cfg, env_yaml.to_yaml(), timestamp)
+        payload = build_resource_payload(
+            cfg, yaml_url, env_data, saved_artifacts, resource_name, timestamp)
+        resp = torque_client.post_custom_resource(payload)
+        try:
+            data = resp.json()
+        except Exception:
+            data = {"raw": resp.text}
         
         print("Success: Environment Saved")
-        # print(json.dumps(data, indent=2))
-        
+        print(json.dumps(data, indent=2))
+
 
 if __name__ == "__main__":
     main()
